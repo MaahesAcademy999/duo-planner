@@ -6,7 +6,8 @@
 //
 // Secrets (Supabase dashboard → Edge Functions → Secrets):
 //   NOTION_TOKEN   internal integration token; the Duo Hub page must be shared with that integration
-//   SYNC_SECRET    shared secret the cron job sends in the x-sync-secret header
+// The cron job sends a shared secret in the x-sync-secret header; it lives in Vault and is read
+// through duo_notion_sync_secret(), which only the service role may call.
 // Optional:
 //   DUO_ROOM_NAME  workspace to sync (default "Master")
 //   NOTION_DB_OPPORTUNITIES / NOTION_DB_TASKS / NOTION_DB_CLIPS  database ids (defaults below)
@@ -87,7 +88,7 @@ async function indexDb(kind: Kind) {
 }
 
 Deno.serve(async (req) => {
-  const secret = Deno.env.get("SYNC_SECRET");
+  const { data: secret } = await sb.rpc("duo_notion_sync_secret");
   if (!secret || req.headers.get("x-sync-secret") !== secret) return new Response("forbidden", { status: 403 });
   if (!Deno.env.get("NOTION_TOKEN")) return Response.json({ error: "NOTION_TOKEN is not set" }, { status: 500 });
   const started = Date.now();

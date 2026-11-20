@@ -24,11 +24,21 @@ alter table public.duo_notion_sync_items enable row level security;
 alter table public.duo_notion_sync_state enable row level security;
 revoke all on public.duo_notion_sync_items, public.duo_notion_sync_state from anon, authenticated;
 
+-- Shared secret between the cron job and the function, generated here and kept in Vault.
+select vault.create_secret(encode(extensions.gen_random_bytes(32), 'hex'), 'duo_notion_sync_secret', 'Duo → Notion sync cron secret')
+where not exists (select 1 from vault.secrets where name = 'duo_notion_sync_secret');
+
+create or replace function public.duo_notion_sync_secret() returns text
+language sql security definer set search_path = '' as $$
+  select decrypted_secret from vault.decrypted_secrets where name = 'duo_notion_sync_secret'
+$$;
+revoke all on function public.duo_notion_sync_secret() from public, anon, authenticated;
+grant execute on function public.duo_notion_sync_secret() to service_role;
+
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
 
--- The shared secret lives in Vault as 'duo_notion_sync_secret' (set at deploy time, same value as the
--- function's SYNC_SECRET). The job does nothing heavy when Duo hasn't changed: the function exits early.
+-- The job does nothing heavy when Duo hasn't changed: the function exits early.
 select cron.unschedule('duo-notion-sync') where exists (select 1 from cron.job where jobname = 'duo-notion-sync');
 select cron.schedule(
   'duo-notion-sync',

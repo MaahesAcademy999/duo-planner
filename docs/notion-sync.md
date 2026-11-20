@@ -33,8 +33,8 @@ Duo ID, are left alone.
    Copy its token.
 2. Open the **Duo Hub** page → ••• → Connections → add that integration.
 3. Supabase dashboard → Edge Functions → Secrets: add `NOTION_TOKEN` with that token.
-4. Deploy the function with JWT verification off (it checks `x-sync-secret` instead), set a random
-   `SYNC_SECRET` secret, store the same value in Vault as `duo_notion_sync_secret`, then apply the migration.
+4. Apply the migration (it generates the cron secret in Vault) and deploy the function with JWT
+   verification off (it checks the `x-sync-secret` header against Vault instead).
 
 Check on it any time:
 

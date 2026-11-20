@@ -28,7 +28,7 @@ const Sync=(()=>{
   const myRooms=()=>rpc('duo_my_rooms');
   /* open a workspace: the server copy replaces this device's copy (seed IDs differ per device) */
   async function open(id){const res=await rpc('duo_get_auth',{p_room:id});if(res.error)throw new Error(res.error);
-    if(LOCAL.roomId!==id)past.length=0;setLocal({roomId:id,me:res.slot||LOCAL.me});rev=res.rev;S=migrate(res.data);persist();render();start()}
+    if(LOCAL.roomId!==id)past.length=0;setLocal({roomId:id,me:res.slot||LOCAL.me});rev=res.rev;S=migrate(res.data);persist();render();start();if(window.Push)Push.resync()}
   async function createAuth(name,slot){S.workspace={...S.workspace,name};const res=await rpc('duo_create_auth',{p_name:name,p_data:S,p_slot:slot});if(res.error)throw new Error(res.error);
     setLocal({roomId:res.id,me:slot});rev=res.rev;persist();render();start();return res.code}
   async function joinAuth(code){const res=await rpc('duo_join_auth',{p_code:String(code||'').trim()});if(res.error)throw new Error(res.error);await open(res.id);return res}

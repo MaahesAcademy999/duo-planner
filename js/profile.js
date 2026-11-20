@@ -114,6 +114,7 @@ function vSettings(el){const p=prof(me());const d=structuredClone(p);
      <label class="f">Change password</label><form id="pwF" class="row"><input id="pw1" type="password" minlength="8" placeholder="New password (8+ characters)" autocomplete="new-password" style="flex:1" aria-label="New password"><button class="btn s">Update</button></form>
      <div class="row" style="margin-top:10px"><button class="btn s d" id="signOut">Sign out on this device</button></div>
      <p class="tiny mute">Access is checked by the server on every request. Invite codes let one person claim the open partner slot; making a new code cancels the old one.</p></div>
+    <div class="card"><h3>📱 Phone reminders</h3><div id="pushCard"><div class="tiny mute">Checking this device…</div></div></div>
     <div class="card"><h3>Workspace</h3><label class="f" for="wsN">Workspace name</label><input id="wsN" value="${esc(S.workspace.name)}">
      <label class="f" for="tzI">Timezone for times</label><input id="tzI" value="${esc(S.tz)}">
      <p class="tiny mute">Calendar: app-only. External calendar sync is not connected. Multiple workspaces: data is already isolated per workspace code — switching between several codes on one device is planned.</p>
@@ -123,6 +124,7 @@ function vSettings(el){const p=prof(me());const d=structuredClone(p);
   const thRoot=$('#thF');const redraw=()=>{applyTheme(d);thRoot.innerHTML=themeFields(d);wireThemeFields(d,thRoot,redraw)};wireThemeFields(d,thRoot,redraw);
   $('#thApply').onclick=()=>commit(s=>{Object.assign(s.partners.find(x=>x.id===me()),{theme:d.theme,accent:d.accent,motion:d.motion,simple:d.simple,celebrate:d.celebrate,easy:d.easy!==false})},'Theme applied');
   $('#thCancel').onclick=()=>render();
+  if(typeof wirePushCard==='function')wirePushCard();
   $('#thReset').onclick=()=>commit(s=>{Object.assign(s.partners.find(x=>x.id===me()),{theme:'emerald',accent:'',motion:'full',simple:false})},'Default theme restored');
   $('#wsSave').onclick=()=>commit(s=>{s.workspace={...s.workspace,name:val('wsN')||s.workspace.name};s.tz=val('tzI')||s.tz},'Workspace saved');
   $('#exp').onclick=exportFile;$('#imp').onclick=()=>$('#file').click();
@@ -130,6 +132,6 @@ function vSettings(el){const p=prof(me());const d=structuredClone(p);
   $('#invNew').onclick=async()=>{try{const c=await Sync.invite();$('#invOut').innerHTML=`<label class="f">Invite code — share only with your partner</label><div class="row"><input id="rc" readonly value="${esc(c)}" style="flex:1;font-family:monospace"><button class="btn s" id="rcCopy">Copy</button></div>`;$('#rcCopy').onclick=()=>navigator.clipboard.writeText(c).then(()=>toast('Code copied'),()=>{$('#rc').select();toast('Press Ctrl+C to copy')})}catch(e){toast(e.message)}};
   $('#wsSwitch').onclick=async()=>{try{workspaceScreen(await Sync.myRooms())}catch(e){toast(e.message)}};
   $('#pwF').onsubmit=async e=>{e.preventDefault();const pw=val('pw1');if(pw.length<8)return toast('Use at least 8 characters');try{await Auth.setPassword(pw);toast('Password updated');$('#pw1').value=''}catch(err){toast(err.message)}};
-  $('#signOut').onclick=()=>modal('Sign out?','<p>This device stops syncing until you sign in again. Your workspace stays safe on the server.</p>',[{t:'Sign out',c:'d',f:async()=>{Sync.close();await Auth.signOut();authScreen('in')}}]);
+  $('#signOut').onclick=()=>modal('Sign out?','<p>This device stops syncing until you sign in again. Your workspace stays safe on the server.</p>',[{t:'Sign out',c:'d',f:async()=>{if(window.Push)await Push.disable().catch(()=>{});Sync.close();await Auth.signOut();authScreen('in')}}]);
 }
 function exportFile(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`duo-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Backup saved')}

@@ -89,7 +89,7 @@ function taskHTML(t){const n=t.nodeId&&node(t.nodeId);const d=t.dayId&&S.days.fi
    <div class="t-body" data-open-task="${t.id}" tabindex="0" role="button" aria-label="Open task ${esc(t.title)}">
     <div class="t-title">${esc(t.title)}</div>
     <div class="row" style="gap:4px;margin-top:3px">${t.owner!=='both'?avatar(t.owner,18):`${avatar('A',18)}${avatar('B',18)}`} ${ownerPill(t.owner)}
-     ${d?`<span class="tag">📅 ${esc(d.name)}${t.time?' '+esc(t.time):''}</span>`:''}${n?`<span class="tag">${nodeIcon(n)} ${esc(n.label)}</span>`:''}${t.mode?`<span class="tag">📈 ${esc(t.mode)}</span>`:''}${t.notes?'<span class="tag">📝</span>':''}</div></div></div>`}
+     ${d?`<span class="tag">📅 ${esc(d.name)}${t.time?' '+esc(t.time):''}</span>`:''}${t.due?`<span class="tag ${!t.done&&typeof daysTo==='function'&&daysTo(t.due)<0?'warn':''}">⏰ ${esc(t.due)}</span>`:''}${n?`<span class="tag">${nodeIcon(n)} ${esc(n.label)}</span>`:''}${t.mode?`<span class="tag">📈 ${esc(t.mode)}</span>`:''}${t.notes?'<span class="tag">📝</span>':''}</div></div></div>`}
 function wireTasks(root){
   $$('[data-done]',root).forEach(c=>c.onchange=()=>{const id=c.dataset.done;const t=S.tasks.find(x=>x.id===id);
     commit(s=>{s.tasks.find(x=>x.id===id).done=c.checked},c.checked?'Nice — done ✓':'Reopened',`${c.checked?'completed':'reopened'} task “${t.title}”`);
@@ -108,15 +108,16 @@ function editTask(id,preset={}){const t=id?S.tasks.find(x=>x.id===id):{title:'',
    <label class="f" for="tT">Title</label><input id="tT" value="${esc(t.title)}" placeholder="What needs doing?">
    <div class="row"><div style="flex:1;min-width:160px"><label class="f" for="tO">Belongs to</label>${ownerSel('tO',t.owner)}</div>
     <div style="flex:1;min-width:160px"><label class="f" for="tD">Day</label><select id="tD">${dayOptions(t.dayId)}</select></div></div>
-   <div class="row"><div style="flex:1;min-width:160px"><label class="f" for="tTm">Time (optional · ${esc(S.tz)})</label><input id="tTm" value="${esc(t.time)}" placeholder="leave blank if not set"></div>
+   <div class="row"><div style="flex:1;min-width:160px"><label class="f" for="tTm">Time (optional · ${esc(S.tz)})</label><input id="tTm" value="${esc(t.time)}" placeholder="e.g. 3pm (blank if none)"></div>
     <div style="flex:1;min-width:160px"><label class="f" for="tM">Trading mode</label><select id="tM">${['','Simulated','Demo','Live'].map(m=>`<option ${m===t.mode?'selected':''} value="${m}">${m||'— not trading —'}</option>`).join('')}</select></div></div>
+   <div class="row"><div style="flex:1;min-width:160px"><label class="f" for="tDu">Due date (optional)</label><input id="tDu" type="date" value="${esc(t.due||'')}"></div><div style="flex:1;min-width:160px"></div></div>
    <label class="f" for="tN">Linked Mind Web idea / project</label><select id="tN"><option value="">— none —</option>${nodeOptions(t.nodeId)}</select>
    <label class="f" for="tNo">Notes</label><textarea id="tNo">${esc(t.notes)}</textarea>
    ${id&&t.u?`<p class="tiny mute">Last updated ${new Date(t.u).toLocaleString()}</p>`:''}`,
    [...(id?[{t:'Delete',c:'d',f:()=>commit(s=>s.tasks=s.tasks.filter(x=>x.id!==id),'Task deleted — Undo available',`deleted task “${t.title}”`)}]:[]),
     ...(id&&t.nodeId?[{t:'Open idea',f:()=>{go('web');selectNode(t.nodeId)}}]:[]),
     {t:'Save',c:'p',f:()=>{const title=val('tT');if(!title){toast('Give it a title');return false}
-     const data={title,owner:val('tO'),dayId:val('tD')||null,time:val('tTm'),mode:val('tM'),nodeId:val('tN'),notes:val('tNo')};
+     const data={title,owner:val('tO'),dayId:val('tD')||null,time:val('tTm'),due:val('tDu'),mode:val('tM'),nodeId:val('tN'),notes:val('tNo')};
      commit(s=>{if(id)Object.assign(s.tasks.find(x=>x.id===id),data);else s.tasks.push({id:uid(),done:false,by:me(),...data})},'Saved',id?`updated task “${title}”`:`added task “${title}”`)}}])}
 
 function editNote(id,preset={}){const n=id?S.notes.find(x=>x.id===id):{title:'',body:'',owner:'both',nodeId:'',dayId:'',...preset};if(!n)return;

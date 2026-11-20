@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.1.0] - 2026-11-20
+### Features
+- Phone reminders (Web Push): turn on per device in Themes & Settings → 📱 Phone reminders. Morning summary (today's tasks, due today, due tomorrow, overdue, clip and campaign deadlines) at a chosen hour, plus a reminder 5–60 minutes before a task with a time. Send-a-test button.
+- Tasks get an optional due date.
+- Service worker shows notifications and opens the right page when one is tapped.
+### Design Rationale
+- Reminders are sent by the `duo-reminders` Supabase Edge Function every 5 minutes (pg_cron). The VAPID private key and cron secret are Edge Function secrets; the app only fetches the public key.
+- Push encryption (RFC 8291) and VAPID (RFC 8292) are written on WebCrypto, so the function has no third-party dependencies.
+- Subscriptions live in `duo_push_subs` (RLS on, no policies); the app writes only through `duo_push_save` / `duo_push_delete`, which check workspace membership. A send log makes each reminder go out once.
+### Notes & Caveats
+- iPhone/iPad: needs iOS 16.4+ and Duo opened from the Home Screen. Android: Chrome, installed or in the browser.
+- Times use the workspace timezone. Free-text task times like "3pm", "15:00" or "9am–11am" are understood; other text is ignored for timed reminders.
+- Signing out turns reminders off on that device.
+
 ## [3.0.0] - 2026-11-19
 ### Features
 - Accounts: email + password sign-in per partner (Supabase Auth), sign-up, password reset, change password, sign out. Works on any device/browser.

@@ -1,0 +1,42 @@
+/* ===== Skill tree, milestones, journey ===== */
+.sk-wrap{overflow:auto;max-height:68vh;border-radius:12px;padding:6px;background:radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--acc) 10%,transparent),transparent 65%)}
+.sk-svg{display:block;margin:0 auto}
+.sk-edge{fill:none;stroke:color-mix(in srgb,var(--mute) 35%,transparent);stroke-width:1.6;stroke-dasharray:4 5}
+.sk-edge.live{stroke:color-mix(in srgb,var(--acc2) 70%,transparent);stroke-dasharray:6 5}
+.sk-edge.done{stroke:var(--acc);stroke-dasharray:none;filter:drop-shadow(0 0 5px var(--acc))}
+[data-motion="full"] .sk-edge.live{animation:flow 1.8s linear infinite}
+.sk-node{cursor:pointer}.sk-node:focus{outline:none}
+.sk-node rect{fill:var(--surface2);stroke:var(--line);stroke-width:1.4}
+.sk-node .sk-t{font-size:13px;font-weight:600;fill:var(--ink)}.sk-node .sk-s{font-size:10.5px;fill:var(--mute)}
+.sk-node.st-done rect{fill:color-mix(in srgb,var(--acc) 18%,var(--bg2));stroke:var(--acc);filter:drop-shadow(0 0 7px color-mix(in srgb,var(--acc) 60%,transparent))}
+.sk-node.st-progress rect{stroke:var(--acc2);stroke-width:2;stroke-dasharray:6 3}
+.sk-node.st-available rect{stroke:color-mix(in srgb,var(--acc2) 70%,var(--line));stroke-width:1.8}
+[data-motion="full"] .sk-node.st-available rect{animation:skPulse 2.6s ease-in-out infinite}
+@keyframes skPulse{50%{filter:drop-shadow(0 0 9px color-mix(in srgb,var(--acc2) 70%,transparent))}}
+.sk-node.st-locked{opacity:.5}.sk-node.st-locked .sk-t{fill:var(--mute)}
+.sk-node.sel rect,.sk-node:focus rect{stroke:var(--warn);stroke-width:2.5}
+.sk-node:hover rect{stroke:var(--acc)}
+.lvl{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:800;color:var(--on-acc);background:conic-gradient(var(--acc),var(--acc2),var(--acc));box-shadow:0 0 18px -2px var(--glow,var(--acc));font-family:var(--head)}
+.jbar{height:7px;border-radius:9px;background:color-mix(in srgb,var(--line) 75%,transparent);overflow:hidden;margin-top:6px}
+.jbar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--acc),var(--acc2));box-shadow:0 0 10px var(--acc);transition:width .8s var(--ease,ease)}
+.tiers{display:flex;flex-wrap:wrap;gap:5px}
+.tier{font-size:12px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--mute);font-variant-numeric:tabular-nums}
+.tier.hit{color:var(--on-acc);background:linear-gradient(110deg,var(--acc),var(--acc2));border-color:transparent;box-shadow:0 0 12px -3px var(--acc);font-weight:700}
+.pace{display:flex;gap:6px;align-items:flex-end;height:150px;padding-top:6px}
+.pcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.pcol span{font-size:10px;color:var(--mute);white-space:nowrap}
+.pbars{flex:1;width:100%;display:flex;gap:2px;align-items:flex-end;justify-content:center}
+.pbars i{display:block;width:42%;min-height:2px;border-radius:4px 4px 0 0}
+.px{background:var(--acc2)}.pm{background:var(--acc)}
+.lg{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.jline{list-style:none;margin:0;padding:0 0 0 6px;position:relative;max-height:60vh;overflow:auto}
+.jline::before{content:'';position:absolute;left:19px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--acc),var(--acc2));opacity:.6}
+.jline li{display:flex;gap:12px;align-items:flex-start;padding:7px 0;position:relative}
+.jdot{width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:13px;background:var(--bg2);border:1.5px solid var(--acc);z-index:1}
+.j-money .jdot,.j-runrate .jdot{border-color:var(--warn);box-shadow:0 0 10px -2px var(--warn)}
+.j-level .jdot{background:var(--acc);color:var(--on-acc)}
+.j-streak .jdot{border-color:var(--danger)}
+
+label.row{flex-wrap:nowrap;align-items:flex-start}label.row input{margin-top:3px}
+.j-major .jdot{border-color:var(--warn);background:var(--warn);color:#1a1000;box-shadow:0 0 14px var(--warn)}
+.j-monthly .jdot{border-color:var(--acc2)}

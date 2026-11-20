@@ -1,0 +1,79 @@
+/* ===== Holodeck FX — ported from UGC Studio 0.38, driven by each theme's --acc / --acc2 / --edge =====
+   Motion levels: data-motion = full | calm | off  (calm keeps glass + glow but nothing moves in the background) */
+:root{--glow:color-mix(in srgb,var(--acc) 50%,transparent);--fxa:color-mix(in srgb,var(--acc) 24%,transparent);--fxb:color-mix(in srgb,var(--acc2) 20%,transparent);--ease:cubic-bezier(.2,.8,.2,1)}
+html{scrollbar-color:color-mix(in srgb,var(--acc) 55%,transparent) transparent;scrollbar-width:thin}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:linear-gradient(var(--acc),var(--acc2));border-radius:9px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-track{background:transparent}
+::selection{background:color-mix(in srgb,var(--acc) 45%,transparent);color:var(--ink)}
+
+/* living background layers */
+#fx-aurora,#fx-grid,#fx-bg,#fx-cursor{position:fixed;inset:0;pointer-events:none;z-index:0}
+.shell,.bottomnav{position:relative;z-index:1}
+#fx-aurora{background:radial-gradient(38vmax 38vmax at 14% 12%,var(--fxa),transparent 62%),radial-gradient(34vmax 34vmax at 86% 22%,var(--fxb),transparent 60%),radial-gradient(42vmax 42vmax at 55% 108%,var(--fxa),transparent 62%);filter:blur(10px) saturate(1.2);animation:fxAurora 26s ease-in-out infinite alternate;opacity:.9}
+@keyframes fxAurora{0%{transform:translate3d(-2%,-1%,0) scale(1)}50%{transform:translate3d(2%,2%,0) scale(1.08)}100%{transform:translate3d(-1%,3%,0) scale(1.03)}}
+#fx-grid{inset:auto 0 0 0;height:46vh;background-image:linear-gradient(color-mix(in srgb,var(--acc) 34%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--acc2) 30%,transparent) 1px,transparent 1px);background-size:56px 56px;transform:perspective(520px) rotateX(62deg) scale(1.9);transform-origin:50% 100%;-webkit-mask-image:linear-gradient(transparent,#000 55%);mask-image:linear-gradient(transparent,#000 55%);opacity:.26;animation:fxGrid 5s linear infinite}
+@keyframes fxGrid{to{background-position:0 56px,0 0}}
+#fx-bg{width:100%;height:100%;opacity:.75}
+#fx-cursor{inset:auto;left:0;top:0;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--acc) 13%,transparent),transparent 62%);will-change:transform;transition:opacity .4s;opacity:0}
+
+/* header: glass + scanning light */
+.top{box-shadow:0 10px 40px -22px var(--glow)}
+.top::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--acc),var(--acc2),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:fxScan 5.5s linear infinite;opacity:.9;pointer-events:none}
+@keyframes fxScan{0%{background-position:-40% 0}100%{background-position:140% 0}}
+.brand{background:linear-gradient(90deg,var(--ink),var(--acc),var(--acc2),var(--ink));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:fxShimmer 9s linear infinite}
+.brand .logo{background:conic-gradient(from 0deg,var(--acc),var(--acc2),transparent 70%,var(--acc));-webkit-mask:radial-gradient(circle,transparent 8px,#000 9px);mask:radial-gradient(circle,transparent 8px,#000 9px);border-radius:50%;animation:fxSpin 3.2s linear infinite;filter:drop-shadow(0 0 6px var(--glow));box-shadow:none}
+@keyframes fxSpin{to{transform:rotate(360deg)}}@keyframes fxShimmer{to{background-position:300% 0}}
+
+/* nav: glowing active item with sweep */
+.navi{position:relative;overflow:hidden;transition:transform .22s var(--ease),background .2s,box-shadow .2s}
+.navi:hover{transform:translateX(4px)}.navi:hover .ic{transform:scale(1.25);text-shadow:0 0 10px var(--acc)}.navi .ic{transition:transform .3s var(--ease)}
+.navi[aria-current="page"]{background:linear-gradient(90deg,color-mix(in srgb,var(--acc) 24%,transparent),transparent);box-shadow:inset 3px 0 0 var(--acc),0 0 22px -10px var(--glow)}
+.navi[aria-current="page"] .ic{text-shadow:0 0 10px var(--acc)}
+.navi[aria-current="page"]::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,color-mix(in srgb,var(--acc) 22%,transparent) 50%,transparent 70%);background-size:220% 100%;animation:fxSweep 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes fxSweep{0%{background-position:160% 0}60%,100%{background-position:-60% 0}}
+
+/* headings shimmer */
+h1.title{background:linear-gradient(90deg,var(--ink) 0%,var(--ink) 30%,var(--acc) 60%,var(--acc2) 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fxTitle 8s ease-in-out infinite alternate;width:fit-content;max-width:100%}
+@keyframes fxTitle{to{background-position:100% 0}}
+
+/* cards: holographic edge, cursor spotlight, HUD corners */
+.card{border:1px solid transparent;background:var(--cardfx) padding-box,linear-gradient(var(--surface),var(--surface)) padding-box,var(--edge) border-box;background-size:100% 100%,100% 100%,300% 300%;transition:box-shadow .3s,transform .3s var(--ease)}
+.card::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(460px circle at var(--mx,50%) var(--my,0%),color-mix(in srgb,var(--acc) 15%,transparent),transparent 62%);opacity:0;transition:opacity .35s}
+.card:hover::before{opacity:1}.card:hover{box-shadow:0 22px 50px -26px var(--glow),0 0 0 1px color-mix(in srgb,var(--acc) 28%,transparent)}
+.card::after{content:'';position:absolute;inset:5px;border-radius:calc(var(--r) - 4px);pointer-events:none;opacity:0;transition:opacity .3s,inset .3s var(--ease);
+ background:linear-gradient(var(--acc),var(--acc)) 0 0/16px 2px,linear-gradient(var(--acc),var(--acc)) 0 0/2px 16px,linear-gradient(var(--acc2),var(--acc2)) 100% 0/16px 2px,linear-gradient(var(--acc2),var(--acc2)) 100% 0/2px 16px,linear-gradient(var(--acc2),var(--acc2)) 0 100%/16px 2px,linear-gradient(var(--acc2),var(--acc2)) 0 100%/2px 16px,linear-gradient(var(--acc),var(--acc)) 100% 100%/16px 2px,linear-gradient(var(--acc),var(--acc)) 100% 100%/2px 16px;background-repeat:no-repeat}
+.card:hover::after,.card.glow::after{opacity:.85;inset:3px}
+.card.glow{animation:fxHl 4s ease-in-out infinite}@keyframes fxHl{50%{box-shadow:0 0 0 1px var(--acc),0 0 40px -6px var(--glow)}}
+.task,.themecard,.picker button,.sk-node{transition:transform .25s var(--ease),box-shadow .25s,border-color .2s;transform-style:preserve-3d}
+.task:hover,.themecard:hover{box-shadow:0 12px 30px -16px var(--glow)}
+
+/* buttons: sheen sweep + animated gradient on primary */
+.btn{position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;top:0;bottom:0;left:-60%;width:45%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);transition:left .55s var(--ease);pointer-events:none}
+.btn:hover:not(:disabled)::after{left:120%}.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 22px -10px var(--glow)}
+.btn.p{background:linear-gradient(110deg,var(--acc),color-mix(in srgb,var(--acc) 55%,var(--acc2)) 55%,var(--acc));background-size:220% 100%;box-shadow:0 0 20px -5px var(--glow);animation:fxBtn 7s linear infinite}@keyframes fxBtn{to{background-position:220% 0}}
+input:hover,textarea:hover,select:hover{border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent),0 0 24px -8px var(--glow)}
+
+/* page entrance (only when changing page) */
+@keyframes fxUp{from{opacity:0;transform:translate3d(0,18px,0) scale(.985);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.page.fx-enter>*{animation:fxUp .55s var(--ease) backwards}.page.fx-enter>*:nth-child(2){animation-delay:.05s}.page.fx-enter>*:nth-child(3){animation-delay:.1s}.page.fx-enter>*:nth-child(n+4){animation-delay:.15s}
+.page.fx-enter .grid>*{animation:fxUp .5s var(--ease) backwards}.page.fx-enter .grid>*:nth-child(2n){animation-delay:.12s}.page.fx-enter .grid>*:nth-child(3n){animation-delay:.2s}
+dialog[open]{animation:fxPop .3s var(--ease)}@keyframes fxPop{from{opacity:0;transform:translate3d(0,-10px,0) scale(.97)}to{opacity:1;transform:none}}
+
+/* boot sequence */
+#boot{position:fixed;inset:0;z-index:9500;display:grid;place-items:center;background:var(--bg);pointer-events:none;transition:opacity .6s ease,visibility .6s}#boot.out{opacity:0;visibility:hidden}
+#boot .ring{width:92px;height:92px;border-radius:50%;background:conic-gradient(var(--acc),var(--acc2),transparent 65%,var(--acc));-webkit-mask:radial-gradient(circle,transparent 36px,#000 37px);mask:radial-gradient(circle,transparent 36px,#000 37px);animation:fxSpin 1s linear infinite;filter:drop-shadow(0 0 18px var(--glow));margin:0 auto 18px}
+#boot b{display:block;text-align:center;letter-spacing:.34em;font-size:13px;color:var(--acc);font-family:var(--head)}#boot i{display:block;text-align:center;font-style:normal;font-size:11px;letter-spacing:.2em;color:var(--mute);margin-top:8px;animation:fxBlink 1s steps(2) infinite}
+@keyframes fxBlink{50%{opacity:.35}}
+
+/* motion levels */
+[data-motion="calm"] #fx-bg,[data-motion="calm"] #fx-cursor,[data-motion="calm"] #fx-grid{display:none}
+[data-motion="calm"] #fx-aurora,[data-motion="calm"] .brand,[data-motion="calm"] .brand .logo,[data-motion="calm"] h1.title,[data-motion="calm"] .btn.p,[data-motion="calm"] .card.glow,[data-motion="calm"] .navi::after,[data-motion="calm"] .top::after,[data-motion="calm"] .card{animation:none}
+[data-motion="off"] #fx-bg,[data-motion="off"] #fx-cursor,[data-motion="off"] #fx-grid,[data-motion="off"] #fx-aurora,[data-motion="off"] #boot{display:none}
+[data-motion="off"] *,[data-motion="off"] *::before,[data-motion="off"] *::after{animation:none!important;transition:none!important}
+[data-simple] #fx-bg,[data-simple] #fx-grid,[data-simple] #fx-cursor,[data-simple] #fx-aurora,[data-simple] .card::after{display:none}
+@media (prefers-reduced-motion:reduce){:root:not([data-motion="full"]) #fx-bg,:root:not([data-motion="full"]) #fx-grid{display:none}}
+/* light themes: softer effects */
+[data-theme="coquette"] #fx-grid,[data-theme="light"] #fx-grid{opacity:.14}[data-theme="coquette"] #fx-aurora,[data-theme="light"] #fx-aurora{opacity:.6}
+[data-theme="coquette"] .btn::after,[data-theme="light"] .btn::after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent)}
+@media (max-width:860px){#fx-grid{display:none}.navi:hover{transform:none}}

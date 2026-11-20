@@ -1,0 +1,51 @@
+/* ===== Themes ported from UGC Studio (palettes + textures only; no characters, logos or show art) =====
+   Mapping: UGC --panel -> --bg2/--surface, --panel2 -> --surface2, --dim -> --mute, --accink -> --on-acc.
+   Each theme may also set --edge (card border gradient), --bgfx (page texture), --cardfx, --head (heading font), --r. */
+:root{--cardfx:linear-gradient(transparent,transparent);--head:inherit}
+h1,h2,.brand{font-family:var(--head)}
+
+[data-theme="holo"]{--bg:#050a1a;--bg2:#0b1532;--surface:rgba(11,21,50,.72);--surface2:#16244d;--line:#26407a;--ink:#eaf3ff;--mute:#9db3d9;--acc:#4fc3ff;--acc2:#b28cff;--acc3:#ff7ad9;--on-acc:#02122a;--r:16px;
+ --bgfx:radial-gradient(circle at 12% 8%,#1b3cff40,transparent 42%),radial-gradient(circle at 88% 18%,#00e5ff2b,transparent 40%),radial-gradient(circle at 60% 95%,#b44dff2a,transparent 45%);
+ --edge:linear-gradient(120deg,#00e5ff,#3d6bff,#b44dff,#ff7ad9,#00e5ff);--cardfx:linear-gradient(135deg,#ffffff0d,transparent 40%,#7ad3ff08 70%,transparent)}
+[data-theme="holo"] .card{animation:holo 14s ease infinite}
+[data-theme="classic"]{--bg:#070d13;--bg2:#0f1a23;--surface:rgba(15,26,35,.85);--surface2:#253a49;--line:#24384a;--ink:#e8eef5;--mute:#94a9b8;--acc:#a7e972;--acc2:#6cc6ff;--acc3:#6cc6ff;--on-acc:#132011}
+[data-theme="monarch"]{--bg:#03040b;--bg2:#070b1c;--surface:rgba(7,11,28,.82);--surface2:#111a3d;--line:#2b3f9e;--ink:#e6ecff;--mute:#8f9ccc;--acc:#3fa9ff;--acc2:#8b5cff;--acc3:#8b5cff;--on-acc:#020814;--r:4px;--head:"Consolas","Cascadia Mono","Courier New",monospace;
+ --bgfx:radial-gradient(ellipse at 50% -15%,#5b2bff4d,transparent 60%),linear-gradient(#3a5bff14 1px,transparent 1px) 0 0/42px 42px,linear-gradient(90deg,#3a5bff14 1px,transparent 1px) 0 0/42px 42px;
+ --edge:linear-gradient(#3fa9ff,#3fa9ff);--cardfx:linear-gradient(180deg,#3fa9ff12,transparent 30%)}
+[data-theme="monarch"] h1,[data-theme="monarch"] h2,[data-theme="monarch"] .brand{text-transform:uppercase;letter-spacing:.12em}
+[data-theme="monarch"] .card{box-shadow:0 0 18px -6px #3fa9ff88,inset 0 0 22px -12px #3fa9ff}
+[data-theme="ooo"]{--bg:#0e2a47;--bg2:#14395f;--surface:rgba(20,57,95,.82);--surface2:#1f5487;--line:#2f6aa3;--ink:#fffbe8;--mute:#bcd5ee;--acc:#ffd23f;--acc2:#ff7eb6;--acc3:#6ee7ff;--on-acc:#2b1a00;--r:24px;--head:"Trebuchet MS","Comic Sans MS",sans-serif;
+ --bgfx:radial-gradient(ellipse at 20% 115%,#3ccf6e66,transparent 45%),radial-gradient(ellipse at 85% -10%,#ff9ed14d,transparent 45%),radial-gradient(circle at 50% 40%,#1b4f80,#0e2a47 70%);
+ --edge:linear-gradient(120deg,#ffd23f,#ff7eb6,#6ee7ff)}
+[data-theme="grimoire"]{--bg:#0b0b0a;--bg2:#16150f;--surface:rgba(22,21,15,.85);--surface2:#26321f;--line:#46512f;--ink:#f1ead6;--mute:#b8ae92;--acc:#d4af37;--acc2:#3fa86b;--acc3:#a3242c;--on-acc:#1a1405;--r:8px;--head:Georgia,"Palatino Linotype","Book Antiqua",serif;
+ --bgfx:radial-gradient(ellipse at 50% -5%,#2f5d3a40,transparent 55%),radial-gradient(circle at 90% 90%,#a3242c26,transparent 40%),repeating-linear-gradient(45deg,#ffffff05 0 2px,transparent 2px 9px);
+ --edge:linear-gradient(135deg,#d4af37,#3fa86b,#a3242c,#d4af37);--cardfx:radial-gradient(ellipse at top left,#d4af3712,transparent 60%)}
+[data-theme="nen"]{--bg:#05100b;--bg2:#0c1a14;--surface:rgba(12,26,20,.85);--surface2:#163327;--line:#275240;--ink:#ecfbf2;--mute:#9cc2ae;--acc:#34e07f;--acc2:#f5c842;--acc3:#f5c842;--on-acc:#04140b;--r:12px;
+ --bgfx:radial-gradient(circle at 28% 18%,#2bd67b2b,transparent 45%),radial-gradient(circle at 76% 82%,#f5c84230,transparent 45%),radial-gradient(circle at 50% 50%,#0a1d15,#05100b 75%);
+ --edge:linear-gradient(120deg,#34e07f,#f5c842,#34e07f)}
+[data-theme="leaf"]{--bg:#0d0b0a;--bg2:#17120f;--surface:rgba(23,18,15,.86);--surface2:#2c1e14;--line:#4c311e;--ink:#fff4ea;--mute:#cbb09a;--acc:#ff7a1a;--acc2:#2f8bff;--acc3:#ffb347;--on-acc:#1c0c00;--r:10px;--head:"Arial Black","Segoe UI Black",sans-serif;
+ --bgfx:radial-gradient(circle at 86% 14%,#ff7a1a3a,transparent 38%),repeating-radial-gradient(circle at 86% 14%,#ff7a1a12 0 2px,transparent 2px 28px),radial-gradient(circle at 8% 92%,#1f6fff2a,transparent 45%);
+ --edge:linear-gradient(90deg,#ff7a1a,#ffb347,#2f8bff)}
+[data-theme="saiyan"]{--bg:#070a1f;--bg2:#0e1433;--surface:rgba(14,20,51,.85);--surface2:#1c2560;--line:#2d3a8a;--ink:#fff8e6;--mute:#bac1e6;--acc:#ff9a1f;--acc2:#ffe14d;--acc3:#ff5e1f;--on-acc:#1f0d00;--r:10px;--head:"Arial Black",Impact,sans-serif;
+ --bgfx:radial-gradient(ellipse at 50% 120%,#ffb30066,transparent 55%),repeating-conic-gradient(from 0deg at 50% 115%,#ffd70012 0 3deg,transparent 3deg 11deg),radial-gradient(circle at 50% 115%,#ff6a0033,transparent 75%);
+ --edge:linear-gradient(120deg,#ff5e1f,#ff9a1f,#ffe14d,#ff9a1f)}
+[data-theme="saiyan"] h1,[data-theme="saiyan"] .hello{text-shadow:0 0 18px #ffb300aa,0 0 42px #ff6a0055}
+[data-theme="jade"]{--bg:#06100e;--bg2:#0d1c19;--surface:rgba(13,28,25,.85);--surface2:#17312b;--line:#2a4d44;--ink:#eef7f1;--mute:#a2bfb4;--acc:#5fe0b5;--acc2:#e6c36a;--acc3:#e6c36a;--on-acc:#032018;--r:10px;--head:Georgia,"SimSun","Songti SC",serif;
+ --bgfx:radial-gradient(ellipse at 18% -5%,#6fe3c02b,transparent 50%),radial-gradient(ellipse at 92% 105%,#e6c36a24,transparent 50%),radial-gradient(ellipse 60% 18% at 30% 72%,#ffffff07,transparent),radial-gradient(ellipse 45% 14% at 76% 38%,#ffffff06,transparent);
+ --edge:linear-gradient(135deg,#5fe0b5,#e6c36a,#5fe0b5);--cardfx:radial-gradient(ellipse at top right,#5fe0b50f,transparent 60%)}
+[data-theme="lotus"]{--bg:#0c0507;--bg2:#190a0f;--surface:rgba(25,10,15,.86);--surface2:#30121a;--line:#58212e;--ink:#fbecee;--mute:#cfa1a9;--acc:#ff3b5c;--acc2:#f2c14e;--acc3:#f2c14e;--on-acc:#22020a;--r:10px;--head:Georgia,"SimSun",serif;
+ --bgfx:radial-gradient(circle at 82% 8%,#c4122f40,transparent 45%),radial-gradient(circle at 8% 92%,#7a0d2a40,transparent 45%),radial-gradient(ellipse 50% 14% at 50% 60%,#ff3b5c08,transparent);
+ --edge:linear-gradient(135deg,#ff3b5c,#f2c14e,#ff3b5c)}
+[data-theme="celestial"]{--bg:#090c1d;--bg2:#10152e;--surface:rgba(16,21,46,.85);--surface2:#1d2550;--line:#34417c;--ink:#f3f6ff;--mute:#abb5dc;--acc:#9fc8ff;--acc2:#e8e3ff;--acc3:#c4b5fd;--on-acc:#0a1430;--r:12px;--head:Georgia,"SimSun",serif;
+ --bgfx:radial-gradient(circle at 78% 12%,#e6eeff30,transparent 14%),radial-gradient(ellipse at 50% 105%,#6b7cff2b,transparent 60%),radial-gradient(#ffffff40 1px,transparent 1.6px) 0 0/97px 97px,radial-gradient(#ffffff26 1px,transparent 1.4px) 41px 53px/131px 131px;
+ --edge:linear-gradient(135deg,#9fc8ff,#ffffff,#9fc8ff)}
+/* Coquette — light: baby pink + silver, pearls */
+[data-theme="coquette"]{--bg:#fff6f9;--bg2:#ffffff;--surface:rgba(255,255,255,.92);--surface2:#fbe3ec;--line:#efc9d7;--ink:#4b2d3b;--mute:#8f6b7b;--acc:#e58db0;--acc2:#9aa1ad;--acc3:#c77a98;--on-acc:#4b2333;--warn:#a86b0c;--danger:#c4405a;--ok:#2f7d4f;--r:18px;--grid:transparent;
+ --head:"Didot","Bodoni MT","Playfair Display",Georgia,serif;
+ --bgfx:radial-gradient(circle at 12px 12px,#f7c9d9 1.6px,transparent 2.2px) 0 0/34px 34px,radial-gradient(circle at 29px 29px,#d9dde3 1.4px,transparent 2px) 0 0/34px 34px,radial-gradient(ellipse at 15% -10%,#ffd9e6,transparent 55%),radial-gradient(ellipse at 95% 105%,#eceff3,transparent 50%);
+ --edge:linear-gradient(135deg,#f6b8cf,#e6e8ec 35%,#c9ced6 50%,#f6b8cf 70%,#fbe3ec);--cardfx:radial-gradient(ellipse at top right,#fde8f0,transparent 60%)}
+[data-theme="coquette"] h1.title{font-style:italic}
+[data-theme="coquette"] .hello{color:#5a3346;background:none}
+[data-theme="coquette"] .st-idea{color:#475569}[data-theme="coquette"] .st-researching{color:#0369a1}[data-theme="coquette"] .st-testing{color:#a16207}[data-theme="coquette"] .st-active{color:#15803d}[data-theme="coquette"] .st-completed{color:#7e22ce}
+[data-theme="light"] body{background-image:none}
+@keyframes holo{0%{background-position:0 0,0 0,0% 50%}50%{background-position:0 0,0 0,100% 50%}100%{background-position:0 0,0 0,0% 50%}}

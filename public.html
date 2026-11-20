@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en" data-theme="holo" data-motion="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Duo · Showcase</title>
+<link rel="stylesheet" href="css/app.css?v=23">
+<link rel="stylesheet" href="css/themes-ugc.css?v=23">
+<link rel="stylesheet" href="css/fx.css?v=23">
+<link rel="stylesheet" href="css/journey.css?v=23">
+<style>.wrap{max-width:1100px;margin:0 auto;padding:24px 16px;position:relative;z-index:1}</style>
+</head>
+<body>
+<div id="fx-aurora" aria-hidden="true"></div><div id="fx-grid" aria-hidden="true"></div><canvas id="fx-bg" aria-hidden="true"></canvas><div id="fx-cursor" aria-hidden="true"></div>
+<div class="wrap" id="pub"><div class="empty">Loading showcase…</div></div>
+<div class="toast" id="toast"></div>
+<!-- read-only: reuses the app's rendering helpers on a sanitized snapshot; no workspace data is loaded -->
+<script>
+'use strict';
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let SNAP=null;const prof=id=>(SNAP.partners.find(p=>p.id===id))||{id,name:id,avatar:{kind:'initials',aura:'#888',outfit:'#888',skin:'#888',hair:'#333',style:'geo'}};
+const me=()=>'A',pname=id=>id==='both'?'Both':prof(id).name;function toast(){}
+</script>
+<script src="js/ui.js?v=23"></script>
+<script src="js/journey.js?v=23"></script>
+<script src="js/fx.js?v=23"></script>
+<script>
+(async()=>{const slug=new URLSearchParams(location.search).get('s')||'';const el=$('#pub');
+  if(!/^[a-z0-9]{6,20}$/.test(slug)){el.innerHTML='<div class="empty">This showcase link is incomplete.</div>';return}
+  try{const r=await fetch('https://cwtloacfsvyjemywmotl.supabase.co/rest/v1/rpc/duo_public',{method:'POST',headers:{'Content-Type':'application/json',apikey:'sb_publishable_FYDw9rFddFv0cUd7-Kqceg_rjBkrZOe',Authorization:'Bearer sb_publishable_FYDw9rFddFv0cUd7-Kqceg_rjBkrZOe'},body:JSON.stringify({p_slug:slug})});
+    const d=await r.json();if(!r.ok||d.error){el.innerHTML=`<div class="empty">${esc(d.error||'Could not load this showcase')}</div>`;return}SNAP=d}
+  catch(e){el.innerHTML='<div class="empty">Could not reach the showcase right now. Try again later.</div>';return}
+  const sk=SNAP.skills,xp=totalXP(sk),L=levelInfo(xp),inc=SNAP.income,amt=SNAP.showAmounts;
+  const evs=journeyEvents(sk,{hits:inc.hits});
+  el.innerHTML=`<div class="row" style="margin-bottom:16px">${avatar('A',64)}${avatar('B',64)}<div><h1 class="title">${esc(SNAP.partners.map(p=>p.name).join(' & '))}</h1><div class="mute small">${esc(SNAP.ws)} · public progress showcase · updated ${new Date(SNAP.updated).toLocaleDateString()}</div></div></div>
+   <div class="grid g3" style="margin-bottom:14px"><div class="card glow"><div class="row"><div class="lvl">${L.lvl}</div><div style="flex:1"><b>Level ${L.lvl}</b><div class="tiny mute">${xp} XP</div><div class="jbar"><i style="width:${L.pct}%"></i></div></div></div></div>
+    <div class="card"><b>${sk.filter(s=>s.status==='done').length}</b> skills completed<div class="tiny mute">${sk.length} in the tree and growing</div></div>
+    <div class="card"><b>${inc.hits.filter(h=>h.kind!=='skill').length}</b> money milestones reached${amt&&inc.total!=null?`<div class="tiny mute">${fmt$(inc.total)} recorded</div>`:'<div class="tiny mute">Amounts hidden by the owners</div>'}${inc.streak?`<div class="tiny mute">🔥 ${inc.streak}-month streak</div>`:''}</div></div>
+   <div class="card" style="margin-bottom:14px"><h2>🌳 Skill tree</h2><div class="sk-wrap">${treeSVG(sk,{interactive:false})}</div></div>
+   <div class="grid g2"><div class="card"><h2>🛤 Journey</h2>${timelineHTML(evs)}</div><div class="card"><h2>📊 Monthly pace</h2>${paceChart(sk,{series:inc.series},{showAmounts:amt})}</div></div>
+   <p class="tiny mute" style="text-align:center;margin-top:16px">Milestones are based on income the owners recorded themselves. Read-only page.</p>`;
+  FX.start();
+})();
+</script>
+</body>
+</html>

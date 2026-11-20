@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-theme="emerald" data-motion="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Duo</title>
+<link rel="stylesheet" href="css/app.css?v=23">
+<link rel="stylesheet" href="css/themes-ugc.css?v=23">
+<link rel="stylesheet" href="css/fx.css?v=23">
+<link rel="stylesheet" href="css/journey.css?v=23">
+</head>
+<body>
+<a href="#main" class="sr">Skip to content</a>
+<div id="fx-aurora" aria-hidden="true"></div><div id="fx-grid" aria-hidden="true"></div><canvas id="fx-bg" aria-hidden="true"></canvas><div id="fx-cursor" aria-hidden="true"></div>
+<div id="boot" aria-hidden="true"><div><div class="ring"></div><b>DUO</b><i>SYNCING COMMAND CENTER</i></div></div>
+<div class="shell">
+  <aside class="side" id="side" aria-label="Main navigation">
+    <button class="brand" data-go="dash" aria-label="Duo — go to Command Center"><span class="logo" aria-hidden="true"></span>DUO</button>
+    <nav id="nav"></nav>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <button class="btn s menuBtn" id="menu" aria-label="Open menu" aria-controls="side">☰ Menu</button>
+      <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
+      <span class="sp"></span>
+      <span class="sync" id="sync" role="status"></span>
+      <button class="btn s" id="undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶<span class="hide-m"> Undo</span></button>
+      <button class="btn s" id="redo" title="Redo (Ctrl+Y)" aria-label="Redo">↷<span class="hide-m"> Redo</span></button>
+      <div style="position:relative">
+        <button class="btn s p" id="qaBtn" aria-haspopup="menu" aria-expanded="false">＋ Quick add</button>
+        <div class="qa-menu" id="qaMenu" role="menu" hidden>
+          <button role="menuitem" data-qk="task">✓ Task</button>
+          <button role="menuitem" data-qk="note">📝 Note</button>
+          <button role="menuitem" data-qk="idea">💡 Idea (Mind Web)</button>
+          <button role="menuitem" data-qk="suggestion">💬 Suggestion for partner</button>
+          <button role="menuitem" data-qk="schedule">📅 Schedule item</button>
+          <button role="menuitem" data-qk="check">☑ Checklist item</button>
+        </div>
+      </div>
+      <button class="btn s ghost" id="meChip" data-go="profile" aria-label="Your profile"></button>
+    </header>
+    <main id="main" tabindex="-1"><div class="page" id="page"></div></main>
+  </div>
+</div>
+<nav class="bottomnav" id="bottomnav" aria-label="Quick navigation"></nav>
+<dialog id="dlg" aria-modal="true"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+<script src="js/opportunity.js?v=23"></script>
+<script src="js/core.js?v=23"></script>
+<script src="js/ui.js?v=23"></script>
+<script src="js/views.js?v=23"></script>
+<script src="js/schedule.js?v=23"></script>
+<script src="js/web.js?v=23"></script>
+<script src="js/profile.js?v=23"></script>
+<script src="js/journey.js?v=23"></script>
+<script src="js/clipping.js?v=23"></script>
+<script src="js/sync.js?v=23"></script>
+<script src="js/auth.js?v=23"></script>
+<script src="js/fx.js?v=23"></script>
+<script src="js/app.js?v=23"></script>
+</body>
+</html>

@@ -40,3 +40,8 @@
 label.row{flex-wrap:nowrap;align-items:flex-start}label.row input{margin-top:3px}
 .j-major .jdot{border-color:var(--warn);background:var(--warn);color:#1a1000;box-shadow:0 0 14px var(--warn)}
 .j-monthly .jdot{border-color:var(--acc2)}
+.board{display:grid;grid-template-columns:repeat(6,minmax(170px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
+.bcol{background:color-mix(in srgb,var(--surface) 70%,transparent);border:1px solid var(--line);border-radius:12px;padding:8px;min-height:160px}
+.bhead{font-size:13px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between}
+.bdrop{min-height:120px}.bitem{cursor:grab}
+@media (max-width:860px){.board{grid-template-columns:repeat(6,78vw);scroll-snap-type:x mandatory}.bcol{scroll-snap-align:start}}

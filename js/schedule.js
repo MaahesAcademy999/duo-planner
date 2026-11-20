@@ -30,6 +30,7 @@ function dayCard(d,sc){const tasks=S.tasks.filter(t=>t.dayId===d.id&&inScope(t.o
    <ul class="focus-list">${d.focus.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>${topics}
    ${d.notes?`<div class="small" style="white-space:pre-wrap;margin-top:6px">📝 ${esc(d.notes)}</div>`:''}
    ${notes.map(n=>`<div class="small">📝 <a href="#" data-nt="${n.id}">${esc(n.title)}</a> <span class="tiny mute">· ${esc(pname(n.by))}</span></div>`).join('')}
+   ${typeof clipScheduleHTML==='function'?clipScheduleHTML(d):''}
    <div class="drop" data-day="${d.id}" style="margin-top:8px">${tasks.map(taskHTML).join('')||'<div class="tiny mute" style="padding:8px">Drop tasks here</div>'}</div>
    <div class="row"><button class="btn s" data-day-add="${d.id}">+ Task</button><button class="btn s" data-day-note="${d.id}">+ Note</button></div></div>`}
 function editDay(id){const d=id?S.days.find(x=>x.id===id):{name:'',theme:'',icon:'📅',focus:[],topicRule:'none',time:'',owner:'both',notes:'',recurring:true};

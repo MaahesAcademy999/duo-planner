@@ -30,7 +30,7 @@ const OPP_MAP=[
  ['Memberships & Communities','🎟',[],[['Memberships',['Membership Programs']]]],
  ['Freelance & Client Services','🤝',[],[['UGC creation for clients'],['Video clipping & editing'],['Freelance Transcription & 1099',['Freelance Transcription & 1099']],['High-Ticket Sales',['High-Ticket Sales']],['Other 1099 / freelance']]],
  ['Local & Property Services','🏡',[],[['Cleaning',['Cleaning Business']],['Landscaping',['Landscaping']],['Handyman & Property Maintenance',['Handyman & Property Maintenance']],['Property Logistics',['Property Logistics']],['Mobile Detailing',['Mobile Detailing']],['Client Scheduling',['Client Scheduling']]]],
- ['Trading & Trading Systems','📈',['Trading'],[['Simulated & live activities'],['Trade plans and reviews']]],
+ ['Trading & Trading Systems','📈',['Trading'],[['Simulated & live activities']]],
 ];
 const OPP_LINKS=[['Product Research','UGC & Ads'],['UGC & Ads','TikTok'],['Product Research','Amazon'],['Amazon','Affiliate Marketing','Requires program eligibility'],['Product Research','Walmart'],['Walmart','UGC & Ads','Requires creator/affiliate eligibility'],
  ['UGC & Ads','Paid Advertising'],['Paid Advertising','Independent Storefronts'],['UGC & Ads','UGC creation for clients','Requires client usage-rights terms'],['Live Clipping & Content Campaigns','Original Content Production','Requires creator permission & content rights'],

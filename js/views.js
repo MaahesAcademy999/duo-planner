@@ -41,7 +41,7 @@ function render(){applyTheme();if(window.FX)FX.sync();shell();
   $$('[data-scope]').forEach(b=>b.onclick=()=>{scopes[b.dataset.scopeKey]=b.dataset.scope;render()});
   $$('[data-go]',$('#page')).forEach(b=>b.onclick=()=>go(b.dataset.go));
   $$('[data-qa]',$('#page')).forEach(b=>b.onclick=()=>quickAdd(b.dataset.qa));
-  if(!prof(me()).onboarded&&!document.body.classList.contains('gated')&&!$('#dlg').open&&!window.__onboardShown){window.__onboardShown=true;setTimeout(()=>onboarding(),150)}
+  if(!prof(me()).onboarded&&window.Auth&&Auth.signedIn&&Sync.room&&!document.body.classList.contains('gated')&&!$('#dlg').open&&!window.__onboardShown){window.__onboardShown=true;setTimeout(()=>{if(!document.body.classList.contains('gated'))onboarding();else window.__onboardShown=false},150)}
 }
 const empty=(msg,qa,label)=>`<div class="empty">${msg}${qa?`<br><button class="btn s p" data-qa="${qa}">${label}</button>`:''}</div>`;
 const hdr=(title,sub,right='')=>`<div class="row" style="margin-bottom:14px;align-items:flex-end"><div><h1 class="title">${title}</h1>${sub?`<div class="mute small">${sub}</div>`:''}</div><span class="sp"></span>${right}</div>`;

@@ -25,7 +25,7 @@ const Auth=(()=>{
 
 /* ----- sign-in gate (blocks the app until signed in and a workspace is chosen) ----- */
 function gate(html){const dl=$('#dlg');if(dl&&dl.open)dl.close();let g=$('#gate');if(!g){g=document.createElement('div');g.id='gate';document.body.appendChild(g)}g.innerHTML=`<div class="gate-box card glow"><div class="brand" style="justify-content:center;margin-bottom:10px"><span class="logo"></span>DUO</div>${html}</div>`;document.body.classList.add('gated');return g}
-function ungate(){const g=$('#gate');if(g)g.remove();document.body.classList.remove('gated')}
+function ungate(){const g=$('#gate');if(g)g.remove();document.body.classList.remove('gated');render()}
 function authScreen(mode='in',msg=''){const g=gate(`<h2 style="justify-content:center">${mode==='up'?'Create your account':mode==='reset'?'Reset password':'Sign in'}</h2>
   <p class="tiny mute" style="text-align:center">Each partner has their own account. Works on any computer, laptop, Android or iPhone.</p>${msg?`<div class="banner">${msg}</div>`:''}
   <form id="af" class="col"><label class="f" for="aE">Email</label><input id="aE" type="email" autocomplete="email" required>

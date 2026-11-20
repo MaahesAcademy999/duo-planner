@@ -118,8 +118,62 @@ function saveItem(cid,iid,extra,note){const rights=$$('[data-right]').length?rea
     note?(note.changes?'Changes requested':'Note added'):'Clip saved',note?(note.changes?`requested changes on “${d.hook||'a clip'}”`:`left a note on “${d.hook||'a clip'}”`):(iid?(prevStage!==d.stage?`moved clip “${d.hook||'untitled'}” to ${stageLabel(d.stage).replace(/^\S+\s/,'')}`:null):`added clip “${d.hook||'untitled'}”`));
   if(d.stage==='paid'&&prevStage!=='paid')celebrate(true);const savedId=iid||clipsOf().find(x=>x.id===cid).items.slice(-1)[0].id;setTimeout(()=>clipAfter(cid,savedId),50)}
 
+/* ----- Campaign autofill: copy a past campaign, or read details out of text pasted from a campaign page ----- */
+const AF_FIELDS={cN:'name',cH:'host',cU:'campaignUrl',cSU:'submitUrl',cO:'owner',cP:'perm',cS:'source',cR:'rules',cPl:'platforms',cV:'viewReq',cRt:'rate',cCa:'capAmount',cC:'cap',cD:'deadline',cNd:'nodeId'};
+const AF_PLATFORMS=[[/\btik ?tok\b/i,'TikTok'],[/\b(instagram|insta|ig reels?|reels)\b/i,'Instagram Reels'],[/\b(youtube shorts|yt shorts|shorts)\b/i,'YouTube Shorts'],[/\byoutube\b(?! shorts)/i,'YouTube'],[/\btwitter\b|\bx\.com\b|(?:^|[\s,\/&])X(?=[\s,\/.)]|$)/,'X'],[/\bfacebook\b|\bfb reels\b/i,'Facebook'],[/\bsnapchat\b|\bspotlight\b/i,'Snapchat']];
+const afNum=s=>{if(s==null)return NaN;const t=String(s).replace(/[$,\s]/g,'').toLowerCase();const m=t.match(/^([\d.]+)(k|m)?$/);if(!m)return NaN;return +m[1]*(m[2]==='k'?1e3:m[2]==='m'?1e6:1)};
+const afMoney=n=>isNaN(n)?'':String(Math.round(n*100)/100);
+function afDate(s){if(!s)return '';const iso=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);let d;
+  if(iso)d=new Date(+iso[1],+iso[2]-1,+iso[3]);
+  else{const us=s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+    if(us)d=new Date(+us[3]<100?2000+ +us[3]:+us[3],+us[1]-1,+us[2]);
+    else{const clean=s.replace(/(\d)(st|nd|rd|th)\b/i,'$1').replace(/\./g,'');const hasYear=/\d{4}/.test(clean);const t=Date.parse(hasYear?clean:clean+' '+new Date().getFullYear());if(!isNaN(t)){d=new Date(t);if(!hasYear&&d<new Date(Date.now()-864e5*30))d.setFullYear(d.getFullYear()+1)}}}
+  if(!d||isNaN(d))return '';
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+/* Returns only the fields it found. No DOM access, so it can be tested on its own. */
+function parseCampaignText(raw){const txt=String(raw||'').replace(/\r/g,'').trim(),out={};if(!txt)return out;const flat=txt.replace(/\s+/g,' ');let m;
+  const urls=[...txt.matchAll(/https?:\/\/[^\s<>"')]+/g)].map(x=>x[0].replace(/[.,;]+$/,''));
+  const camp=urls.find(u=>/contentrewards|whop\.com|vyro/i.test(u))||urls.find(u=>!/twitch\.tv|kick\.com|youtube\.com|youtu\.be|rumble\.com|drive\.google|dropbox/i.test(u));if(camp)out.campaignUrl=camp;
+  const sub=urls.find(u=>u!==camp&&/submit|submission/i.test(u));if(sub)out.submitUrl=sub;
+  const src=urls.find(u=>u!==camp&&u!==sub&&/twitch\.tv|kick\.com|youtube\.com|youtu\.be|rumble\.com|drive\.google|dropbox/i.test(u));if(src)out.source=src;
+  const hay=(camp||'')+' '+flat;const host=/contentrewards|content rewards/i.test(hay)?'Content Rewards':/whop/i.test(hay)?'Whop':/vyro/i.test(hay)?'Vyro':/discord/i.test(hay)?'Clipping agency / Discord':'';if(host)out.host=host;
+  /* rate per 1k views */
+  let rate;
+  if((m=flat.match(/\$\s?([\d.,]+)\s*(?:usd)?\s*(?:per|\/|for(?: every)?|every|a)\s*(1\s?k|[\d.,]+\s?k?|thousand|million|1\s?m)?\s*(views?|cpm)/i))){const p=m[2]?m[2].replace(/\s/g,''):'';const per=m[3].toLowerCase()==='cpm'?1000:!p?1000:/million|^1m$/i.test(p)?1e6:/thousand/i.test(p)?1000:afNum(p);rate=afNum(m[1])/(per||1000)*1000}
+  else if((m=flat.match(/([\d.,]+\s?[km]?)\s*views?\s*(?:=|:|for|pays?|→|->)\s*\$\s?([\d.,]+)/i)))rate=afNum(m[2])/afNum(m[1])*1000;
+  else if((m=flat.match(/\$\s?([\d.,]+)\s*(?:rpm|cpm)\b/i))||(m=flat.match(/\b(?:rpm|cpm)\s*[:\-]?\s*\$\s?([\d.,]+)/i)))rate=afNum(m[1]);
+  if(rate>0&&isFinite(rate))out.rate=afMoney(rate);
+  /* payout cap */
+  if((m=flat.match(/(?:max(?:imum)?|cap(?:ped)?(?: at)?|up to|limit)\s*(?:payout|earnings|pay)?\s*(?:of|is|:|-)?\s*\$\s?([\d.,]+\s?k?)([^.\n]{0,40})/i))||(m=flat.match(/\$\s?([\d.,]+\s?k?)\s*(?:max(?:imum)?|cap)\b([^.\n]{0,40})/i))){const a=afNum(m[1]);if(a>0){out.capAmount=afMoney(a);const per=(m[2]||'').match(/per\s+(clip|video|post|creator|clipper|account|person|month|week)/i);out.cap=`Max $${a.toLocaleString()}${per?' per '+per[1].toLowerCase():''}`}}
+  if((m=flat.match(/(?:total\s+)?budget\s*(?:of|is|:|-)?\s*\$\s?([\d.,]+\s?k?)/i))){const b=afNum(m[1]);if(b>0)out.cap=(out.cap?out.cap+' · ':'')+`Campaign budget $${b.toLocaleString()}`}
+  /* minimum views */
+  if((m=flat.match(/(?:min(?:imum)?\.?|at least|requires?|need)\s*(?:of\s*)?([\d.,]+\s?k?)\s*views?/i))||(m=flat.match(/([\d.,]+\s?k?)\s*views?\s*(?:min(?:imum)?|required|to qualify|to get paid)/i))){const v=afNum(m[1]);if(v>0)out.viewReq=`${v.toLocaleString()} views minimum`}
+  /* platforms */
+  let plats=[...new Set(AF_PLATFORMS.filter(([re])=>re.test(flat)).map(p=>p[1]))];if(plats.includes('YouTube Shorts'))plats=plats.filter(p=>p!=='YouTube');if(plats.length)out.platforms=plats.join(', ');
+  /* deadline */
+  if((m=flat.match(/(?:deadline|ends?|ending|until|closes?|expires?|due|end date)\s*(?:on|:|-|by)?\s*((?:[a-z]{3,9}\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s*\d{4})?)|(?:\d{1,2}\s+[a-z]{3,9}\.?(?:\s+\d{4})?)|(?:\d{4}-\d{1,2}-\d{1,2})|(?:\d{1,2}\/\d{1,2}\/\d{2,4}))/i))){const d=afDate(m[1]);if(d)out.deadline=d}
+  /* name: first short line that isn't a link, a price or a heading */
+  const first=txt.split('\n').map(l=>l.trim()).find(l=>l&&!/^https?:/i.test(l)&&l.length<=80&&!/^\$|\bviews?\b|^(rules|requirements|guidelines|terms|about|details)\b/i.test(l));if(first)out.name=first.replace(/^campaign\s*[:\-]\s*/i,'');
+  /* rules: from a Rules/Requirements heading if there is one, else the whole paste */
+  const rs=txt.search(/^\s*(campaign rules|rules|requirements|guidelines|terms)\b/im);out.rules=(rs>=0?txt.slice(rs):txt).trim().slice(0,4000);
+  if(host)out.perm='campaign';
+  return out}
+function afApply(dlg,data){const filled=[];Object.entries(AF_FIELDS).forEach(([id,k])=>{const e=dlg.querySelector('#'+id);const v=data[k];if(!e||v==null||v==='')return;
+    if(e.tagName==='SELECT'&&![...e.options].some(o=>o.value===String(v)))return;if(String(e.value)===String(v))return;
+    e.value=v;e.classList.remove('autofilled');void e.offsetWidth;e.classList.add('autofilled');const l=dlg.querySelector(`label[for="${id}"]`);filled.push(l?l.textContent.replace(/\s*\(.*\)$/,''):k)});return filled}
+function afBox(id){const past=clipsOf().filter(x=>x.id!==id);
+  return `<details class="afbox" ${id?'':'open'}><summary>⚡ Autofill campaign details</summary>
+   ${past.length?`<label class="f" for="afPast">Start from a campaign you've run before</label><select id="afPast"><option value="">— choose a campaign —</option>${past.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}${x.host?' · '+esc(x.host):''}</option>`).join('')}</select>`:''}
+   <label class="f" for="afTxt">${past.length?'Or paste':'Paste'} the campaign page (on the campaign page: select all, copy, paste here)</label><textarea id="afTxt" placeholder="Name, rate per 1k views, max payout, platforms, minimum views, deadline, rules, links…"></textarea>
+   <div class="row" style="margin-top:6px"><button type="button" class="btn s p" id="afGo">Fill from pasted text</button><span class="tiny mute" id="afMsg">Check the filled fields before saving. Nothing is fetched from the internet.</span></div></details>`}
+function wireAutofill(dlg){const box=dlg.querySelector(".afbox");if(box&&!box.open)dlg.querySelector("#cN").focus();const msg=t=>{const e=dlg.querySelector('#afMsg');if(e)e.textContent=t};const sel=dlg.querySelector('#afPast');
+  if(sel)sel.onchange=()=>{const p=clipsOf().find(x=>x.id===sel.value);if(!p)return;const {deadline,id,steps,moments,subs,items,by,...rest}=p;const f=afApply(dlg,rest);
+    msg(f.length?`Copied from “${p.name}”: ${f.join(', ')}. Set a new deadline if this round has one.`:'Those details already match.')};
+  dlg.querySelector('#afGo').onclick=()=>{const t=dlg.querySelector('#afTxt').value;if(!t.trim()){msg('Paste the campaign page text first.');return}
+    const f=afApply(dlg,parseCampaignText(t));msg(f.length?`Filled: ${f.join(', ')}. Check them before saving.`:'Couldn\'t spot any details in that text. Fill the fields by hand.')}}
+
 function editClip(id){const c=id?clipsOf().find(x=>x.id===id):{name:'',host:'Content Rewards',campaignUrl:'',submitUrl:'',owner:'both',source:'',perm:'unknown',rules:'',platforms:'',viewReq:'',cap:'',capAmount:'',rate:'',deadline:'',nodeId:(S.nodes.find(n=>n.label==='Live Clipping & Content Campaigns')||{}).id||''};
-  modal(id?'Edit campaign':'New clipping campaign',`<label class="f" for="cN">Creator or campaign</label><input id="cN" value="${esc(c.name)}">
+  modal(id?'Edit campaign':'New clipping campaign',`${afBox(id)}<label class="f" for="cN">Creator or campaign</label><input id="cN" value="${esc(c.name)}">
    <div class="row"><div style="flex:1;min-width:140px"><label class="f" for="cO">Assigned</label>${ownerSel('cO',c.owner)}</div><div style="flex:1;min-width:140px"><label class="f" for="cP">Permission status</label><select id="cP">${PERMS.map(([k,l])=>`<option value="${k}" ${c.perm===k?'selected':''}>${l}</option>`).join('')}</select></div></div>
    <div class="row"><div style="flex:1;min-width:140px"><label class="f" for="cH">Campaign platform</label><select id="cH">${CAMPAIGN_HOSTS.map(h=>`<option ${c.host===h?'selected':''}>${h}</option>`).join('')}</select></div><div style="flex:2;min-width:180px"><label class="f" for="cU">Campaign page URL</label><input id="cU" value="${esc(c.campaignUrl||'')}" placeholder="https://…"></div></div>
    <label class="f" for="cSU">Submit page URL (where you paste post links)</label><input id="cSU" value="${esc(c.submitUrl||'')}" placeholder="https://…">
@@ -129,4 +183,4 @@ function editClip(id){const c=id?clipsOf().find(x=>x.id===id):{name:'',host:'Con
    <div class="row"><div style="flex:1;min-width:120px"><label class="f" for="cRt">Rate per 1k views ($, from campaign)</label><input type="number" min="0" step="0.01" id="cRt" value="${esc(c.rate||'')}"></div><div style="flex:1;min-width:120px"><label class="f" for="cCa">Payout cap ($)</label><input type="number" min="0" step="0.01" id="cCa" value="${esc(c.capAmount||'')}"></div><div style="flex:1;min-width:120px"><label class="f" for="cC">Cap notes</label><input id="cC" value="${esc(c.cap||'')}"></div></div>
    <div class="row"><div style="flex:1;min-width:140px"><label class="f" for="cD">Deadline (if any)</label><input type="date" id="cD" value="${esc(c.deadline)}"></div><div style="flex:2;min-width:160px"><label class="f" for="cNd">Mind Web link</label><select id="cNd"><option value="">— none —</option>${nodeOptions(c.nodeId)}</select></div></div>`,
    [{t:'Save',c:'p',f:()=>{const name=val('cN');if(!name){toast('Name the campaign');return false}const d={name,host:val('cH'),campaignUrl:val('cU'),submitUrl:val('cSU'),owner:val('cO'),perm:val('cP'),source:val('cS'),rules:val('cR'),platforms:val('cPl'),viewReq:val('cV'),rate:val('cRt'),capAmount:val('cCa'),cap:val('cC'),deadline:val('cD'),nodeId:val('cNd')};
-     commit(s=>{s.clips=s.clips||[];if(id)Object.assign(s.clips.find(x=>x.id===id),d);else{const nid=uid();s.clips.push({id:nid,steps:[],moments:[],subs:[],items:[],by:me(),...d});clipSel=nid}},'Saved',id?`edited campaign ${name}`:`started clipping campaign ${name}`)}}])}
+     commit(s=>{s.clips=s.clips||[];if(id)Object.assign(s.clips.find(x=>x.id===id),d);else{const nid=uid();s.clips.push({id:nid,steps:[],moments:[],subs:[],items:[],by:me(),...d});clipSel=nid}},'Saved',id?`edited campaign ${name}`:`started clipping campaign ${name}`)}}],{onOpen:wireAutofill})}

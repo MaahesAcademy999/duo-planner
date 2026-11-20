@@ -7,6 +7,7 @@ const PAGES=[
   {k:'schedule',l:'Schedule',ic:'📅',g:'Plan'},
   {k:'projects',l:'Projects',ic:'🚀',g:'Plan'},
   {k:'tasks',l:'My Tasks',ic:'✓',g:'Plan'},
+  {k:'post',l:'Post & Submit',ic:'🚀',g:'Plan'},
   {k:'clips',l:'Clipping Campaigns',ic:'✂',g:'Plan'},
   {k:'checklist',l:'Shared Checklist',ic:'☑',g:'Plan'},
   {k:'notes',l:'Notes',ic:'📝',g:'Together'},
@@ -15,7 +16,7 @@ const PAGES=[
   {k:'profile',l:'Profile',ic:'👤',g:'You'},
   {k:'settings',l:'Themes & Settings',ic:'🎨',g:'You'},
 ];
-const MOBILE=['dash','web','journey','schedule','suggest'];
+const MOBILE=['dash','post','clips','schedule','suggest'];
 let page='dash',scopes={tasks:'mine',projects:'all',notes:'all',schedule:'all'},noteQ='',taskQ='';
 const pageOf=k=>PAGES.find(p=>p.k===k)||PAGES[0];
 function go(k){page=pageOf(k).k;if(location.hash!=='#/'+page)history.pushState(null,'','#/'+page);$('.side').classList.remove('open');render();const pg=$('#page');pg.classList.remove('fx-enter');void pg.offsetWidth;pg.classList.add('fx-enter');clearTimeout(pg._fx);pg._fx=setTimeout(()=>pg.classList.remove('fx-enter'),900);$('#main').focus({preventScroll:true});scrollTo(0,0)}
@@ -28,7 +29,7 @@ function shell(){
   const badges={suggest:unseenSuggestions()+pendingProposals()};
   let g='';$('#nav').innerHTML=PAGES.map(p=>{const head=p.g!==g?(g=p.g,`<div class="navgrp">${p.g}</div>`):'';
     return head+`<button class="navi" data-go="${p.k}" ${page===p.k?'aria-current="page"':''}><span class="ic" aria-hidden="true">${p.ic}</span>${p.l}${badges[p.k]?`<span class="badge" aria-label="${badges[p.k]} new">${badges[p.k]}</span>`:''}</button>`}).join('');
-  $('#bottomnav').innerHTML=MOBILE.map(k=>{const p=pageOf(k);return `<button data-go="${k}" ${page===k?'aria-current="page"':''}><span aria-hidden="true" style="font-size:18px">${p.ic}</span>${p.l.replace('Command Center','Home').replace('Suggestions','Ideas').replace('Skill Tree & Milestones','Journey')}${badges[k]?` (${badges[k]})`:''}</button>`}).join('');
+  $('#bottomnav').innerHTML=MOBILE.map(k=>{const p=pageOf(k);return `<button data-go="${k}" ${page===k?'aria-current="page"':''}><span aria-hidden="true" style="font-size:18px">${p.ic}</span>${p.l.replace('Command Center','Home').replace('Suggestions','Ideas').replace('Skill Tree & Milestones','Journey').replace('Post & Submit','Post').replace('Clipping Campaigns','Clips')}${badges[k]?` (${badges[k]})`:''}</button>`}).join('');
   const P=pageOf(page);
   $('#crumbs').innerHTML=`<button data-go="dash">◈ ${esc(S.workspace.name)}</button>${page!=='dash'?` <span aria-hidden="true">›</span> <b>${esc(P.l)}</b>`:''}${page==='web'&&selId&&node(selId)?` <span>›</span> <span>${esc(node(selId).label)}</span>`:''}`;
   $('#meChip').innerHTML=`${avatar(me(),30)}<span class="hide-m small">${esc(prof(me()).name)}</span>`;
@@ -36,7 +37,7 @@ function shell(){
   document.title=`${P.l} · Duo`;
 }
 function render(){applyTheme();if(window.FX)FX.sync();shell();
-  const v={clips:vClips,journey:vJourney,dash:vDash,web:vWeb,schedule:vSchedule,projects:vProjects,tasks:vTasks,checklist:vChecklist,notes:vNotes,suggest:vSuggest,activity:vActivity,profile:vProfile,settings:vSettings}[page];
+  const v={post:vPost,clips:vClips,journey:vJourney,dash:vDash,web:vWeb,schedule:vSchedule,projects:vProjects,tasks:vTasks,checklist:vChecklist,notes:vNotes,suggest:vSuggest,activity:vActivity,profile:vProfile,settings:vSettings}[page];
   v($('#page'));
   $$('[data-scope]').forEach(b=>b.onclick=()=>{scopes[b.dataset.scopeKey]=b.dataset.scope;render()});
   $$('[data-go]',$('#page')).forEach(b=>b.onclick=()=>go(b.dataset.go));

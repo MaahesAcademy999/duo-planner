@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Duo · Showcase</title>
-<link rel="stylesheet" href="css/app.css?v=25">
-<link rel="stylesheet" href="css/themes-ugc.css?v=25">
-<link rel="stylesheet" href="css/fx.css?v=25">
-<link rel="stylesheet" href="css/journey.css?v=25">
+<link rel="stylesheet" href="css/app.css?v=26">
+<link rel="stylesheet" href="css/themes-ugc.css?v=26">
+<link rel="stylesheet" href="css/fx.css?v=26">
+<link rel="stylesheet" href="css/journey.css?v=26">
 <style>.wrap{max-width:1100px;margin:0 auto;padding:24px 16px;position:relative;z-index:1}</style>
 </head>
 <body>
@@ -22,9 +22,9 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let SNAP=null;const prof=id=>(SNAP.partners.find(p=>p.id===id))||{id,name:id,avatar:{kind:'initials',aura:'#888',outfit:'#888',skin:'#888',hair:'#333',style:'geo'}};
 const me=()=>'A',pname=id=>id==='both'?'Both':prof(id).name;function toast(){}
 </script>
-<script src="js/ui.js?v=25"></script>
-<script src="js/journey.js?v=25"></script>
-<script src="js/fx.js?v=25"></script>
+<script src="js/ui.js?v=26"></script>
+<script src="js/journey.js?v=26"></script>
+<script src="js/fx.js?v=26"></script>
 <script>
 (async()=>{const slug=new URLSearchParams(location.search).get('s')||'';const el=$('#pub');
   if(!/^[a-z0-9]{6,20}$/.test(slug)){el.innerHTML='<div class="empty">This showcase link is incomplete.</div>';return}

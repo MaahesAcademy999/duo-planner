@@ -25,5 +25,5 @@
     el.innerHTML=`<span class="dot" aria-hidden="true"></span><span class="hide-m">${st==='on'?'Synced':st==='err'?'Sync issue':st==='connecting'?'Connecting…':storageOK?'Saved on this device':'⚠ Not saved'}</span>`;el.title=msg||(st==='off'?'Sync is off — Themes & Settings → Live sync':'')};
   window.onPersist=()=>{if(Sync.status==='off')onSyncStatus('off')};
   window.onRemoteChange=()=>{};
-  persist();render();bootAuth();setTimeout(()=>FX.bootOut(),1100);onSyncStatus(Sync.status);
+  persist();render();bootAuth();consumeShare();setTimeout(()=>FX.bootOut(),1100);onSyncStatus(Sync.status);
 })();

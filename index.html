@@ -12,10 +12,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Duo">
 <title>Duo</title>
-<link rel="stylesheet" href="css/app.css?v=26">
-<link rel="stylesheet" href="css/themes-ugc.css?v=26">
-<link rel="stylesheet" href="css/fx.css?v=26">
-<link rel="stylesheet" href="css/journey.css?v=26">
+<link rel="stylesheet" href="css/app.css?v=27">
+<link rel="stylesheet" href="css/themes-ugc.css?v=27">
+<link rel="stylesheet" href="css/fx.css?v=27">
+<link rel="stylesheet" href="css/journey.css?v=27">
 </head>
 <body>
 <a href="#main" class="sr">Skip to content</a>
@@ -45,6 +45,7 @@
           <button role="menuitem" data-qk="check">☑ Checklist item</button>
         </div>
       </div>
+      <button class="btn s" id="helpBtn" aria-label="Help and tips" title="Help (?)">❔<span class="hide-m"> Help</span></button>
       <button class="btn s ghost" id="meChip" data-go="profile" aria-label="Your profile"></button>
     </header>
     <main id="main" tabindex="-1"><div class="page" id="page"></div></main>
@@ -54,20 +55,21 @@
 <dialog id="dlg" aria-modal="true"></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="file" accept=".json,application/json" hidden>
-<script src="js/opportunity.js?v=26"></script>
-<script src="js/core.js?v=26"></script>
-<script src="js/ui.js?v=26"></script>
-<script src="js/views.js?v=26"></script>
-<script src="js/schedule.js?v=26"></script>
-<script src="js/web.js?v=26"></script>
-<script src="js/profile.js?v=26"></script>
-<script src="js/journey.js?v=26"></script>
-<script src="js/clipping.js?v=26"></script>
-<script src="js/clipflow.js?v=26"></script>
-<script src="js/sync.js?v=26"></script>
-<script src="js/auth.js?v=26"></script>
-<script src="js/fx.js?v=26"></script>
-<script src="js/app.js?v=26"></script>
+<script src="js/opportunity.js?v=27"></script>
+<script src="js/core.js?v=27"></script>
+<script src="js/ui.js?v=27"></script>
+<script src="js/views.js?v=27"></script>
+<script src="js/schedule.js?v=27"></script>
+<script src="js/web.js?v=27"></script>
+<script src="js/profile.js?v=27"></script>
+<script src="js/journey.js?v=27"></script>
+<script src="js/clipping.js?v=27"></script>
+<script src="js/clipflow.js?v=27"></script>
+<script src="js/help.js?v=27"></script>
+<script src="js/sync.js?v=27"></script>
+<script src="js/auth.js?v=27"></script>
+<script src="js/fx.js?v=27"></script>
+<script src="js/app.js?v=27"></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
 </html>

@@ -196,3 +196,6 @@ dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
 #gate{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:16px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(10px)}
 .gate-box{width:min(440px,100%);max-height:92vh;overflow:auto}
 body.gated .shell,body.gated .bottomnav{visibility:hidden}
+
+.tipcard{margin-bottom:14px;border-left:3px solid var(--acc2)}
+.tipcard ol li{margin:2px 0}

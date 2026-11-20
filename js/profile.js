@@ -68,12 +68,14 @@ function themeFields(d){return `<p class="small mute">🎨 <b>Personal theme</b>
   <label class="f">Accent colour</label><div class="swatches">${ACCENTS.map(c=>`<button type="button" data-acc="${c}" aria-pressed="${(d.accent||'')===c}" style="background:${c||'conic-gradient(var(--acc),var(--acc2),var(--acc3))'}" aria-label="${c||'Theme default'}" title="${c||'Theme default'}"></button>`).join('')}</div>
   <label class="f">Motion</label><div class="seg">${[['full','✦ Full'],['calm','◐ Calm'],['off','○ Off']].map(([k,l])=>`<button type="button" data-motion-pick="${k}" aria-pressed="${normMotion(d.motion)===k}">${l}</button>`).join('')}</div>
   <label class="row small" style="margin-top:10px"><input type="checkbox" id="simpleM" ${d.simple?'checked':''}> Simple mode — fewer glows, blurs and background effects</label>
+  <label class="row small"><input type="checkbox" id="easyM" ${d.easy!==false?'checked':''}> 💡 Easy mode — show simple “How this works” tips on every page</label>
   <label class="row small"><input type="checkbox" id="celebM" ${d.celebrate?'checked':''}> Celebrations when tasks & milestones are completed</label>`}
 function wireThemeFields(d,root,onChange){
   $$('[data-theme-pick]',root).forEach(b=>b.onclick=()=>{d.theme=b.dataset.themePick;onChange()});
   $$('[data-acc]',root).forEach(b=>b.onclick=()=>{d.accent=b.dataset.acc;onChange()});
   $$('[data-motion-pick]',root).forEach(b=>b.onclick=()=>{d.motion=b.dataset.motionPick;onChange()});
   const sm=$('#simpleM',root);if(sm)sm.onchange=()=>{d.simple=sm.checked;onChange()};
+  const em=$('#easyM',root);if(em)em.onchange=()=>{d.easy=em.checked};
   const ce=$('#celebM',root);if(ce)ce.onchange=()=>{d.celebrate=ce.checked};
 }
 
@@ -119,7 +121,7 @@ function vSettings(el){const p=prof(me());const d=structuredClone(p);
     <div class="card"><h3>Data</h3><div class="row"><button class="btn s" id="exp">⬇ Save backup file</button><button class="btn s" id="imp">⬆ Load backup file</button><button class="btn s d" id="rst">Reset to starting template</button></div>
      <p class="tiny mute">You can also drag a backup .json file onto the page.</p></div></div></div>`;
   const thRoot=$('#thF');const redraw=()=>{applyTheme(d);thRoot.innerHTML=themeFields(d);wireThemeFields(d,thRoot,redraw)};wireThemeFields(d,thRoot,redraw);
-  $('#thApply').onclick=()=>commit(s=>{Object.assign(s.partners.find(x=>x.id===me()),{theme:d.theme,accent:d.accent,motion:d.motion,simple:d.simple,celebrate:d.celebrate})},'Theme applied');
+  $('#thApply').onclick=()=>commit(s=>{Object.assign(s.partners.find(x=>x.id===me()),{theme:d.theme,accent:d.accent,motion:d.motion,simple:d.simple,celebrate:d.celebrate,easy:d.easy!==false})},'Theme applied');
   $('#thCancel').onclick=()=>render();
   $('#thReset').onclick=()=>commit(s=>{Object.assign(s.partners.find(x=>x.id===me()),{theme:'emerald',accent:'',motion:'full',simple:false})},'Default theme restored');
   $('#wsSave').onclick=()=>commit(s=>{s.workspace={...s.workspace,name:val('wsN')||s.workspace.name};s.tz=val('tzI')||s.tz},'Workspace saved');

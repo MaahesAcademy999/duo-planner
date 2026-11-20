@@ -38,7 +38,7 @@ function shell(){
 }
 function render(){applyTheme();if(window.FX)FX.sync();shell();
   const v={post:vPost,clips:vClips,journey:vJourney,dash:vDash,web:vWeb,schedule:vSchedule,projects:vProjects,tasks:vTasks,checklist:vChecklist,notes:vNotes,suggest:vSuggest,activity:vActivity,profile:vProfile,settings:vSettings}[page];
-  v($('#page'));
+  v($('#page'));if(typeof injectTip==='function')injectTip($('#page'),page);
   $$('[data-scope]').forEach(b=>b.onclick=()=>{scopes[b.dataset.scopeKey]=b.dataset.scope;render()});
   $$('[data-go]',$('#page')).forEach(b=>b.onclick=()=>go(b.dataset.go));
   $$('[data-qa]',$('#page')).forEach(b=>b.onclick=()=>quickAdd(b.dataset.qa));

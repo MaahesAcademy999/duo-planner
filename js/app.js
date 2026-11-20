@@ -3,7 +3,7 @@
 (function boot(){
   page=pageOf(location.hash.replace('#/','')).k;
   $('#menu').onclick=()=>$('#side').classList.toggle('open');
-  $('#undo').onclick=undo;$('#redo').onclick=redo;
+  $('#undo').onclick=undo;$('#helpBtn').onclick=()=>openHelp();$('#redo').onclick=redo;
   const qaB=$('#qaBtn'),qaM=$('#qaMenu');
   const closeQA=()=>{qaM.hidden=true;qaB.setAttribute('aria-expanded','false')};
   qaB.onclick=e=>{e.stopPropagation();qaM.hidden=!qaM.hidden;qaB.setAttribute('aria-expanded',String(!qaM.hidden));if(!qaM.hidden)$('button',qaM).focus()};
@@ -12,7 +12,7 @@
   document.addEventListener('click',e=>{if(!qaM.hidden&&!qaM.contains(e.target))closeQA();if(innerWidth<=860&&$('#side').classList.contains('open')&&!$('#side').contains(e.target)&&e.target!==$('#menu'))$('#side').classList.remove('open')});
   document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,select')||$('#dlg').open)return;const mod=e.ctrlKey||e.metaKey;
     if(mod&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}else if(mod&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}
-    else if(e.key==='n'&&!mod){e.preventDefault();qaB.click()}else if(e.key==='Escape'&&selId&&page==='web'){selId=null;render()}});
+    else if(e.key==='n'&&!mod){e.preventDefault();qaB.click()}else if(e.key==='?'){e.preventDefault();openHelp()}else if(e.key==='Escape'&&selId&&page==='web'){selId=null;render()}});
   /* backup import: button or drag a .json onto the page */
   const importFile=f=>f.text().then(t=>{let d;try{d=JSON.parse(t)}catch(err){return toast("That file isn't valid JSON")}
     if(!d||!Array.isArray(d.days)||!Array.isArray(d.nodes))return toast('Not a Duo backup file');

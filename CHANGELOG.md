@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.0] - 2026-11-20
+### Features
+- Clipping campaigns: ⚡ Autofill on the campaign form. Pick a campaign you've run before to copy its platform, links, rules, platforms, view requirement, rate, cap and permission (deadline is left for the new round), or paste the text of a campaign page and Duo fills the name, platform, campaign/submit/source links, rate per 1k views, payout cap and budget, minimum views, eligible platforms, deadline and rules.
+- Filled fields flash green and a note lists what changed, so you can check before saving.
+### Notes & Caveats
+- Nothing is fetched from the internet: campaign sites need sign-in and block other sites from reading them, so autofill works from what you paste.
+- The reader understands common wording ("$1.50 per 1,000 views", "$2 CPM", "1000 views = $0.80", "Max payout $500 per creator", "Minimum 10k views", "Ends Dec 31"). Anything it misses stays as you typed it.
+
 ## [3.1.0] - 2026-11-20
 ### Features
 - Phone reminders (Web Push): turn on per device in Themes & Settings → 📱 Phone reminders. Morning summary (today's tasks, due today, due tomorrow, overdue, clip and campaign deadlines) at a chosen hour, plus a reminder 5–60 minutes before a task with a time. Send-a-test button.

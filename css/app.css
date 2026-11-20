@@ -199,3 +199,8 @@ body.gated .shell,body.gated .bottomnav{visibility:hidden}
 
 .tipcard{margin-bottom:14px;border-left:3px solid var(--acc2)}
 .tipcard ol li{margin:2px 0}
+.afbox{border:1px dashed var(--line);border-radius:12px;padding:8px 12px;margin-bottom:12px;background:color-mix(in srgb,var(--acc) 6%,transparent)}
+.afbox summary{cursor:pointer;font-weight:600}
+.afbox textarea{min-height:60px}
+@keyframes afPulse{from{box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 45%,transparent)}to{box-shadow:none}}
+.autofilled{border-color:var(--ok);animation:afPulse 1.6s ease-out}

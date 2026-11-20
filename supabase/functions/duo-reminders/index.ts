@@ -3,19 +3,16 @@
    POST x-duo-cron: <secret>   → every 5 minutes from pg_cron: send whatever is due, once each
    POST Bearer <user token> {test:true} → send a test notification to the signed-in user's own devices
    Deploy with verify_jwt = false: the cron call has no user token, so this function checks callers itself.
-   Secrets (Edge Function secrets, never in the app): VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, DUO_CRON_SECRET.
-   SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase. Only duo_* tables are read or written. */
-import { sendPush, type Vapid } from './webpush.ts';
+   Keys live in Supabase Vault (see migration duo_push_config): the VAPID pair is generated here on first run,
+   so nobody ever handles the private key. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
+   Only duo_* tables are read or written. */
+import { sendPush, b64u, type Vapid } from './webpush.ts';
 import { dueNotes } from './reminders.ts';
 
 const URL_ = Deno.env.get('SUPABASE_URL')!;
 const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const CRON_SECRET = Deno.env.get('DUO_CRON_SECRET') || '';
-const VAPID: Vapid = {
-  publicKey: Deno.env.get('VAPID_PUBLIC_KEY') || '',
-  privateKey: Deno.env.get('VAPID_PRIVATE_KEY') || '',
-  subject: 'https://maahesacademy999.github.io/duo-planner/',
-};
+const VAPID: Vapid = { publicKey: '', privateKey: '', subject: 'https://maahesacademy999.github.io/duo-planner/' };
+let CRON_SECRET = '';
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, apikey, content-type',
@@ -31,6 +28,20 @@ async function db(path: string, init: RequestInit = {}) {
   if (!r.ok) throw new Error(`db ${path.split('?')[0]} ${r.status}: ${(await r.text()).slice(0, 200)}`);
   const t = await r.text();
   return t ? JSON.parse(t) : null;
+}
+async function loadConfig() {
+  if (VAPID.publicKey && VAPID.privateKey && CRON_SECRET) return;
+  let c = await db('rpc/duo_push_config', { method: 'POST', body: '{}' });
+  if (!c.publicKey || !c.privateKey) {
+    const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']) as CryptoKeyPair;
+    const pub = b64u(await crypto.subtle.exportKey('raw', kp.publicKey));
+    const priv = (await crypto.subtle.exportKey('jwk', kp.privateKey)).d!;
+    await db('rpc/duo_push_set_vapid', { method: 'POST', body: JSON.stringify({ p_public: pub, p_private: priv }) });
+    c = await db('rpc/duo_push_config', { method: 'POST', body: '{}' }); // re-read: another run may have stored first
+  }
+  VAPID.publicKey = c.publicKey || '';
+  VAPID.privateKey = c.privateKey || '';
+  CRON_SECRET = c.cronSecret || '';
 }
 const inList = (ids: string[]) => `(${ids.map(encodeURIComponent).join(',')})`;
 
@@ -94,10 +105,11 @@ async function userFrom(req: Request): Promise<string | null> {
 
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
-  if (!VAPID.publicKey || !VAPID.privateKey) return json({ error: 'Reminders are not set up on the server yet' }, 503);
-  if (req.method === 'GET') return json({ publicKey: VAPID.publicKey });
-  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
   try {
+    await loadConfig();
+    if (!VAPID.publicKey || !VAPID.privateKey) return json({ error: 'Reminders are not set up on the server yet' }, 503);
+    if (req.method === 'GET') return json({ publicKey: VAPID.publicKey });
+    if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
     if (safeEqual(req.headers.get('x-duo-cron') || '', CRON_SECRET)) return json(await runCron());
     const uid = await userFrom(req);
     if (!uid) return json({ error: 'Sign in first' }, 401);

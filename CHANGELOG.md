@@ -6,7 +6,7 @@
 - Tasks get an optional due date.
 - Service worker shows notifications and opens the right page when one is tapped.
 ### Design Rationale
-- Reminders are sent by the `duo-reminders` Supabase Edge Function every 5 minutes (pg_cron). The VAPID private key and cron secret are Edge Function secrets; the app only fetches the public key.
+- Reminders are sent by the `duo-reminders` Supabase Edge Function every 5 minutes (pg_cron). The function generates its own VAPID key pair on first run and keeps it, plus a random cron secret, in Supabase Vault; the app only fetches the public key.
 - Push encryption (RFC 8291) and VAPID (RFC 8292) are written on WebCrypto, so the function has no third-party dependencies.
 - Subscriptions live in `duo_push_subs` (RLS on, no policies); the app writes only through `duo_push_save` / `duo_push_delete`, which check workspace membership. A send log makes each reminder go out once.
 ### Notes & Caveats

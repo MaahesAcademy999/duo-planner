@@ -36,6 +36,7 @@ const HELP={
 const FAQ=[
  ['How do I add my partner?','Themes & Settings → “Invite partner (new code)”. Send them the code. They create their own account, sign in, and type the code once.','settings'],
  ['Why don\'t I see my partner\'s changes?','Look at the dot at the top: green “Synced” means it\'s working. Changes arrive within about 5 seconds. If it says “Sync issue”, check your internet and reload.',null],
+ ['How do I get reminders on my phone?','Themes & Settings → “📱 Phone reminders” → “Turn on reminders”. iPhone: add Duo to your Home Screen first (Safari → Share → Add to Home Screen) and open it from that icon. Android: works in Chrome, installed or not. Give a task a time (like 3pm) or a due date to be reminded.','settings'],
  ['How do I put Duo on my phone like an app?','Android (Chrome): menu ⋮ → “Install app”. iPhone (Safari): Share → “Add to Home Screen”.',null],
  ['Does Duo post to TikTok or submit to Content Rewards for me?','No. It opens the right page and copies the text and links for you — you press post and submit yourself.','post'],
  ['How do clips get to Post & Submit?','Move a clip to “✔ Approved” on its campaign board, with all 3 rights checks ticked.','clips'],

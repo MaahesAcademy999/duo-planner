@@ -91,7 +91,7 @@ function openGuide(id,scan){const s=S.skills.find(x=>x.id===id);if(!s)return;con
     last?(s.status==='done'||skState(s,S.skills)==='locked'?{t:'Close',c:'p'}:{t:`✔ Mark done (+${s.xp||10} XP)`,c:'p',keep:true,f:()=>finishGuide(id)})
         :{t:'Next →',c:'p',keep:true,f:()=>{if(st.k==='pick'&&!gState(S.skills.find(x=>x.id===id)).pick){toast('Pick one to continue');return}keepNote();saveGuide(id,{at:at+1});openGuide(id)}}];
   function keepNote(){if(st.k==='note')saveGuide(id,{note:val('gdNote')})}
-  modal(`▶ ${s.title}`,`${dots}<h3 class="gd-h">Step ${at+1} of ${G.steps.length}: ${esc(st.t)}</h3>${body}`,btns,{noFocus:true,onOpen:d=>{
+  modal(`▶ ${s.title}`,`${dots}<h3 class="gd-h">Step ${at+1} of ${G.steps.length}: ${esc(st.t)}</h3>${body}`,btns,{noFocus:true,noCancel:true,onOpen:d=>{
     d.onclose=()=>{if(st.k==='note'&&$('#gdNote',d))saveGuide(id,{note:val('gdNote')});if(window.Sync)Sync.flushPending()};
     $$('[data-gs]',d).forEach(b=>b.onclick=()=>{keepNote();saveGuide(id,{at:+b.dataset.gs});openGuide(id)});
     $$('[data-pick]',d).forEach(b=>b.onclick=()=>{const i=openGuide._list.find(x=>x.id===b.dataset.pick);if(!i)return;

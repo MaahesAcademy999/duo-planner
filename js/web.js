@@ -32,7 +32,7 @@ function draw(){const vp=$('#vp');if(!vp)return;vp.setAttribute('transform',`tra
     h+=`<path class="lk" data-link="${l.id}" d="M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}" marker-end="url(#arr)"><title>${esc(node(l.from).label)} → ${esc(node(l.to).label)}: ${esc(l.why||'tap to explain')}</title></path>`});
   h+=`<g transform="translate(-58,-34)"><foreignObject width="116" height="68"><div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;justify-content:center;gap:4px">${avatar('A',52)}${avatar('B',52)}</div></foreignObject></g>
       <text x="0" y="50" text-anchor="middle" style="font-size:11px;fill:var(--mute)">${esc(prof('A').name)} &amp; ${esc(prof('B').name)}</text>`;
-  vis.forEach(n=>{const p=posOf(n),isTop=!n.parent;const label=n.label.length>30?n.label.slice(0,29)+'…':n.label;const w=Math.min(230,Math.max(96,label.length*6.7+(isTop?44:34))),hh=isTop?42:28;
+  vis.forEach(n=>{const p=posOf(n),isTop=!n.parent;const label=n.label.length>38?n.label.slice(0,37).trimEnd()+'…':n.label;const w=Math.min(290,Math.max(96,label.length*6.7+(isTop?44:34))),hh=isTop?42:28;
     const isCat=nodeAncestors(n.id).length<=1;const dim=q&&!n.label.toLowerCase().includes(q);const kids=S.nodes.filter(c=>c.parent===n.id&&!c.archived).length;const cls=`n ${isTop?'cat':''} ${n.kind==='project'?'proj':''} ${selId===n.id?'sel':''} ${linkSrc===n.id?'src':''}`;
     h+=`<g class="${cls}" data-n="${n.id}" tabindex="0" role="button" aria-label="${esc(n.label)}, ${n.status}${kids?`, ${kids} sub-branches`:''}" transform="translate(${p.x},${p.y})" opacity="${dim?.2:n.archived?.45:1}">
      <rect x="${-w/2}" y="${-hh/2}" width="${w}" height="${hh}" rx="${isTop?12:9}"/>

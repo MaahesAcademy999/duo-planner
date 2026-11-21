@@ -1,4 +1,12 @@
 /* ===== Skill tree, milestones, journey ===== */
+.webwrap.skwrap{grid-template-columns:minmax(0,1fr) 300px;align-items:start}
+@media (max-width:1000px){.webwrap.skwrap{grid-template-columns:minmax(0,1fr)}}
+.sk-detail{position:sticky;top:76px}
+@media (max-width:1000px){.sk-detail{position:static}}
+.card h2.sk-title{font-family:inherit;font-size:16px;line-height:1.3;margin:8px 0;text-transform:none;letter-spacing:.01em;display:block;overflow-wrap:anywhere}
+.jstats .card{padding:12px 14px}
+.jstats .card>.row{flex-wrap:nowrap}
+.jstats .lvl{width:42px;height:42px;font-size:18px}
 .sk-wrap{overflow:auto;max-height:68vh;border-radius:12px;padding:6px;background:radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--acc) 10%,transparent),transparent 65%)}
 .sk-svg{display:block;margin:0 auto}
 .sk-edge{fill:none;stroke:color-mix(in srgb,var(--mute) 35%,transparent);stroke-width:1.6;stroke-dasharray:4 5}

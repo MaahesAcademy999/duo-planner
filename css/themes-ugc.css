@@ -13,6 +13,7 @@ h1,h2,.brand{font-family:var(--head)}
  --bgfx:radial-gradient(ellipse at 50% -15%,#5b2bff4d,transparent 60%),linear-gradient(#3a5bff14 1px,transparent 1px) 0 0/42px 42px,linear-gradient(90deg,#3a5bff14 1px,transparent 1px) 0 0/42px 42px;
  --edge:linear-gradient(#3fa9ff,#3fa9ff);--cardfx:linear-gradient(180deg,#3fa9ff12,transparent 30%)}
 [data-theme="monarch"] h1,[data-theme="monarch"] h2,[data-theme="monarch"] .brand{text-transform:uppercase;letter-spacing:.12em}
+@media (max-width:600px){[data-theme="monarch"] h1.title{font-size:20px;letter-spacing:.06em}}
 [data-theme="monarch"] .card{box-shadow:0 0 18px -6px #3fa9ff88,inset 0 0 22px -12px #3fa9ff}
 [data-theme="ooo"]{--bg:#0e2a47;--bg2:#14395f;--surface:rgba(20,57,95,.82);--surface2:#1f5487;--line:#2f6aa3;--ink:#fffbe8;--mute:#bcd5ee;--acc:#ffd23f;--acc2:#ff7eb6;--acc3:#6ee7ff;--on-acc:#2b1a00;--r:24px;--head:"Trebuchet MS","Comic Sans MS",sans-serif;
  --bgfx:radial-gradient(ellipse at 20% 115%,#3ccf6e66,transparent 45%),radial-gradient(ellipse at 85% -10%,#ff9ed14d,transparent 45%),radial-gradient(circle at 50% 40%,#1b4f80,#0e2a47 70%);

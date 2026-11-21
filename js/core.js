@@ -8,7 +8,7 @@ const LS_STATE='duo-planner-v1';          // shared workspace data (v1 key kept 
 const LS_LOCAL='duo-planner-local';       // device-only: who I am, room code, PRIVATE profile fields
 const STATUSES=['idea','researching','needs_req','ready','testing','active','paused','completed','declined'];
 const STATUS_IC={idea:'💡',researching:'🔎',needs_req:'📋',ready:'🚦',testing:'🧪',active:'▶',paused:'⏸',completed:'✔',declined:'✖'};
-const COLLECTIONS=['partners','days','nodes','links','tasks','notes','suggestions','proposals','checklist','activity','skills','income','clips','library'];
+const COLLECTIONS=['partners','days','nodes','links','tasks','notes','suggestions','proposals','checklist','activity','skills','income','clips','library','research','checkins'];
 
 const CATS={
  'Trading':['Trading research','Trading plans and reviews','Existing bots and dashboards','Trade journaling','Risk management','Research ideas and systems'],
@@ -61,7 +61,7 @@ function seed(){
       day('Wednesday','UGC & Trading',['Create/improve UGC, ads, clips, scripts, product content','Review and work on trading projects'],'none','🎬'),
       day('Thursday','Research & Opportunity Discovery',['Two separate topics, or one topic in greater detail'],'thursday','🧭'),
       day('Friday','One Focused Topic & Trading',['Focused work on one topic/project/opportunity','Trading projects, review or activity'],'one','🎯')],
-    nodes,links,tasks:[],notes:[],suggestions:[],proposals:[],checklist:[],activity:[],skills:starterSkills(),income:[],clips:[],library:[],showcase:{public:false,slug:'',showAmounts:false,showNames:true},steps:{},del:{},meta:{}};
+    nodes,links,tasks:[],notes:[],suggestions:[],proposals:[],checklist:[],activity:[],skills:starterSkills(),income:[],clips:[],library:[],research:[],checkins:[],showcase:{public:false,slug:'',showAmounts:false,showNames:true},steps:{},del:{},meta:{}};
 }
 
 /* Upgrade older saved data without losing anything */
@@ -80,7 +80,7 @@ function migrate(s){
     if(s.me){const l=loadLocal();if(!l.me){l.me=s.me;saveLocal(l)}}
     delete out.me;delete out.calendar;out.v=2;
   }
-  if(!out.skills)out.skills=starterSkills();if(!out.income)out.income=[];if(!out.clips)out.clips=[];if(!out.library)out.library=[];if(!out.showcase)out.showcase={public:false,slug:'',showAmounts:false,showNames:true};
+  if(!out.skills)out.skills=starterSkills();if(!out.income)out.income=[];if(!out.clips)out.clips=[];if(!out.library)out.library=[];if(!out.research)out.research=[];if(!out.checkins)out.checkins=[];if(!out.showcase)out.showcase={public:false,slug:'',showAmounts:false,showNames:true};
   out.partners.forEach(p=>{p.avatar={...defaultProfile(p.id,'').avatar,...(p.avatar||{})}});
   migrateOpportunityMap(out);
   return out;

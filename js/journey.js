@@ -163,12 +163,14 @@ function skDetail(){const el=$('#skDetail');const s=skSel&&S.skills.find(x=>x.id
    ${st==='locked'?`<p class="small warn">Finish first: ${s.parents.map(id=>S.skills.find(x=>x.id===id)).filter(p=>p&&p.status!=='done').map(p=>esc(p.title)).join(', ')}</p>`:''}
    <div class="row" style="margin-top:8px">${st==='available'?'<button class="btn s p" id="skStart">▶ Start</button>':''}${st==='progress'?'<button class="btn s p" id="skGuide">▶ Continue walkthrough</button>':''}${st!=='done'?`<button class="btn s" id="skDone" ${st==='locked'?'disabled':''}>✔ Mark done</button>`:'<button class="btn s" id="skUndo">Reopen</button>'}
     <button class="btn s" id="skNext">+ Next step</button><button class="btn s" id="skEdit">✎ Edit</button><button class="btn s" id="skTask">+ Task</button></div>
+   ${(()=>{const t=typeof rsForSkill==='function'&&rsForSkill(s.id);return t?`<div class="rs-skp"><div class="small">🧩 Research split: <b>${Math.min(rsShared(t),RS_GOAL)} of ${RS_GOAL}</b> days you both checked in</div><button class="btn s" id="skRs">Open research split →</button></div>`:''})()}
    ${kids.length?`<label class="f">Unlocks</label>${kids.map(k=>`<div class="small"><a href="#" data-skp="${k.id}">${esc(k.title)}</a></div>`).join('')}`:''}`;
   wireLinks(el);$$('[data-skp]',el).forEach(a=>a.onclick=e=>{e.preventDefault();skSel=a.dataset.skp;render()});
   $('#skX').onclick=()=>{skSel=null;render()};$('#skEdit').onclick=()=>editSkill(s.id);$('#skNext').onclick=()=>editSkill(null,{parents:[s.id],branch:s.branch});
   $('#skTask').onclick=()=>editTask(null,{title:s.title,nodeId:s.branch,owner:s.owner});
   if($('#skStart'))$('#skStart').onclick=()=>startGuide(s.id);if($('#skGuide'))$('#skGuide').onclick=()=>openGuide(s.id);
   if($('#skDone'))$('#skDone').onclick=()=>completeSkill(s.id);
+  if($('#skRs'))$('#skRs').onclick=()=>{rsSel=rsForSkill(s.id).id;rsDay=null;go('research')};
   if($('#skUndo'))$('#skUndo').onclick=()=>commit(x=>Object.assign(x.skills.find(y=>y.id===s.id),{status:'available',doneAt:0}),'Reopened');
 }
 function completeSkill(id){const s=S.skills.find(x=>x.id===id);const before=levelInfo(totalXP(S.skills)).lvl;

@@ -1,8 +1,8 @@
 /* Pure reminder logic: given a workspace, a partner slot, preferences and "now", decide which notifications are due.
    No I/O here, so it can be tested without a database or push service. */
 
-export type Prefs = { digest: boolean; digestHour: number; timed: boolean; before: number };
-export const DEFAULT_PREFS: Prefs = { digest: true, digestHour: 8, timed: true, before: 15 };
+export type Prefs = { digest: boolean; digestHour: number; timed: boolean; before: number; checkin: boolean; checkinHour: number };
+export const DEFAULT_PREFS: Prefs = { digest: true, digestHour: 8, timed: true, before: 15, checkin: true, checkinHour: 20 };
 
 export type Note = { key: string; title: string; body: string; url: string; tag: string };
 
@@ -16,6 +16,8 @@ export function cleanPrefs(p: Any | null | undefined): Prefs {
     digestHour: n(p.digestHour, 0, 23, DEFAULT_PREFS.digestHour),
     timed: p.timed !== false,
     before: n(p.before, 0, 180, DEFAULT_PREFS.before),
+    checkin: p.checkin !== false,
+    checkinHour: n(p.checkinHour, 0, 23, DEFAULT_PREFS.checkinHour),
   };
 }
 
@@ -99,6 +101,22 @@ export function dueNotes(data: Any, slot: string, prefsIn: Any, now: Date): Note
     const late = ds.filter(d => d.date < date);
     if (late.length) lines.push(`Overdue: ${list(late.map(d => d.label))}`);
     if (lines.length) notes.push({ key: `d:${date}`, title: '☀ Today in Duo', body: lines.join('\n'), url: './#/dash', tag: 'digest' });
+  }
+
+  /* 3. research check-in nudge: once a day after the chosen hour, for split topics where this partner owns a part and hasn't checked in today */
+  const ciStart = prefs.checkinHour * 60;
+  if (prefs.checkin && minutes >= ciStart && minutes < ciStart + 120) {
+    const filled = (n: Any) => n && ['l', 's', 'q', 'n'].some(k => String(n[k] || '').trim());
+    const counts = (c: Any) => !!c && Object.values(c.notes || {}).some(filled);
+    const ci = (tid: string, s: string) => (data.checkins || []).find((c: Any) => c.id === `ci-${tid}-${date}-${s}`);
+    const other = slot === 'A' ? 'B' : 'A';
+    const owed = (data.research || []).filter((t: Any) => t.status !== 'done' && (t.subs || []).some((s: Any) => s.owner === slot || s.owner === 'both') && !counts(ci(t.id, slot)));
+    if (owed.length) {
+      const pname = ((data.partners || []).find((p: Any) => p.id === other) || {}).name || 'Your partner';
+      const waiting = owed.filter((t: Any) => counts(ci(t.id, other)));
+      notes.push({ key: `r:${date}`, title: '🧩 Research check-in', tag: 'checkin', url: './#/research',
+        body: `Share what you learned today on ${list(owed.map((t: Any) => t.title || 'your topic'), 2)}.` + (waiting.length ? ` ${pname} already checked in, so you can compare notes.` : '') });
+    }
   }
   return notes;
 }

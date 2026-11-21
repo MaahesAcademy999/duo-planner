@@ -126,7 +126,7 @@ function ideaCard(i,{rec=false}={}){const kindTag=i.kind==='product'?'📦 Produ
    ${rec||i.fitWhy.length?`<div class="tiny mute">${[...scoreWhy(i),...i.fitWhy].map(esc).join(' · ')}</div>`:''}
    ${bars(i)}
    ${ladderHTML(i)}
-   <div class="row" style="margin-top:8px">${i.rung<=4?`<button class="btn s p" data-now="${i.id}">▶ ${i.existing?'Continue':'Start now'} · ${timeLabel(i.mins)}</button><button class="btn s" data-goal="${i.id}">🎯 Add to tree</button>`:'<span class="tag">🏁 All 4 steps done</span>'}<button class="btn s ghost" data-web="${i.id}">💡 Mind Web</button></div></div>`}
+   <div class="row" style="margin-top:8px">${i.rung<=4?`<button class="btn s p" data-now="${i.id}">▶ ${i.existing?'Continue':'Start now'} · ${timeLabel(i.mins)}</button><button class="btn s" data-goal="${i.id}">🎯 Add to tree</button>`:'<span class="tag">🏁 All 4 steps done</span>'}<button class="btn s ghost" data-web="${i.id}">💡 Mind Web</button><button class="btn s ghost" data-rsplit="${i.id}">🧩 Split research</button></div></div>`}
 function ladderHTML(i){if(!i.rungs||!i.rungs.length)return '';
   return `<ol class="id-ladder" aria-label="Steps from easy to hard">${i.rungs.map(r=>`<li class="${r.done?'done':r.r===i.rung?'next':''}"><span class="id-lv">${r.done?'✓':r.r}</span><span class="id-lt">${esc(r.goal)}</span><span class="id-tm">${timeLabel(r.mins)}</span></li>`).join('')}</ol>`}
 function startNow(i){if(!i||!i.ladder)return;let sid=i.existing;
@@ -142,7 +142,8 @@ function ideaToWeb(i){const p=findNode(i.branch);const id=uid();const a=Math.ran
 function wireIdeaButtons(el,list){const get=id=>list.find(x=>x.id===id);
   $$('[data-goal]',el).forEach(b=>b.onclick=()=>ideaToGoal(get(b.dataset.goal)));
   $$('[data-now]',el).forEach(b=>b.onclick=()=>startNow(get(b.dataset.now)));
-  $$('[data-web]',el).forEach(b=>b.onclick=()=>ideaToWeb(get(b.dataset.web)))}
+  $$('[data-web]',el).forEach(b=>b.onclick=()=>ideaToWeb(get(b.dataset.web)));
+  $$('[data-rsplit]',el).forEach(b=>b.onclick=()=>{const i=get(b.dataset.rsplit);if(i)rsNew(i.title,{kind:i.kind})})}
 
 /* scan result block (used on the page and inside the new-goal form) */
 function scanResultHTML(r,{compact=false}={}){return `<div class="card id-card id-scan" data-idea="scan">
@@ -152,7 +153,7 @@ function scanResultHTML(r,{compact=false}={}){return `<div class="card id-card i
    ${r.fitWhy.length?`<div class="tiny mute">Fit: ${r.fitWhy.map(esc).join(' · ')}</div>`:''}
    <div class="tiny mute id-live">${r.live?liveLine(r.live):'<button class="btn s ghost" data-live>🌐 Check live interest</button>'}</div>
    ${bars(r,true)}
-   ${compact?'':`<div class="row" style="margin-top:8px"><button class="btn s p" data-goal="scan">🎯 Add as goal</button><button class="btn s" data-web="scan">💡 Add to Mind Web</button></div>`}</div>`}
+   ${compact?'':`<div class="row" style="margin-top:8px"><button class="btn s p" data-goal="scan">🎯 Add as goal</button><button class="btn s" data-web="scan">💡 Add to Mind Web</button><button class="btn s" data-rsplit="scan">🧩 Split research</button></div>`}</div>`}
 const liveLine=li=>li.err?'Live check could not reach Wikipedia. Ratings above still work.':!li.title?'No public page found for this, so demand stays as rated.':
   `🌐 Public interest (Wikipedia “${esc(li.title)}”): ${li.views.toLocaleString()} views/day, ${li.trend>.15?'📈 rising':li.trend<-.15?'📉 falling':'➡ steady'} ${li.trend?`(${li.trend>0?'+':''}${Math.round(li.trend*100)}% vs the 2 months before)`:''}. Demand set to ${interestDemand(li)}/5.`;
 function wireScan(box,r,onChange){

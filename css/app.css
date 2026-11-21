@@ -22,7 +22,10 @@ a{color:var(--acc2)}
 .shell{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
 .side{position:sticky;top:0;height:100vh;overflow:auto;padding:16px 12px;border-right:1px solid var(--line);background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(14px)}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.04em;margin:2px 6px 16px;font-size:17px;background:none;border:0;color:var(--ink);cursor:pointer;padding:0}
-.brand .logo{width:30px;height:30px;border-radius:10px;background:conic-gradient(from 200deg,var(--acc),var(--acc2),var(--acc3),var(--acc));box-shadow:var(--glow)}
+.brand .logo{width:28px;height:34px;flex:none;background:url(../logo-mark.svg) center/contain no-repeat}
+/* the logo's rainbow flows (animated SVG); keep it still when motion is reduced */
+[data-motion="off"] .brand .logo,[data-motion="calm"] .brand .logo{background-image:url(../logo-mark-static.svg)}
+@media (prefers-reduced-motion:reduce){:root:not([data-motion="full"]) .brand .logo{background-image:url(../logo-mark-static.svg)}}
 .navgrp{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--mute);margin:14px 10px 4px}
 .navi{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border-radius:10px;border:1px solid transparent;background:none;color:var(--ink);font:inherit;cursor:pointer;text-align:left;transition:background var(--dur),border-color var(--dur)}
 .navi:hover{background:var(--surface2)}

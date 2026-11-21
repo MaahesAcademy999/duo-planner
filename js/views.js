@@ -102,6 +102,7 @@ function editFocus(){const cur=prof(me()).working||'';const seen=new Set();
       i.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();d.close();setFocus(i.value)}};
       $$('[data-fc]',d).forEach(b=>b.onclick=()=>{d.close();setFocus(b.dataset.fc)})}})}
 function nextUp(next,gaps,today){const out=[];
+  const qw=window.recommended&&recommended();if(qw)out.push(`<div class="qwin small"><span class="id-badge">⚡ ${LEVEL_NAME[qw.rung]} · ${timeLabel(qw.mins)}</span><div class="row" style="flex-wrap:nowrap"><b style="flex:1;min-width:0">${esc(qw.goal)}</b><button class="btn s p" onclick="startNow(recommended())">▶ ${qw.existing?'Continue':'Start'}</button></div></div>`);
   if(gaps.length)out.push(`<div class="small">Pick ${gaps.map(d=>`<b>${esc(d.name)}</b>`).join(', ')} topic${gaps.length>1?'s':''} <button class="btn s" data-go="schedule">Choose</button></div>`);
   if(next){const d=S.days.find(x=>x.id===next.dayId);out.push(`<div class="small mute" style="margin-top:6px">Next scheduled block · ${esc(d.name)}${next.time?' '+esc(next.time)+' '+esc(S.tz):''}</div><div class="drop">${taskHTML(next)}</div>`)}
   const unsched=S.tasks.filter(t=>!t.done&&!t.dayId);if(unsched.length)out.push(`<div class="small">${unsched.length} unscheduled task${unsched.length>1?'s':''} — <a href="#" data-go="schedule">drag them onto a day</a></div>`);

@@ -89,7 +89,7 @@ function taskHTML(t){const n=t.nodeId&&node(t.nodeId);const d=t.dayId&&S.days.fi
    <div class="t-body" data-open-task="${t.id}" tabindex="0" role="button" aria-label="Open task ${esc(t.title)}">
     <div class="t-title">${esc(t.title)}</div>
     <div class="row" style="gap:4px;margin-top:3px">${t.owner!=='both'?avatar(t.owner,18):`${avatar('A',18)}${avatar('B',18)}`} ${ownerPill(t.owner)}
-     ${d?`<span class="tag">📅 ${esc(d.name)}${t.time?' '+esc(t.time):''}</span>`:''}${t.due?`<span class="tag ${!t.done&&typeof daysTo==='function'&&daysTo(t.due)<0?'warn':''}">⏰ ${esc(t.due)}</span>`:''}${n?`<span class="tag">${nodeIcon(n)} ${esc(n.label)}</span>`:''}${t.mode?`<span class="tag">📈 ${esc(t.mode)}</span>`:''}${t.notes?'<span class="tag">📝</span>':''}</div></div></div>`}
+     ${d?`<span class="tag">📅 ${esc(d.name)}${t.time?' '+esc(t.time):''}</span>`:''}${t.due?`<span class="tag ${!t.done&&typeof daysTo==='function'&&daysTo(t.due)<0?'warn':''}">⏰ ${esc(t.due)}</span>`:''}${n?`<span class="tag" title="${esc(n.label)}">${nodeIcon(n)} ${esc(n.label)}</span>`:''}${t.mode?`<span class="tag">📈 ${esc(t.mode)}</span>`:''}${t.notes?'<span class="tag">📝</span>':''}</div></div></div>`}
 function wireTasks(root){
   $$('[data-done]',root).forEach(c=>c.onchange=()=>{const id=c.dataset.done;const t=S.tasks.find(x=>x.id===id);
     commit(s=>{s.tasks.find(x=>x.id===id).done=c.checked},c.checked?'Nice — done ✓':'Reopened',`${c.checked?'completed':'reopened'} task “${t.title}”`);

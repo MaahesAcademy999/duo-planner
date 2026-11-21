@@ -3,6 +3,12 @@
 ## [Unreleased]
 ### Fixes
 - Skill Tree: better proportions. Wider skill boxes so titles fit (full title on hover), no empty band under the tree, a slimmer detail panel that stays in view while you scroll, a normal-case detail title instead of wrapped spaced capitals, and tighter stat cards. On phones the tree scrolls inside its card instead of widening the page.
+- Phone top bar: page name on the first row, all buttons together on the second (before, Undo and Redo split across the two rows).
+- Mind Web: bubble labels show up to 38 characters before trimming (was 29), so names like "Research & Business Intelligence" fit.
+- Schedule: day cards are a bit wider (3 per row on a laptop instead of 4), so tasks inside don't wrap into tall columns.
+- Task chips: a long project name is trimmed with "…" on one line (full name on hover) instead of wrapping inside the pill.
+- Profile on phones: paired fields (gender/pronouns, zodiac/birthday) stack full-width instead of squeezing side by side.
+- Shadow Monarch theme on phones: page titles are a little smaller with less letter spacing so they don't wrap.
 
 ## [3.3.0] - 2026-11-21
 ### Features

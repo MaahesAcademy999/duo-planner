@@ -4,7 +4,7 @@
    The ? Help button works any time, easy mode or not, and has a search box for questions. */
 const HELP={
  dash:{t:'Command Center',what:'Your home screen. It shows what matters today for both of you.',
-  steps:['Look at “What should we work on next?” — it picks the next thing from your real tasks and schedule.','Check “Needs attention” for anything waiting on you (suggestions, schedule changes, clip deadlines).','Tap “Set my current focus” so your partner knows what you\'re doing.'],
+  steps:['Press ▶ Start in “Today\'s agenda” to jump straight to the first thing still to do today. Tap any line to open it, tick the box when a task is done.','Look at “What should we work on next?” — it picks the next thing from your real tasks and schedule.','Check “Needs attention” for anything waiting on you (suggestions, schedule changes, clip deadlines).','Tap “Set my current focus” so your partner knows what you\'re doing.'],
   tips:['Nothing here is made up — it only shows what you two have added.','Tick the weekly planning checklist as you go; press “Carry forward” to start a fresh week.']},
  web:{t:'Mind Web',what:'A map of every idea and business you\'re exploring, connected like a web.',
   steps:['Tap a bubble to open its details on the right (or below on a phone).','Double-tap a big bubble to open or close what\'s inside it.','Press “📇 Research card” to write down what you know, what you need, and your decision.'],

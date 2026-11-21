@@ -8,7 +8,8 @@ const STAGES=[['moment','💡 Moment found'],['editing','✂ Editing'],['review'
 const stageLabel=k=>(STAGES.find(s=>s[0]===k)||STAGES[0])[1];
 let clipSel=null,clipTab='board';
 const clipsOf=()=>S.clips||[];
-const today=()=>new Date().toISOString().slice(0,10);
+/* today's date in the workspace timezone (toISOString would give the UTC date, which is already tomorrow on a US evening) */
+const today=()=>{const d=new Date();try{return new Intl.DateTimeFormat('en-CA',{timeZone:S.tz||undefined,year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}catch(e){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}};
 const daysTo=d=>Math.round((new Date(d+'T12:00')-new Date(today()+'T12:00'))/864e5);
 
 /* ----- scorecard math (only numbers you enter) ----- */

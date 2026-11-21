@@ -60,6 +60,7 @@ function vDash(el){const A=prof(me()),B=prof(partnerId());const today=todayDay()
   const wk=weekKey();const st=S.steps[wk]||[];
   el.innerHTML=`<div class="row" style="margin-bottom:14px"><div><p class="hello">${greet}, ${esc(A.name)}</p><div class="mute small">${today?`Today is <b>${esc(today.name)}</b> · ${today.icon||''} ${esc(today.theme)}`:'No workday scheduled today'}</div></div><span class="sp"></span>
     <button class="btn" data-go="web">🕸 Open Mind Web</button></div>
+  ${agendaHTML()}
   <div class="card glow" style="margin-bottom:14px"><div class="pair">${person(A,mineN,'You')}<div class="bond hide-m" aria-hidden="true"></div>${person(B,partN,'Your partner')}</div>
     <div class="row small" style="margin-top:10px"><a href="#" data-go="journey" class="tag">🌳 Level ${levelInfo(totalXP(S.skills)).lvl} · ${S.skills.filter(s=>s.status==='done').length} skills done</a><span class="mute">Shared open tasks:</span> <b>${bothN}</b><span class="sp"></span><button class="btn s" id="setFocus">🛰 Set my current focus</button></div></div>
   <div class="grid g3">
@@ -74,7 +75,7 @@ function vDash(el){const A=prof(me()),B=prof(partnerId());const today=todayDay()
   </div>
   <div class="card" style="margin-top:14px"><h3>🗓 Weekly planning · week of ${wk}</h3><div class="steps">${STEPS.map((s,i)=>`<label><input type="checkbox" class="chk" data-step="${i}" ${st.includes(i)?'checked':''}> ${i+1}. ${esc(s)}</label>`).join('')}</div>
    <div class="row" style="margin-top:8px"><button class="btn s" data-go="schedule">Open schedule →</button><button class="btn s" id="carry">↻ Carry forward to new week</button></div></div>`;
-  wireTasks(el);wireLinks(el);if(typeof wireClipLinks==='function')wireClipLinks(el);
+  wireTasks(el);wireLinks(el);wireAgenda(el);if(typeof wireClipLinks==='function')wireClipLinks(el);
   $$('[data-step]',el).forEach(c=>c.onchange=()=>commit(s=>{const a=new Set(s.steps[wk]||[]);c.checked?a.add(+c.dataset.step):a.delete(+c.dataset.step);s.steps[wk]=[...a]}));
   $('#setFocus').onclick=()=>{const v=prompt('What are you working on right now? (leave blank to clear)',A.working||'');if(v!==null)commit(s=>{s.partners.find(p=>p.id===me()).working=v.trim()},'Focus updated',v.trim()?`is now working on “${v.trim()}”`:'cleared their focus')};
   $('#carry').onclick=()=>modal('Carry forward to a new week','<p>Completed tasks are cleared, unfinished tasks stay on their days, and Tuesday / Thursday / Friday topics reset so you choose fresh ones. Undo is available.</p>',[{t:'Carry forward',c:'p',f:()=>commit(s=>{s.tasks=s.tasks.filter(t=>!t.done);s.days.forEach(d=>d.topics=[])},'New week ready','started a new week')}]);

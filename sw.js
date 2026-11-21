@@ -1,11 +1,28 @@
 /* Service worker: makes Duo installable, keeps the app shell available offline, and shows phone reminders.
-   Network-first for everything (so updates show immediately); never caches Supabase API calls. */
-const CACHE='duo-shell-v6';
+   Fast start: versioned files (css/js ?v=…) never change once published, so they come straight from the cache
+   and only hit the network the first time. Everything else (index.html, icons, manifest) tries the network for
+   up to 3 seconds, then falls back to the cached copy and refreshes it in the background, so a slow or flaky
+   connection can no longer hold the loading screen. Never caches Supabase API calls. */
+const CACHE='duo-shell-v7';
+const NET_WAIT=3000;
 self.addEventListener('install',e=>{self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{const u=new URL(e.request.url);
-  if(e.request.method!=='GET'||u.origin!==location.origin)return; /* API & other sites: straight to network */
-  e.respondWith(fetch(e.request).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy))}return r}).catch(()=>caches.match(e.request).then(m=>m||caches.match('./index.html'))))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE&&!k.startsWith('duo-shell-')).map(k=>caches.delete(k))))
+  /* carry the old shell over so the first start after this update is still instant, then drop the old caches */
+  .then(()=>caches.keys()).then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(async k=>{const old=await caches.open(k),cur=await caches.open(CACHE);
+    for(const req of await old.keys()){if(!(await cur.match(req))){const r=await old.match(req);if(r)await cur.put(req,r)}}await caches.delete(k)})))
+  .catch(()=>{}).then(()=>self.clients.claim()))});
+function save(req,r){if(r&&r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(req,copy)).catch(()=>{})}return r}
+self.addEventListener('fetch',e=>{const req=e.request,u=new URL(req.url);
+  if(req.method!=='GET'||u.origin!==location.origin)return; /* API & other sites: straight to network */
+  if(u.searchParams.has('v')){ /* versioned asset: cache first */
+    e.respondWith(caches.match(req).then(m=>m||fetch(req).then(r=>save(req,r))));return}
+  /* network first, but give up waiting after NET_WAIT and use the cache (the network answer still refreshes it) */
+  const net=fetch(req).then(r=>save(req,r));
+  e.respondWith(new Promise(resolve=>{let done=false;const fin=r=>{if(!done&&r){done=true;resolve(r)}};
+    const fallback=()=>caches.match(req).then(m=>m||(req.mode==='navigate'?caches.match('./index.html').then(x=>x||caches.match('./')):null));
+    const t=setTimeout(()=>fallback().then(fin),NET_WAIT);
+    net.then(r=>{clearTimeout(t);fin(r)},()=>{clearTimeout(t);fallback().then(m=>fin(m||Response.error()))});}));
+  e.waitUntil(net.catch(()=>{}))});
 
 /* ----- phone reminders (sent by the duo-reminders Edge Function) ----- */
 self.addEventListener('push',e=>{let d={};try{d=e.data?e.data.json():{}}catch(err){d={body:e.data?e.data.text():''}}

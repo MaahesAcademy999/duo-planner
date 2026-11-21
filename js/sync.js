@@ -3,12 +3,15 @@
    Every call carries the user's access token; the database checks workspace membership (duo_members) on each request,
    so a workspace is reachable only by its two signed-in partners. Invite codes are single-slot and can be rotated. */
 const SYNC_CFG={url:'https://cwtloacfsvyjemywmotl.supabase.co',key:'sb_publishable_FYDw9rFddFv0cUd7-Kqceg_rjBkrZOe'/* public by design; RLS blocks tables, RPCs check membership */};
+/* fetch that gives up after ms (default 12 s), so a stalled connection never leaves sync or sign-in waiting forever */
+function fetchT(url,opt={},ms=12000){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);
+  return fetch(url,{...opt,signal:c.signal}).catch(e=>{throw new Error(e.name==='AbortError'?'Server took too long to answer. Will retry.':"Can't reach the server. Will retry.")}).finally(()=>clearTimeout(t))}
 const Sync=(()=>{
   let rev=0,timer=null,pushT=null,busy=false,status='off',lastOk=0,pending=false;
   const room=()=>LOCAL.roomId||'';
-  async function rpc(fn,body){const tok=await Auth.token();
-    const r=await fetch(`${SYNC_CFG.url}/rest/v1/rpc/${fn}`,{method:'POST',headers:{'Content-Type':'application/json',apikey:SYNC_CFG.key,Authorization:`Bearer ${tok}`},body:JSON.stringify(body||{})});
-    if(r.status===401){await Auth.refresh();return rpc(fn,body)}
+  async function rpc(fn,body,retried){const tok=await Auth.token();
+    const r=await fetchT(`${SYNC_CFG.url}/rest/v1/rpc/${fn}`,{method:'POST',headers:{'Content-Type':'application/json',apikey:SYNC_CFG.key,Authorization:`Bearer ${tok}`},body:JSON.stringify(body||{})});
+    if(r.status===401&&!retried){await Auth.refresh();return rpc(fn,body,true)}
     if(!r.ok)throw new Error(`${fn} failed (${r.status})`);return r.json()}
   function set(st,msg){status=st;if(window.onSyncStatus)onSyncStatus(st,msg)}
   const busyUI=()=>{const d=$('#dlg');return (d&&d.open)||window.__dragging};

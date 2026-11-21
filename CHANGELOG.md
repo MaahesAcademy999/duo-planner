@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+### Fixes
+- ⚡ Faster start: Duo no longer sits on "Syncing Command Center" when the connection is slow. The app's files now open straight from the phone or laptop (they're only downloaded again when a new version is published), and the page itself waits at most 3 seconds for the internet before using the saved copy. On a slow connection the app opened in about 4 seconds in testing, where before it stayed on the loading screen for over 30.
+- Your plan shows from this device first and sync catches up in the background. Requests to the server give up after 12 seconds and retry, so a stalled connection shows "Sync issue" instead of hanging, and being offline no longer sends you back to the sign-in screen.
+- If Duo ever takes more than 8 seconds to start, the loading screen says so and shows a Reload Duo button.
 ### Features
 - 🪟 Pop-up details everywhere: tapping a skill or goal on the Skill Tree now opens its details and buttons in a pop-up box over the page (it used to appear in a panel beside or below the tree). Mind Web ideas and projects open the same way, from the map, the list, Projects, Find anything and any idea link, without leaving the page you're on. Tasks, notes, suggestions and forms already used it and now share the same behaviour.
 - Close a pop-up by tapping outside it, pressing Esc, ✕, or on a phone by swiping its top bar down. On a phone it rises from the bottom as a sheet with large buttons.

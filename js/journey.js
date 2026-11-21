@@ -85,14 +85,14 @@ let skSel=null,jTab='tree';
 function vJourney(el){const skills=S.skills,inc=incomeSummary(S.income,incOpts());const xp=totalXP(skills),L=levelInfo(xp);
   const done=skills.filter(s=>s.status==='done').length,avail=skills.filter(s=>skState(s,skills)==='available'||skState(s,skills)==='progress').length;
   el.innerHTML=hdr('🌳 Skill Tree & Milestones','Every finished step unlocks the next. Money milestones come <b>only</b> from income you record — nothing is estimated.',
-   `<div class="seg" role="group" aria-label="Section">${[['tree','🌳 Skill tree'],['money','💰 Income & milestones'],['journey','🛤 Journey'],['public','🌐 Public showcase']].map(([k,l])=>`<button aria-pressed="${jTab===k}" data-jt="${k}">${l}</button>`).join('')}</div>`)+
+   `<div class="seg" role="group" aria-label="Section">${[['tree','🌳 Skill tree'],['ideas','🔎 Ideas & scanner'],['money','💰 Income & milestones'],['journey','🛤 Journey'],['public','🌐 Public showcase']].map(([k,l])=>`<button aria-pressed="${jTab===k}" data-jt="${k}">${l}</button>`).join('')}</div>`)+
   `<div class="grid g3 jstats" style="margin-bottom:14px">
     <div class="card glow"><div class="row"><div class="lvl" aria-label="Level ${L.lvl}">${L.lvl}</div><div style="flex:1"><b>Level ${L.lvl}</b><div class="tiny mute">${xp} XP · ${L.into}/${L.need} to level ${L.lvl+1}</div><div class="jbar"><i style="width:${L.pct}%"></i></div></div></div></div>
     <div class="card"><b>${done}</b> skills completed · <b>${avail}</b> ready to work on<div class="tiny mute">${skills.length} skills in the tree</div></div>
     <div class="card"><b>${inc.count?fmt$(inc.total):'No income recorded yet'}</b>${inc.count?` <span class="tiny mute">recorded total${S.showcase.includeTrading?' (incl. live trading)':' (business only)'}</span>`:''}<div class="tiny mute">${inc.nextMoney?`Next: ${fmt$(inc.nextMoney)}`:''}${inc.streak?` · 🔥 ${inc.streak}-month streak`:''}</div></div></div>
    <div id="jbody"></div>`;
   $$('[data-jt]',el).forEach(b=>b.onclick=()=>{jTab=b.dataset.jt;render()});
-  ({tree:jTree,money:jMoney,journey:jJourney,public:jPublic})[jTab]($('#jbody'),inc);
+  ({tree:jTree,ideas:jIdeas,money:jMoney,journey:jJourney,public:jPublic})[jTab]($('#jbody'),inc);
 }
 function jTree(el){const skills=S.skills;
   el.innerHTML=`<div class="webwrap skwrap"><div class="card" style="padding:10px"><div class="row" style="margin-bottom:8px"><button class="btn s p" id="skAdd">+ New skill / goal</button><span class="tiny mute">Tap a skill to work on it · ✔ done · ◐ in progress · ✦ ready · 🔒 locked until the step before is done</span></div>
@@ -124,7 +124,7 @@ function completeSkill(id){const s=S.skills.find(x=>x.id===id);const before=leve
   modal('Nice — what comes next?',`<p class="small">${unlocked.length?`Unlocked: ${unlocked.map(u=>`<b>${esc(u.title)}</b>`).join(', ')}`:'Nothing is unlocked by this yet.'}</p><label class="f" for="nx">Add the next step (optional)</label><input id="nx" placeholder="e.g. Film 3 UGC test videos">`,
     [{t:'Add next step',c:'p',f:()=>{const t=val('nx');if(!t)return;commit(x=>x.skills.push({id:uid(),title:t,parents:[id],status:'available',owner:s.owner,xp:10,branch:s.branch||'',notes:'',doneAt:0}),'Added to tree',`added next step “${t}”`)}}],{noFocus:false})}
 function editSkill(id,preset={}){const s=id?S.skills.find(x=>x.id===id):{title:'',parents:[],owner:'both',xp:10,branch:'',notes:'',...preset};const others=S.skills.filter(x=>x.id!==id);
-  modal(id?'Edit skill':'New skill / goal',`<label class="f" for="skT">Skill or goal</label><input id="skT" value="${esc(s.title)}" placeholder="e.g. Land first UGC client">
+  modal(id?'Edit skill':'New skill / goal',`${id?'':goalAssistHTML()}<label class="f" for="skT">Skill or goal</label><div class="row" style="flex-wrap:nowrap"><input id="skT" value="${esc(s.title)}" placeholder="e.g. Land first UGC client" style="flex:1;min-width:0">${id?'':'<button type="button" class="btn s" id="skScan" title="Score this idea">🔎 Scan</button>'}</div>${id?'':'<div id="skScanOut"></div>'}
    <div class="row"><div style="flex:1;min-width:140px"><label class="f" for="skO">Who</label>${ownerSel('skO',s.owner)}</div><div style="flex:1;min-width:140px"><label class="f" for="skXP">Size</label><select id="skXP">${SK_SIZES.map(([v,l])=>`<option value="${v}" ${+s.xp===v?'selected':''}>${l} (+${v} XP)</option>`).join('')}</select></div></div>
    <label class="f">Comes after (must be done first)</label><div class="col" style="max-height:150px;overflow:auto;border:1px solid var(--line);border-radius:9px;padding:6px">${others.map(o=>`<label class="row small"><input type="checkbox" class="skP" value="${o.id}" ${s.parents.includes(o.id)?'checked':''}> ${esc(o.title)}</label>`).join('')||'<span class="tiny mute">This will be a starting point.</span>'}</div>
    <label class="f" for="skB">Mind Web branch (optional)</label><select id="skB"><option value="">— none —</option>${nodeOptions(s.branch)}</select>
@@ -132,7 +132,7 @@ function editSkill(id,preset={}){const s=id?S.skills.find(x=>x.id===id):{title:'
    [...(id?[{t:'Delete',c:'d',f:()=>commit(x=>{x.skills=x.skills.filter(y=>y.id!==id);x.skills.forEach(y=>y.parents=y.parents.filter(p=>p!==id))},'Deleted — Undo available')}]:[]),
     {t:'Save',c:'p',f:()=>{const title=val('skT');if(!title){toast('Name the skill');return false}const parents=$$('.skP:checked').map(c=>c.value);
      const data={title,owner:val('skO'),xp:+val('skXP'),branch:val('skB'),notes:val('skN'),parents};
-     commit(x=>{if(id)Object.assign(x.skills.find(y=>y.id===id),data);else{const nid=uid();x.skills.push({id:nid,status:'available',doneAt:0,...data});skSel=nid}},'Saved',id?`edited skill “${title}”`:`added skill “${title}”`)}}])}
+     commit(x=>{if(id)Object.assign(x.skills.find(y=>y.id===id),data);else{const nid=uid();x.skills.push({id:nid,status:'available',doneAt:0,...data});skSel=nid}},'Saved',id?`edited skill “${title}”`:`added skill “${title}”`)}}],id?{}:{onOpen:d=>wireGoalAssist(d)})}
 
 const incOpts=()=>({includeTrading:!!S.showcase.includeTrading,basis:S.showcase.basis||'revenue'});
 const RESULT_KINDS=[['business','💵 Revenue / sale'],['commission','🔗 Affiliate commission'],['client_fee','🤝 Client fee received'],['invoiced','🧾 Invoiced (not yet paid)'],

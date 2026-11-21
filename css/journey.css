@@ -53,3 +53,23 @@ label.row{flex-wrap:nowrap;align-items:flex-start}label.row input{margin-top:3px
 .bhead{font-size:13px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between}
 .bdrop{min-height:120px}.bitem{cursor:grab}
 @media (max-width:860px){.board{grid-template-columns:repeat(6,78vw);scroll-snap-type:x mandatory}.bcol{scroll-snap-align:start}}
+
+/* ===== Ideas & scanner ===== */
+.id-card{padding:12px 14px;display:flex;flex-direction:column}
+.id-card .id-t{font-family:inherit;font-size:15px;line-height:1.3;margin:2px 0 4px;text-transform:none;letter-spacing:.01em;overflow-wrap:anywhere}
+.id-rec{border-color:color-mix(in srgb,var(--acc) 60%,var(--line))}
+.id-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--acc);margin-bottom:2px}
+.id-ring{--c:var(--warn);flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;margin-right:4px;
+  background:radial-gradient(closest-side,var(--surface2,var(--bg2)) 76%,transparent 78%),conic-gradient(var(--c) calc(var(--p)*1%),color-mix(in srgb,var(--line) 80%,transparent) 0)}
+.id-ring b{font-size:15px;color:var(--ink)}
+.id-ring.hi{--c:var(--ok)}.id-ring.mid{--c:var(--acc2)}.id-ring.lo{--c:var(--warn)}
+.id-bars{display:grid;gap:4px;margin-top:8px}
+.id-bar{display:grid;grid-template-columns:118px auto 1fr;align-items:center;gap:6px;font-size:11.5px;color:var(--mute)}
+.id-bar select{padding:0 4px;font-size:11.5px;height:22px;width:auto}
+.id-bar i{display:block;height:6px;border-radius:9px;background:color-mix(in srgb,var(--line) 75%,transparent);overflow:hidden}
+.id-bar em{display:block;height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:9px}
+.id-live{margin-top:6px}
+.id-assist{border:1px solid color-mix(in srgb,var(--acc) 45%,var(--line));border-radius:12px;padding:10px 12px;margin-bottom:10px;background:color-mix(in srgb,var(--acc) 7%,transparent)}
+#skScanOut .id-scan{margin-top:8px;background:transparent}
+@media (max-width:520px){.id-bar{grid-template-columns:96px auto 1fr}}
+.id-bar b{font-weight:600;color:var(--ink);min-width:22px;text-align:right}

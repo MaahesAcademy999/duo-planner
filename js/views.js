@@ -115,7 +115,7 @@ function attention(gaps){const items=[];const pp=pendingProposals();const us=uns
   const ch=typeof clipAttentionHTML==='function'?clipAttentionHTML():'';
   return items.join('')+ch||'<div class="small mute">All clear ✓</div>'}
 function actItem(a){return `<div class="it">${avatar(a.by,26)}<div><div class="small"><b>${esc(pname(a.by))}</b> ${esc(a.text)}</div><div class="tiny mute">${new Date(a.at).toLocaleString([], {weekday:'short',hour:'numeric',minute:'2-digit'})}</div></div></div>`}
-function wireLinks(el){$$('[data-node]',el).forEach(a=>a.onclick=e=>{e.preventDefault();go('web');selectNode(a.dataset.node)});
+function wireLinks(el){$$('[data-node]',el).forEach(a=>a.onclick=e=>{e.preventDefault();openNode(a.dataset.node)});
   $$('[data-sg]',el).forEach(a=>a.onclick=e=>{e.preventDefault();editSuggestion(a.dataset.sg)});
   $$('[data-nt]',el).forEach(a=>a.onclick=e=>{e.preventDefault();editNote(a.dataset.nt)})}
 const STEPS=['Review the default theme for each weekday',"Pick Tuesday's research topic","Pick Thursday's format (two topics / one detailed)","Pick Friday's focused topic",'Assign tasks or work blocks to each partner','Add shared meetings and notes','Make or respond to schedule suggestions','Review completed work and decide what carries forward'];
@@ -128,12 +128,12 @@ function topicLine(d){if(d.topicRule==='none')return '';const need=d.topicRule==
 function vProjects(el){const sc=scopes.projects;const projs=S.nodes.filter(n=>n.kind==='project'&&!n.archived&&inScope(n.owner||'both',sc));
   el.innerHTML=hdr('🚀 Projects','Projects are created from ideas in the Mind Web. Progress is calculated from their linked tasks.',`${scopeSeg(sc,'projects')}<button class="btn p" id="newProj">+ New project</button>`)+
   (projs.length?`<div class="grid g3">${projs.map(p=>{const ts=S.tasks.filter(t=>t.nodeId===p.id);const done=ts.filter(t=>t.done).length;const pct=ts.length?Math.round(done/ts.length*100):0;const par=p.parent&&node(p.parent);
-    return `<div class="card"><h3>${esc(p.label)}</h3><div class="row">${stPill(p.status)}${ownerPill(p.owner||'both')}${par?`<span class="tag">${nodeIcon(par)} ${esc(par.label)}</span>`:''}</div>
+    return `<div class="card"><h3><a href="#" data-node="${p.id}" class="plink">${esc(p.label)}</a></h3><div class="row">${stPill(p.status)}${ownerPill(p.owner||'both')}${par?`<span class="tag">${nodeIcon(par)} ${esc(par.label)}</span>`:''}</div>
      <div style="margin:10px 0 4px;height:6px;border-radius:3px;background:var(--line)" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><div style="height:100%;width:${pct}%;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--acc2))"></div></div>
      <div class="tiny mute">${ts.length?`${done}/${ts.length} tasks done`:'No tasks linked yet'}</div>
      ${p.notes?`<p class="small mute" style="white-space:pre-wrap">${esc(p.notes.slice(0,160))}</p>`:''}
      <div class="drop">${ts.filter(t=>!t.done).slice(0,3).map(taskHTML).join('')}</div>
-     <div class="row"><button class="btn s" data-node="${p.id}">Open in Mind Web</button><button class="btn s" data-ptask="${p.id}">+ Task</button></div></div>`}).join('')}</div>`
+     <div class="row"><button class="btn s" data-node="${p.id}">Details</button><button class="btn s" data-ptask="${p.id}">+ Task</button></div></div>`}).join('')}</div>`
    :empty('No projects in this view yet. Open an idea in the Mind Web and choose “Make project”, or start one here.'));
   wireTasks(el);wireLinks(el);$$('[data-ptask]',el).forEach(b=>b.onclick=()=>editTask(null,{nodeId:b.dataset.ptask}));
   $('#newProj').onclick=newProject;
@@ -160,7 +160,7 @@ function vChecklist(el){const items=S.checklist;
    ${items.some(c=>c.done)?'<button class="btn s" id="clclr">Clear completed</button>':''}</div>`;
   $('#clf').onsubmit=e=>{e.preventDefault();const t=val('clt');if(t)commit(s=>s.checklist.push({id:uid(),text:t,done:false,by:me()}),null,`added “${t}” to the checklist`);setTimeout(()=>$('#clt')&&$('#clt').focus())};
   $$('[data-cl]',el).forEach(c=>c.onchange=()=>{commit(s=>s.checklist.find(x=>x.id===c.dataset.cl).done=c.checked,null,c.checked?`checked off “${S.checklist.find(x=>x.id===c.dataset.cl).text}”`:null);if(c.checked&&S.checklist.every(x=>x.done))celebrate(true)});
-  $$('[data-cle]',el).forEach(b=>b.onclick=()=>{const c=S.checklist.find(x=>x.id===b.dataset.cle);const t=prompt('Edit item:',c.text);if(t&&t.trim())commit(s=>s.checklist.find(x=>x.id===c.id).text=t.trim())});
+  $$('[data-cle]',el).forEach(b=>b.onclick=()=>{const c=S.checklist.find(x=>x.id===b.dataset.cle);ask('Edit checklist item','Checklist item',c.text,t=>{commit(s=>s.checklist.find(x=>x.id===c.id).text=t)})});
   $$('[data-cld]',el).forEach(b=>b.onclick=()=>commit(s=>s.checklist=s.checklist.filter(x=>x.id!==b.dataset.cld),'Removed — Undo available'));
   if($('#clclr'))$('#clclr').onclick=()=>commit(s=>s.checklist=s.checklist.filter(x=>!x.done),'Cleared');
 }

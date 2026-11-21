@@ -148,30 +148,42 @@ function vJourney(el){const skills=S.skills,inc=incomeSummary(S.income,incOpts()
   ({tree:jTree,ideas:jIdeas,money:jMoney,journey:jJourney,public:jPublic})[jTab]($('#jbody'),inc);
 }
 function jTree(el){const skills=S.skills;
-  el.innerHTML=`<div class="webwrap skwrap"><div class="card sk-card"><div class="sk-head"><button class="btn s p" id="skAdd">+ New skill / goal</button><div class="sk-legend" aria-label="Legend"><span><i class="l-done"></i>✔ Done</span><span><i class="l-prog"></i>◐ In progress</span><span><i class="l-ready"></i>✦ Ready</span><span><i class="l-lock"></i>🔒 Locked</span></div></div>
-   ${treeBox(skills,{sel:skSel})||empty('No skills yet — add your first goal.')}</div><aside class="card sk-detail" id="skDetail"></aside></div>`;
-  mountZoom(el);const pick=g=>{if(g){skSel=g.dataset.sk;render()}};
+  el.innerHTML=`<div class="card sk-card"><div class="sk-head"><button class="btn s p" id="skAdd">+ New skill / goal</button><div class="sk-legend" aria-label="Legend"><span><i class="l-done"></i>✔ Done</span><span><i class="l-prog"></i>◐ In progress</span><span><i class="l-ready"></i>✦ Ready</span><span><i class="l-lock"></i>🔒 Locked</span></div></div>
+   ${treeBox(skills,{sel:skSel})||empty('No skills yet — add your first goal.')}
+   <p class="tiny mute sk-how">Tap any skill to open it. Start a ✦ ready one; marking it ✔ done lights up what it unlocks. A 🔒 locked one shows what to finish first. Finished Mind Web ideas and projects show up here too.</p></div>`;
+  mountZoom(el);const pick=g=>{if(g)openSkill(g.dataset.sk)};
   el.onclick=e=>pick(e.target.closest('[data-sk]'));el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest('[data-sk]');if(g){e.preventDefault();pick(g)}}};
-  $('#skAdd').onclick=()=>editSkill(null,{parents:skSel?[skSel]:[]});skDetail();
+  $('#skAdd').onclick=()=>editSkill(null,{parents:[]});
 }
-function skDetail(){const el=$('#skDetail');const s=skSel&&S.skills.find(x=>x.id===skSel);
-  if(!s){el.innerHTML=`<h3>How the tree grows</h3><ol class="small mute" style="padding-left:18px"><li>Pick a ✦ ready skill and start it.</li><li>Mark it ✔ done — what it unlocks lights up.</li><li>Add the next step whenever you know it. The tree never ends.</li></ol><p class="tiny mute">Completing a Mind Web idea or project also adds it here automatically. Starter goals are suggestions — not accomplishments.</p>`;return}
+/* the closest unfinished step(s) you can work on now that lead to a locked skill */
+function skNextUnlock(s,all=S.skills){const out=[],seen=new Set();const walk=k=>{if(!k||seen.has(k.id))return;seen.add(k.id);
+    k.parents.map(id=>all.find(x=>x.id===id)).filter(p=>p&&p.status!=='done').forEach(p=>{const st=skState(p,all);if(st==='locked')walk(p);else if(!out.includes(p))out.push(p)})};
+  walk(s);return out}
+function skHighlight(id){$$('.sk-node.sel').forEach(n=>n.classList.remove('sel'));if(id)$$(`.sk-node[data-sk="${id}"]`).forEach(n=>n.classList.add('sel'))}
+/* skill / goal details in the shared pop-up. Locked skills open view-only: they show what to finish first. */
+function openSkill(id){const s=S.skills.find(x=>x.id===id);if(!s)return;skSel=id;skHighlight(id);
   const st=skState(s,S.skills);const kids=S.skills.filter(x=>x.parents.includes(s.id));const n=s.branch&&node(s.branch);
-  el.innerHTML=`<div class="row"><span class="tag">${{done:'✔ done',progress:'◐ in progress',available:'✦ ready',locked:'🔒 locked'}[st]}</span><span class="sp"></span><button class="btn s ghost" id="skX" aria-label="Close">✕</button></div>
-   <h2 class="sk-title">${esc(s.title)}</h2><div class="row">${ownerPill(s.owner)}<span class="tag">+${s.xp||10} XP</span>${n?`<a href="#" data-node="${n.id}" class="tag">${nodeIcon(n)} ${esc(n.label)}</a>`:''}</div>
-   ${s.notes?`<p class="small" style="white-space:pre-wrap">${esc(s.notes)}</p>`:''}${s.doneAt?`<p class="tiny mute">Completed ${new Date(s.doneAt).toLocaleDateString()}</p>`:''}
-   ${st==='locked'?`<p class="small warn">Finish first: ${s.parents.map(id=>S.skills.find(x=>x.id===id)).filter(p=>p&&p.status!=='done').map(p=>esc(p.title)).join(', ')}</p>`:''}
-   <div class="row" style="margin-top:8px">${st==='available'?'<button class="btn s p" id="skStart">▶ Start</button>':''}${st==='progress'?'<button class="btn s p" id="skGuide">▶ Continue walkthrough</button>':''}${st!=='done'?`<button class="btn s" id="skDone" ${st==='locked'?'disabled':''}>✔ Mark done</button>`:'<button class="btn s" id="skUndo">Reopen</button>'}
-    <button class="btn s" id="skNext">+ Next step</button><button class="btn s" id="skEdit">✎ Edit</button><button class="btn s" id="skTask">+ Task</button></div>
-   ${(()=>{const t=typeof rsForSkill==='function'&&rsForSkill(s.id);return t?`<div class="rs-skp"><div class="small">🧩 Research split: <b>${Math.min(rsShared(t),RS_GOAL)} of ${RS_GOAL}</b> days you both checked in</div><button class="btn s" id="skRs">Open research split →</button></div>`:''})()}
-   ${kids.length?`<label class="f">Unlocks</label>${kids.map(k=>`<div class="small"><a href="#" data-skp="${k.id}">${esc(k.title)}</a></div>`).join('')}`:''}`;
-  wireLinks(el);$$('[data-skp]',el).forEach(a=>a.onclick=e=>{e.preventDefault();skSel=a.dataset.skp;render()});
-  $('#skX').onclick=()=>{skSel=null;render()};$('#skEdit').onclick=()=>editSkill(s.id);$('#skNext').onclick=()=>editSkill(null,{parents:[s.id],branch:s.branch});
-  $('#skTask').onclick=()=>editTask(null,{title:s.title,nodeId:s.branch,owner:s.owner});
-  if($('#skStart'))$('#skStart').onclick=()=>startGuide(s.id);if($('#skGuide'))$('#skGuide').onclick=()=>openGuide(s.id);
-  if($('#skDone'))$('#skDone').onclick=()=>completeSkill(s.id);
-  if($('#skRs'))$('#skRs').onclick=()=>{rsSel=rsForSkill(s.id).id;rsDay=null;go('research')};
-  if($('#skUndo'))$('#skUndo').onclick=()=>commit(x=>Object.assign(x.skills.find(y=>y.id===s.id),{status:'available',doneAt:0}),'Reopened');
+  const pre=s.parents.map(pid=>S.skills.find(x=>x.id===pid)).filter(Boolean);const todo=pre.filter(p=>p.status!=='done');
+  const chip=(k,lead='')=>{const ks=skState(k,S.skills);return `<button type="button" class="sk-chip st-${ks}" data-skp="${k.id}"><span class="sk-chip-t">${lead||{done:'✔',progress:'◐',available:'✦',locked:'🔒'}[ks]} ${esc(k.title)}</span><span aria-hidden="true">›</span></button>`};
+  const rs=typeof rsForSkill==='function'&&rsForSkill(s.id);
+  let walk='';if(st==='progress'&&typeof guideFor==='function'&&!rs){const G=guideFor(s),g=gState(s),at=Math.min(g.at,G.steps.length-1);walk=`<div class="sk-walk"><div class="tiny mute">Walkthrough step ${at+1} of ${G.steps.length}: ${esc(G.steps[at].t)}</div><div class="jbar"><i style="width:${Math.round(at/Math.max(1,G.steps.length-1)*100)}%"></i></div></div>`}
+  let lock='';if(st==='locked'){const nx=skNextUnlock(s);
+    lock=`<div class="sk-lock" role="note"><b>🔒 Locked · view only</b><p class="small">Finish ${todo.length>1?'these':'this'} first to unlock it:</p><div class="col">${todo.map(p=>chip(p)).join('')}</div>
+      ${nx.length&&nx.some(x=>!todo.includes(x))?`<p class="small" style="margin-top:10px">Next one you can work on now:</p><div class="col">${nx.map(p=>chip(p,'▶')).join('')}</div>`:''}</div>`}
+  const body=`<div class="row sk-pills"><span class="tag st-${st}">${{done:'✔ Done',progress:'◐ In progress',available:'✦ Ready',locked:'🔒 Locked'}[st]}</span>${ownerPill(s.owner)}<span class="tag">+${s.xp||10} XP</span>${n?`<a href="#" data-node="${n.id}" class="tag">${nodeIcon(n)} ${esc(n.label)}</a>`:''}</div>
+    ${lock}${walk}
+    ${s.notes?`<p class="small" style="white-space:pre-wrap">${esc(s.notes)}</p>`:''}${s.doneAt?`<p class="tiny mute">Completed ${new Date(s.doneAt).toLocaleDateString()}</p>`:''}
+    ${rs?`<div class="rs-skp"><div class="small">🧩 Research split: <b>${Math.min(rsShared(rs),RS_GOAL)} of ${RS_GOAL}</b> days you both checked in</div><button type="button" class="btn s" id="skRs">Open research split →</button></div>`:''}
+    ${st!=='locked'&&pre.length?`<label class="f">Comes after</label><div class="col">${pre.map(p=>chip(p)).join('')}</div>`:''}
+    ${kids.length?`<label class="f">Unlocks</label><div class="col">${kids.map(k=>chip(k)).join('')}</div>`:''}`;
+  const btns=st==='locked'?[{t:'✎ Edit',f:()=>editSkill(s.id)}]
+    :[...(st==='available'?[{t:'▶ Start',c:'p',f:()=>startGuide(s.id)}]:[]),...(st==='progress'?[{t:'▶ Continue walkthrough',c:'p',f:()=>openGuide(s.id)}]:[]),
+      ...(st!=='done'?[{t:'✔ Mark done',f:()=>completeSkill(s.id)}]:[{t:'Reopen',f:()=>{commit(x=>Object.assign(x.skills.find(y=>y.id===s.id),{status:'available',doneAt:0}),'Reopened');dlgRefresh()}}]),
+      {t:'+ Next step',f:()=>editSkill(null,{parents:[s.id],branch:s.branch})},{t:'+ Task',f:()=>editTask(null,{title:s.title,nodeId:s.branch,owner:s.owner})},{t:'✎ Edit',f:()=>editSkill(s.id)}];
+  modal(s.title,body,btns,{noCancel:true,cls:'dlg-detail',reopen:()=>openSkill(id),onOpen:d=>{
+    DLG.onDone=()=>{if(!slideMode())skSel=null;skHighlight(null)};
+    wireLinks(d);$$('[data-skp]',d).forEach(a=>a.onclick=e=>{e.preventDefault();openSkill(a.dataset.skp)});
+    const r=$('#skRs',d);if(r)r.onclick=()=>{d.close();rsSel=rs.id;rsDay=null;go('research')}}});
 }
 function completeSkill(id){const s=S.skills.find(x=>x.id===id);const before=levelInfo(totalXP(S.skills)).lvl;
   commit(x=>Object.assign(x.skills.find(y=>y.id===id),{status:'done',doneAt:Date.now(),starter:false}),`+${s.xp||10} XP`,`completed “${s.title}” (+${s.xp||10} XP)`);
@@ -241,7 +253,7 @@ function moneyHits(fresh,inc){const tierHits=fresh.filter(h=>h.kind==='money'||h
 function jJourney(el,inc){el.innerHTML=`<div class="grid g2"><div class="card"><h3>🛤 One track: skills, levels & money</h3>${timelineHTML(journeyEvents(S.skills,inc))}</div><div class="card"><h3>📊 Monthly pace</h3>${paceChart(S.skills,inc)}
   <h3 style="margin-top:14px">Up next</h3><div class="col small">${S.skills.filter(s=>['available','progress'].includes(skState(s,S.skills))).slice(0,5).map(s=>`<div>✦ <a href="#" data-skp="${s.id}">${esc(s.title)}</a></div>`).join('')||'<div class="tiny mute">Add new goals to keep the tree growing.</div>'}
   ${inc.nextMoney?`<div>💰 ${fmt$(inc.total)} → ${fmt$(inc.nextMoney)}${inc.forecast?` <span class='tiny mute'>(estimate ~${inc.forecast.months} mo)</span>`:''}</div>`:''}${inc.nextMonthly?`<div>📅 Monthly ladder: ${fmt$(inc.monthlyLevel)}/mo → ${fmt$(inc.nextMonthly)}/mo</div>`:''}${inc.nextStreak?`<div>🔥 ${inc.streak}/${inc.nextStreak} months in a row</div>`:''}</div></div></div>`;
-  $$('[data-skp]',el).forEach(a=>a.onclick=e=>{e.preventDefault();skSel=a.dataset.skp;jTab='tree';render()})}
+  $$('[data-skp]',el).forEach(a=>a.onclick=e=>{e.preventDefault();openSkill(a.dataset.skp)})}
 
 /* ---------- public showcase ---------- */
 function showcaseSnapshot(){const sc=S.showcase;const inc=incomeSummary(S.income,{includeTrading:sc.includeTrading,basis:sc.basis||'revenue'});

@@ -17,8 +17,8 @@ function wireDayCards(el){
   $$('[data-day-note]',el).forEach(b=>b.onclick=()=>editNote(null,{dayId:b.dataset.dayNote,owner:'both'}));
   $$('[data-nt]',el).forEach(a=>a.onclick=e=>{e.preventDefault();editNote(a.dataset.nt)});
   $$('[data-topic]',el).forEach(s=>s.onchange=()=>{const [did,i]=s.dataset.topic.split(':');let v=s.value;const dn=S.days.find(d=>d.id===did).name;
-    if(v==='__new'){v=(prompt('New subject:')||'').trim();if(!v){render();return}
-      commit(st=>{if(!st.nodes.some(n=>n.label.toLowerCase()===v.toLowerCase()))st.nodes.push({id:uid(),label:v,parent:null,kind:'category',status:'researching',owner:'both',x:(Math.random()-.5)*500,y:(Math.random()-.5)*300,notes:'',archived:false,collapsed:true});st.days.find(d=>d.id===did).topics[+i]=v},'Subject added to Mind Web',`chose “${v}” for ${dn}`);return}
+    if(v==='__new'){render();return ask('New subject','Subject name','',v=>{
+      commit(st=>{if(!st.nodes.some(n=>n.label.toLowerCase()===v.toLowerCase()))st.nodes.push({id:uid(),label:v,parent:null,kind:'category',status:'researching',owner:'both',x:(Math.random()-.5)*500,y:(Math.random()-.5)*300,notes:'',archived:false,collapsed:true});st.days.find(d=>d.id===did).topics[+i]=v},'Subject added to Mind Web',`chose “${v}” for ${dn}`)},{ok:'Add subject',ph:'e.g. Print on demand'})}
     commit(st=>{st.days.find(d=>d.id===did).topics[+i]=v},'Topic set',v?`chose “${v}” for ${dn}`:null)});
   $$('[data-fmt]',el).forEach(s=>s.onchange=()=>commit(st=>{const d=st.days.find(x=>x.id===s.dataset.fmt);d.format=s.value;if(s.value==='one')d.topics=d.topics.slice(0,1)},'Format updated'));
 }

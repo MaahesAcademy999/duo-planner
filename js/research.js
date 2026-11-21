@@ -166,7 +166,7 @@ function rsWire(el,t){const day=rsDay||today();
   $$('[data-rsday]',el).forEach(b=>b.onclick=()=>{rsDay=b.dataset.rsday;render();if(b.classList.contains('rs-hist'))$('.rs-days').scrollIntoView({behavior:'smooth',block:'start'})});
   const c=$('#rsCheck',el);if(c)c.onclick=()=>rsCheckin(t.id);
   $('#rsEdit',el).onclick=()=>rsSplitStep({id:t.id,title:t.title,subs:structuredClone(t.subs)},true);
-  const sk=$('#rsSkill',el);if(sk)sk.onclick=e=>{e.preventDefault();skSel=t.skillId;jTab='tree';go('journey')};
+  const sk=$('#rsSkill',el);if(sk)sk.onclick=e=>{e.preventDefault();openSkill(t.skillId)};
   const f=$('#rsFinish',el);if(f)f.onclick=()=>rsFinish(t.id);
   $$('[data-rsgot]',el).forEach(b=>b.onclick=()=>{const sid=b.dataset.rsgot;
     commit(x=>{const m=rsMineItem(x,t.id,day);m.got={...(m.got||{})};if(m.got[sid])delete m.got[sid];else m.got[sid]=true},null)});

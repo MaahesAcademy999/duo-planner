@@ -28,16 +28,69 @@ const ZODIAC=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio'
 
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2000)}
 
-/* ----- dialog with header close (×), body, footer ----- */
-function modal(title,body,buttons=[],opts={}){const d=$('#dlg');
-  d.innerHTML=`<div class="dlg-h">${opts.back?'<button class="btn s ghost" id="dlgBack" aria-label="Back">← Back</button>':''}<h2>${esc(title)}</h2><button class="btn s ghost" id="dlgX" aria-label="Close">✕ Close</button></div><div class="dlg-b">${body}</div><div class="dlg-f"></div>`;
+/* ----- one shared pop-up box for every detail view and form -----
+   Closes with ✕, Esc, a tap outside the box, or (on a phone) a swipe down on its top bar.
+   If you typed something that isn't saved yet, it asks before throwing it away.
+   A detail pop-up (opts.reopen) that opens another pop-up gets a ← Back button, and saving or
+   cancelling the inner pop-up brings you back to the details with fresh information. */
+const DLG={stack:[],gen:0,noPush:false,opener:null,onDone:null};
+function modal(title,body,buttons=[],opts={}){const d=$('#dlg');const wasOpen=d.open;
+  if(!wasOpen){DLG.stack=[];DLG.onDone=null;DLG.opener=document.activeElement}
+  else if(!DLG.noPush&&d._reopen&&!opts.root){DLG.stack.push(d._reopen);if(DLG.stack.length>8)DLG.stack.shift()}
+  if(opts.root)DLG.stack=[];
+  d._reopen=opts.reopen||null;d._noDirty=!!opts.noDirty;d._dirty=false;const gen=++DLG.gen;
+  const back=opts.back||(DLG.stack.length?()=>dlgBack():null);
+  d.className=opts.cls||'';d.setAttribute('aria-labelledby','dlgTitle');
+  d.innerHTML=`<div class="dlg-grab" aria-hidden="true"></div><div class="dlg-h">${back?'<button class="btn s ghost" id="dlgBack" aria-label="Back">←<span class="hide-xs"> Back</span></button>':''}<h2 id="dlgTitle" tabindex="-1">${esc(title)}</h2><button class="btn s ghost dlg-x" id="dlgX" aria-label="Close" title="Close (Esc)">✕</button></div><div class="dlg-b">${body}</div><div class="dlg-f"></div>`;
   const f=$('.dlg-f',d);
-  [...buttons,...(opts.noCancel?[]:[{t:'Cancel'}])].forEach(b=>{const e=document.createElement('button');e.className='btn'+(b.c?' '+b.c:'');e.textContent=b.t;
-    e.onclick=async()=>{if(b.f&&(await b.f())===false)return;if(!b.keep)close()};f.appendChild(e)});
-  const close=()=>{d.close()};$('#dlgX',d).onclick=close;if(opts.back)$('#dlgBack',d).onclick=()=>{close();opts.back()};
-  d.onclose=()=>{if(window.Sync)Sync.flushPending()};
-  if(!d.open)d.showModal();if(opts.onOpen)opts.onOpen(d);
-  const i=$('.dlg-b input:not([type=checkbox]):not([type=radio]),.dlg-b textarea',d);if(i&&!opts.noFocus)i.focus();return d}
+  [...buttons,...(opts.noCancel?[]:[{t:DLG.stack.length?'Back':'Cancel',cancel:true}])].forEach(b=>{const e=document.createElement('button');e.type='button';e.className='btn'+(b.c?' '+b.c:'')+(b.cancel?' dlg-cancel':'');e.textContent=b.t;if(b.dis)e.disabled=true;
+    e.onclick=async()=>{const pg=page;if(b.f&&(await b.f())===false)return;if(b.keep||!d.open||DLG.gen!==gen)return;
+      if(page===pg&&DLG.stack.length&&!b.leave&&dlgBack())return;d.close()};f.appendChild(e)});
+  if(!f.children.length)f.remove();
+  $('#dlgX',d).onclick=()=>dlgRequestClose();if(back)$('#dlgBack',d).onclick=()=>{if(opts.back){d.close();opts.back()}else if(!dlgBack())d.close()};
+  d.onclose=null;
+  if(!wasOpen){d.showModal();document.documentElement.classList.add('dlg-open');d.classList.add('dlg-in')}
+  else{const b=$('.dlg-b',d);if(b)b.scrollTop=0}
+  if(opts.onOpen)opts.onOpen(d);
+  const i=$('.dlg-b input:not([type=checkbox]):not([type=radio]),.dlg-b textarea',d);
+  if(i&&!opts.noFocus&&!matchMedia('(pointer:coarse)').matches)i.focus();   /* no surprise keyboard on phones */
+  else if(!d.contains(document.activeElement)||document.activeElement===d)($('.dlg-b [autofocus]',d)||$('#dlgTitle',d)).focus({preventScroll:true});   /* screen readers hear the title first */
+  return d}
+/* go back to the pop-up this one was opened from; false when there is nothing to go back to */
+function dlgBack(){const g=DLG.gen;while(DLG.stack.length){const fn=DLG.stack.pop();DLG.noPush=true;try{fn()}finally{DLG.noPush=false}if(DLG.gen!==g)return true}return false}
+/* redraw the open detail pop-up in place (after a change made from inside it) */
+function dlgRefresh(){const d=$('#dlg');if(!d.open||!d._reopen)return false;const g=DLG.gen;DLG.noPush=true;try{d._reopen()}finally{DLG.noPush=false}if(DLG.gen===g)d.close();return true}
+function dlgRequestClose(){const d=$('#dlg');if(!d.open)return;if(d._dirty&&!d._noDirty)return dlgConfirmDiscard();d.close()}
+function dlgConfirmDiscard(){const d=$('#dlg');if($('.dlg-confirm',d))return $('.dlg-confirm [data-keep]',d).focus();
+  const bar=document.createElement('div');bar.className='dlg-confirm';bar.setAttribute('role','alertdialog');bar.setAttribute('aria-label','Unsaved changes');
+  bar.innerHTML=`<span>You have changes that aren't saved.</span><span class="sp"></span><button type="button" class="btn s" data-keep>Keep editing</button><button type="button" class="btn s d" data-discard>Discard</button>`;
+  d.appendChild(bar);$('[data-keep]',bar).onclick=()=>bar.remove();$('[data-discard]',bar).onclick=()=>{d._dirty=false;d.close()};$('[data-keep]',bar).focus()}
+(function dlgWire(){const d=$('#dlg');if(!d)return;
+  /* typed changes (not searches, ticks, or fields marked data-nodirty) make the box ask before closing */
+  const mark=e=>{const t=e.target;if(!e.isTrusted||!t.closest||!t.closest('.dlg-b')||t.closest('[data-nodirty]'))return;
+    if(t.matches('input[type=checkbox],input[type=radio],input[type=search],input[type=file],input[type=range]'))return;if(t.matches('input,textarea,select'))d._dirty=true};
+  d.addEventListener('input',mark);d.addEventListener('change',mark);
+  d.addEventListener('cancel',e=>{e.preventDefault();if($('.dlg-confirm',d)){$('.dlg-confirm',d).remove();return}dlgRequestClose()});
+  /* tap outside the box: only when the press also started outside, so selecting text never closes it */
+  let downOut=false;d.addEventListener('pointerdown',e=>{downOut=e.target===d});
+  d.addEventListener('click',e=>{if(e.target===d&&downOut)dlgRequestClose();downOut=false});
+  d.addEventListener('close',()=>{document.documentElement.classList.remove('dlg-open');d.classList.remove('dlg-in');d.style.transform='';
+    const bar=$('.dlg-confirm',d);if(bar)bar.remove();DLG.stack=[];d._reopen=null;
+    const done=DLG.onDone;DLG.onDone=null;if(done)try{done()}catch(_){}
+    if(window.Sync)Sync.flushPending();
+    const o=DLG.opener;DLG.opener=null;if(o&&o.isConnected&&o.focus&&!d.open)o.focus({preventScroll:true})});
+  /* phone: drag the top bar down to close */
+  let y0=null,dy=0,t0=0;const phone=()=>matchMedia('(max-width:640px)').matches;
+  d.addEventListener('pointerdown',e=>{if(!phone()||!e.target.closest('.dlg-h,.dlg-grab')||e.target.closest('button,a,input,select,textarea'))return;y0=e.clientY;dy=0;t0=Date.now();d.classList.add('dlg-drag')});
+  d.addEventListener('pointermove',e=>{if(y0===null)return;dy=Math.max(0,e.clientY-y0);d.style.transform=dy?`translateY(${dy}px)`:''});
+  const end=()=>{if(y0===null)return;y0=null;d.classList.remove('dlg-drag');const fast=dy>40&&dy/(Date.now()-t0)>.6;
+    if(dy>110||fast){if(d._dirty&&!d._noDirty){d.style.transform='';dlgConfirmDiscard()}else d.close()}else d.style.transform=''};
+  d.addEventListener('pointerup',end);d.addEventListener('pointercancel',end);
+})();
+/* small one-question pop-up, used instead of the browser's prompt() box */
+function ask(title,label,value='',onOk,opts={}){modal(title,`<label class="f" for="askV">${esc(label)}</label><input id="askV" value="${esc(value)}" ${opts.ph?`placeholder="${esc(opts.ph)}"`:''} autocomplete="off">`,
+  [{t:opts.ok||'Save',c:'p',f:()=>{const v=val('askV');if(!v){toast(opts.need||'Type something first');return false}return onOk(v)}}],
+  {onOpen:d=>{const i=$('#askV',d);i.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('.dlg-f .btn.p',d).click()}};if(value)i.select()}})}
 const val=id=>{const e=document.getElementById(id);return e?String(e.value).trim():''};
 const ownerSel=(id,v)=>`<select id="${id}">${['A','B','both'].map(o=>`<option value="${o}" ${o===v?'selected':''}>${esc(o==='both'?'Both of us':pname(o)+(o===me()?' (me)':''))}</option>`).join('')}</select>`;
 const ownerPill=o=>`<span class="pill o-${o}">${o==='both'?'⚭':'●'} ${esc(o===me()?'Me':o==='both'?'Both':pname(o))}</span>`;
@@ -115,7 +168,7 @@ function editTask(id,preset={}){const t=id?S.tasks.find(x=>x.id===id):{title:'',
    <label class="f" for="tNo">Notes</label><textarea id="tNo">${esc(t.notes)}</textarea>
    ${id&&t.u?`<p class="tiny mute">Last updated ${new Date(t.u).toLocaleString()}</p>`:''}`,
    [...(id?[{t:'Delete',c:'d',f:()=>commit(s=>s.tasks=s.tasks.filter(x=>x.id!==id),'Task deleted — Undo available',`deleted task “${t.title}”`)}]:[]),
-    ...(id&&t.nodeId?[{t:'Open idea',f:()=>{go('web');selectNode(t.nodeId)}}]:[]),
+    ...(id&&t.nodeId&&node(t.nodeId)?[{t:'Open idea',keep:true,f:()=>openNode(t.nodeId)}]:[]),
     {t:'Save',c:'p',f:()=>{const title=val('tT');if(!title){toast('Give it a title');return false}
      const data={title,owner:val('tO'),dayId:val('tD')||null,time:val('tTm'),due:val('tDu'),mode:val('tM'),nodeId:val('tN'),notes:val('tNo')};
      commit(s=>{if(id)Object.assign(s.tasks.find(x=>x.id===id),data);else s.tasks.push({id:uid(),done:false,by:me(),...data})},'Saved',id?`updated task “${title}”`:`added task “${title}”`)}}])}
@@ -140,7 +193,7 @@ function editSuggestion(id,preset={}){const g=id?S.suggestions.find(x=>x.id===id
      [{t:'Send reply',f:()=>{const r=val('sgR');if(!r)return false;commit(s=>{const x=s.suggestions.find(y=>y.id===id);x.replies=[...(x.replies||[]),{by:me(),text:r,at:Date.now()}]},'Reply sent',`replied to a suggestion`)}},
       ...(g.status==='open'?[{t:'Mark done',c:'p',f:()=>commit(s=>s.suggestions.find(y=>y.id===id).status='done','Marked done',`marked a suggestion done`)},{t:'Dismiss',f:()=>commit(s=>s.suggestions.find(y=>y.id===id).status='dismissed','Dismissed')}]:[{t:'Reopen',f:()=>commit(s=>s.suggestions.find(y=>y.id===id).status='open','Reopened')}]),
       ...(mine?[{t:'Delete',c:'d',f:()=>commit(s=>s.suggestions=s.suggestions.filter(y=>y.id!==id),'Deleted — Undo available')}]:[])],
-     {onOpen:d=>{const a=$('#sgN',d);if(a)a.onclick=e=>{e.preventDefault();d.close();go('web');selectNode(g.nodeId)}}});
+     {onOpen:d=>{const a=$('#sgN',d);if(a)a.onclick=e=>{e.preventDefault();openNode(g.nodeId)}}});
     if(!mine)commit(s=>{const x=s.suggestions.find(y=>y.id===id);x.seen={...(x.seen||{}),[me()]:Date.now()}});return}
   modal('New suggestion',`<label class="f" for="sgT">Your suggestion for ${esc(pname(partnerId()))}</label><textarea id="sgT" placeholder="e.g. Let's research TikTok Shop affiliate requirements on Tuesday">${esc(g.text)}</textarea>
    <label class="f" for="sgNd">Related idea (optional)</label><select id="sgNd"><option value="">— none —</option>${nodeOptions(g.nodeId)}</select>`,
@@ -157,7 +210,7 @@ function editIdea(preset={}){const parents=S.nodes.filter(n=>!n.archived&&n.kind
        s.nodes.push({id,label,parent,kind:parent?(nodeAncestors(parent).length>=1?'path':'sub'):'category',status:val('iS'),owner:val('iO'),notes:val('iN'),archived:false,collapsed:false,x:(Math.random()-.5)*300,y:(Math.random()-.5)*200,dx:Math.cos(a)*150,dy:Math.sin(a)*95});
        if(parent)s.nodes.find(x=>x.id===parent).collapsed=false},'Idea added',`added idea “${label}”`);if(window.selectNode)selectNode(id,true)}}])}
 
-function quickAdd(kind){({task:()=>editTask(),note:()=>editNote(),idea:()=>editIdea(),suggestion:()=>editSuggestion(),schedule:()=>editTask(null,{owner:'both',dayId:(todayDay()||{}).id||null}),check:()=>{const t=prompt('Checklist item:');if(t)commit(s=>s.checklist.push({id:uid(),text:t,done:false,by:me()}),'Added to checklist',`added checklist item “${t}”`)}})[kind]()}
+function quickAdd(kind){({task:()=>editTask(),note:()=>editNote(),idea:()=>editIdea(),suggestion:()=>editSuggestion(),schedule:()=>editTask(null,{owner:'both',dayId:(todayDay()||{}).id||null}),check:()=>ask('New checklist item','Checklist item','',t=>{commit(s=>s.checklist.push({id:uid(),text:t,done:false,by:me()}),'Added to checklist',`added checklist item “${t}”`)},{ok:'Add',ph:'e.g. Renew domain'})})[kind]()}
 function todayDay(){const n=new Date().toLocaleDateString('en-US',{weekday:'long'});return S.days.find(d=>d.name===n&&!d.archived)}
 /* motion levels match UGC Studio: full | calm | off (older saved values are mapped) */
 function normMotion(m){return {expressive:'full',standard:'full',reduced:'calm'}[m]||(['full','calm','off'].includes(m)?m:(matchMedia('(prefers-reduced-motion: reduce)').matches?'calm':'full'))}

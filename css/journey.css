@@ -1,8 +1,4 @@
 /* ===== Skill tree, milestones, journey ===== */
-.webwrap.skwrap{grid-template-columns:minmax(0,1fr) 300px;align-items:start}
-@media (max-width:1000px){.webwrap.skwrap{grid-template-columns:minmax(0,1fr)}}
-.sk-detail{position:sticky;top:76px}
-@media (max-width:1000px){.sk-detail{position:static}}
 .card h2.sk-title{font-family:inherit;font-size:16px;line-height:1.3;margin:8px 0;text-transform:none;letter-spacing:.01em;display:block;overflow-wrap:anywhere}
 .jstats .card{padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
 .jst-v{font-size:22px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;font-family:var(--head,inherit)}.jst-v small{font-size:13px;font-weight:600;color:var(--mute);margin-left:2px}
@@ -136,3 +132,17 @@ label.row{flex-wrap:nowrap;align-items:flex-start}label.row input{margin-top:3px
 .id-stage{padding:10px 14px;margin-bottom:12px}
 .id-stbar{display:flex;gap:4px;flex:1;max-width:220px;margin-left:8px}.id-stbar i{flex:1;height:6px;border-radius:9px;background:color-mix(in srgb,var(--line) 80%,transparent)}.id-stbar i.on{background:linear-gradient(90deg,var(--acc2),var(--acc))}
 .qwin{border:1px solid color-mix(in srgb,var(--acc) 40%,var(--line));border-radius:10px;padding:8px 10px;margin-bottom:8px;background:color-mix(in srgb,var(--acc) 6%,transparent)}
+
+/* skill pop-up */
+.sk-how{margin:10px 2px 0}
+.sk-pills{gap:4px;margin-bottom:6px}
+.tag.st-done{color:var(--acc);border-color:var(--acc)}.tag.st-progress{color:var(--acc2);border-color:var(--acc2)}.tag.st-available{color:var(--acc2)}.tag.st-locked{color:var(--mute)}
+.sk-chip{display:flex;align-items:center;gap:8px;width:100%;text-align:left;font:inherit;font-size:14px;color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:44px;cursor:pointer;margin:3px 0}
+.sk-chip:hover,.sk-chip:focus-visible{border-color:var(--acc)}
+.sk-chip .sk-chip-t{flex:1;min-width:0;overflow-wrap:anywhere}
+.sk-chip>span[aria-hidden]{color:var(--mute);font-size:18px}
+.sk-chip.st-available,.sk-chip.st-progress{border-color:color-mix(in srgb,var(--acc2) 55%,var(--line))}
+.sk-chip.st-locked{color:var(--mute)}
+.sk-lock{border:1px dashed color-mix(in srgb,var(--warn) 60%,var(--line));background:color-mix(in srgb,var(--warn) 7%,transparent);border-radius:14px;padding:12px;margin:8px 0}
+.sk-lock>b{color:var(--warn)}.sk-lock p{margin:6px 0}
+.sk-walk{margin:10px 0}

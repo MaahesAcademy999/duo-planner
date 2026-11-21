@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Fixes
+- Skill Tree: better proportions. Wider skill boxes so titles fit (full title on hover), no empty band under the tree, a slimmer detail panel that stays in view while you scroll, a normal-case detail title instead of wrapped spaced capitals, and tighter stat cards. On phones the tree scrolls inside its card instead of widening the page.
+
 ## [3.3.0] - 2026-11-21
 ### Features
 - Command Center: 🗓 Today's agenda at the top. One ordered list of what still needs doing today: overdue items first, then anything with a time (earliest first), then today's deadlines, then the rest of today's workday tasks. Finished items drop off, and a bar shows how many are done.

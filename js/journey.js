@@ -22,20 +22,20 @@ function layoutTree(skills){const by=new Map(skills.map(s=>[s.id,s]));const dept
   const d=(s,seen=new Set())=>{if(depth.has(s.id))return depth.get(s.id);if(seen.has(s.id))return 0;seen.add(s.id);
     const ps=s.parents.map(id=>by.get(id)).filter(Boolean);const v=ps.length?Math.max(...ps.map(p=>d(p,seen)))+1:0;depth.set(s.id,v);return v};
   skills.forEach(s=>d(s));const layers=[];skills.forEach(s=>{const v=depth.get(s.id);(layers[v]=layers[v]||[]).push(s)});
-  const W=196,H=64,GX=26,GY=74,pos=new Map();let maxW=0;
+  const W=264,H=60,GX=28,GY=58,pos=new Map();let maxW=0;
   layers.forEach((L,i)=>{if(i>0)L.sort((a,b)=>avgX(a)-avgX(b));L.forEach((s,j)=>pos.set(s.id,{x:j*(W+GX),y:i*(H+GY)}));maxW=Math.max(maxW,L.length*(W+GX))});
   function avgX(s){const xs=s.parents.map(id=>pos.get(id)).filter(Boolean).map(p=>p.x);return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:0}
   layers.forEach(L=>{const w=L.length*(W+GX);const off=(maxW-w)/2;L.forEach(s=>pos.get(s.id).x+=off)});
-  return {pos,W,H,width:Math.max(maxW,W+GX)+20,height:layers.length*(H+GY)+10}}
+  return {pos,W,H,width:Math.max(maxW,W+GX)+20,height:layers.length*(H+GY)-GY+16}}
 
 function treeSVG(skills,{interactive=true,sel=null}={}){if(!skills.length)return '';const L=layoutTree(skills);let edges='',nodes='';
   skills.forEach(s=>{const b=L.pos.get(s.id);s.parents.forEach(pid=>{const a=L.pos.get(pid);if(!a)return;const done=skills.find(x=>x.id===pid)?.status==='done'&&s.status==='done';const live=skills.find(x=>x.id===pid)?.status==='done';
     const x1=a.x+L.W/2+10,y1=a.y+L.H,x2=b.x+L.W/2+10,y2=b.y;edges+=`<path class="sk-edge ${done?'done':live?'live':''}" d="M${x1},${y1} C${x1},${(y1+y2)/2} ${x2},${(y1+y2)/2} ${x2},${y2}"/>`})});
   skills.forEach(s=>{const p=L.pos.get(s.id);const st=skState(s,skills);const ic={done:'✔',progress:'◐',available:'✦',locked:'🔒'}[st];
-    const t=s.title.length>26?s.title.slice(0,25)+'…':s.title;const own=s.owner==='both'?'Both':(window.pname?pname(s.owner):s.ownerName||s.owner);
+    const max=Math.floor((L.W-40)/6.8);const t=s.title.length>max?s.title.slice(0,max-1).trimEnd()+'…':s.title;const own=s.owner==='both'?'Both':(window.pname?pname(s.owner):s.ownerName||s.owner);
     nodes+=`<g class="sk-node st-${st} ${sel===s.id?'sel':''}" ${interactive?`data-sk="${s.id}" tabindex="0" role="button"`:''} aria-label="${esc(s.title)}, ${st}" transform="translate(${p.x+10},${p.y})">
-     <rect width="${L.W}" height="${L.H}" rx="12"/><text x="12" y="24" class="sk-t">${ic} ${esc(t)}</text>
-     <text x="12" y="45" class="sk-s">${st==='done'&&s.doneAt?new Date(s.doneAt).toLocaleDateString([], {month:'short',day:'numeric'}):st} · ${esc(own)} · +${s.xp||10} XP</text></g>`});
+     <rect width="${L.W}" height="${L.H}" rx="12"/><title>${esc(s.title)}</title><text x="12" y="24" class="sk-t">${ic} ${esc(t)}</text>
+     <text x="12" y="43" class="sk-s">${st==='done'&&s.doneAt?new Date(s.doneAt).toLocaleDateString([], {month:'short',day:'numeric'}):st} · ${esc(own)} · +${s.xp||10} XP</text></g>`});
   return `<svg class="sk-svg" width="${L.width}" height="${L.height}" viewBox="0 0 ${L.width} ${L.height}" role="img" aria-label="Skill tree">${edges}${nodes}</svg>`}
 
 /* ---------- money logic (only user-recorded income) ---------- */
@@ -86,7 +86,7 @@ function vJourney(el){const skills=S.skills,inc=incomeSummary(S.income,incOpts()
   const done=skills.filter(s=>s.status==='done').length,avail=skills.filter(s=>skState(s,skills)==='available'||skState(s,skills)==='progress').length;
   el.innerHTML=hdr('🌳 Skill Tree & Milestones','Every finished step unlocks the next. Money milestones come <b>only</b> from income you record — nothing is estimated.',
    `<div class="seg" role="group" aria-label="Section">${[['tree','🌳 Skill tree'],['money','💰 Income & milestones'],['journey','🛤 Journey'],['public','🌐 Public showcase']].map(([k,l])=>`<button aria-pressed="${jTab===k}" data-jt="${k}">${l}</button>`).join('')}</div>`)+
-  `<div class="grid g3" style="margin-bottom:14px">
+  `<div class="grid g3 jstats" style="margin-bottom:14px">
     <div class="card glow"><div class="row"><div class="lvl" aria-label="Level ${L.lvl}">${L.lvl}</div><div style="flex:1"><b>Level ${L.lvl}</b><div class="tiny mute">${xp} XP · ${L.into}/${L.need} to level ${L.lvl+1}</div><div class="jbar"><i style="width:${L.pct}%"></i></div></div></div></div>
     <div class="card"><b>${done}</b> skills completed · <b>${avail}</b> ready to work on<div class="tiny mute">${skills.length} skills in the tree</div></div>
     <div class="card"><b>${inc.count?fmt$(inc.total):'No income recorded yet'}</b>${inc.count?` <span class="tiny mute">recorded total${S.showcase.includeTrading?' (incl. live trading)':' (business only)'}</span>`:''}<div class="tiny mute">${inc.nextMoney?`Next: ${fmt$(inc.nextMoney)}`:''}${inc.streak?` · 🔥 ${inc.streak}-month streak`:''}</div></div></div>
@@ -95,8 +95,8 @@ function vJourney(el){const skills=S.skills,inc=incomeSummary(S.income,incOpts()
   ({tree:jTree,money:jMoney,journey:jJourney,public:jPublic})[jTab]($('#jbody'),inc);
 }
 function jTree(el){const skills=S.skills;
-  el.innerHTML=`<div class="webwrap"><div class="card" style="padding:10px"><div class="row" style="margin-bottom:8px"><button class="btn s p" id="skAdd">+ New skill / goal</button><span class="tiny mute">Tap a skill to work on it · ✔ done · ◐ in progress · ✦ ready · 🔒 locked until the step before is done</span></div>
-   <div class="sk-wrap">${treeSVG(skills,{sel:skSel})||empty('No skills yet — add your first goal.')}</div></div><aside class="card" id="skDetail"></aside></div>`;
+  el.innerHTML=`<div class="webwrap skwrap"><div class="card" style="padding:10px"><div class="row" style="margin-bottom:8px"><button class="btn s p" id="skAdd">+ New skill / goal</button><span class="tiny mute">Tap a skill to work on it · ✔ done · ◐ in progress · ✦ ready · 🔒 locked until the step before is done</span></div>
+   <div class="sk-wrap">${treeSVG(skills,{sel:skSel})||empty('No skills yet — add your first goal.')}</div></div><aside class="card sk-detail" id="skDetail"></aside></div>`;
   $$('[data-sk]',el).forEach(g=>{g.onclick=()=>{skSel=g.dataset.sk;render()};g.onkeydown=e=>{if(e.key==='Enter'){skSel=g.dataset.sk;render()}}});
   $('#skAdd').onclick=()=>editSkill(null,{parents:skSel?[skSel]:[]});skDetail();
 }
@@ -104,7 +104,7 @@ function skDetail(){const el=$('#skDetail');const s=skSel&&S.skills.find(x=>x.id
   if(!s){el.innerHTML=`<h3>How the tree grows</h3><ol class="small mute" style="padding-left:18px"><li>Pick a ✦ ready skill and start it.</li><li>Mark it ✔ done — what it unlocks lights up.</li><li>Add the next step whenever you know it. The tree never ends.</li></ol><p class="tiny mute">Completing a Mind Web idea or project also adds it here automatically. Starter goals are suggestions — not accomplishments.</p>`;return}
   const st=skState(s,S.skills);const kids=S.skills.filter(x=>x.parents.includes(s.id));const n=s.branch&&node(s.branch);
   el.innerHTML=`<div class="row"><span class="tag">${{done:'✔ done',progress:'◐ in progress',available:'✦ ready',locked:'🔒 locked'}[st]}</span><span class="sp"></span><button class="btn s ghost" id="skX" aria-label="Close">✕</button></div>
-   <h2 style="margin:6px 0">${esc(s.title)}</h2><div class="row">${ownerPill(s.owner)}<span class="tag">+${s.xp||10} XP</span>${n?`<a href="#" data-node="${n.id}" class="tag">${nodeIcon(n)} ${esc(n.label)}</a>`:''}</div>
+   <h2 class="sk-title">${esc(s.title)}</h2><div class="row">${ownerPill(s.owner)}<span class="tag">+${s.xp||10} XP</span>${n?`<a href="#" data-node="${n.id}" class="tag">${nodeIcon(n)} ${esc(n.label)}</a>`:''}</div>
    ${s.notes?`<p class="small" style="white-space:pre-wrap">${esc(s.notes)}</p>`:''}${s.doneAt?`<p class="tiny mute">Completed ${new Date(s.doneAt).toLocaleDateString()}</p>`:''}
    ${st==='locked'?`<p class="small warn">Finish first: ${s.parents.map(id=>S.skills.find(x=>x.id===id)).filter(p=>p&&p.status!=='done').map(p=>esc(p.title)).join(', ')}</p>`:''}
    <div class="row" style="margin-top:8px">${st==='available'?'<button class="btn s" id="skStart">◐ Start</button>':''}${st!=='done'?`<button class="btn s p" id="skDone" ${st==='locked'?'disabled':''}>✔ Mark done</button>`:'<button class="btn s" id="skUndo">Reopen</button>'}

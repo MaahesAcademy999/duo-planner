@@ -27,6 +27,10 @@
 .sl-ic{font-size:26px;width:38px;text-align:center;flex:none}
 .sl-arr{font-size:24px;color:var(--acc);flex:none}
 .sl-more{display:flex;flex-wrap:wrap;gap:6px}
+.sl-focus{display:flex;flex-direction:column;gap:10px;margin:14px 0 0;padding:12px 14px}
+.sl-fc-row{display:flex;align-items:center;gap:10px;min-width:0}
+.sl-fc-t{display:flex;flex-direction:column;flex:1;min-width:0;overflow-wrap:anywhere}
+.sl-fc-row .btn{flex:none}
 .sl-next{display:flex;flex-direction:column;gap:6px;margin:14px 0 0}
 .sl-next .btn{align-self:flex-start}
 .sl-chips{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:6px;scrollbar-width:thin}

@@ -20,6 +20,7 @@
 - Progress is saved on the skill for both partners. "▶ Continue walkthrough" picks up where you left off.
 - After a skill is done, "What comes next?" offers unlocked skills to start, plus suggested next steps (based on your pick and the kind of skill). "▶ Add & start walkthrough" chains straight into the next guide.
 ### Fixes
+- 🛰 "Set my current focus" now opens a proper Duo window instead of the plain browser pop-up: type what you are working on (Enter saves), or tap one of today's agenda items or your open tasks, and a Clear focus button. The button reads "Change my focus" once one is set. The Start slide in Slides style now shows your focus and your partner's, with a button to set yours (before, Slides style had no way to set it).
 - Skill Tree: better proportions. Wider skill boxes so titles fit (full title on hover), no empty band under the tree, a slimmer detail panel that stays in view while you scroll, a normal-case detail title instead of wrapped spaced capitals, and tighter stat cards. On phones the tree scrolls inside its card instead of widening the page.
 - Phone top bar: page name on the first row, all buttons together on the second (before, Undo and Redo split across the two rows).
 - Mind Web: bubble labels show up to 38 characters before trimming (was 29), so names like "Research & Business Intelligence" fit.

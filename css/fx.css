@@ -63,7 +63,7 @@ dialog[open]{animation:fxPop .3s var(--ease)}@keyframes fxPop{from{opacity:0;tra
 
 /* boot sequence */
 #boot{position:fixed;inset:0;z-index:9500;display:grid;place-items:center;background:var(--bg);pointer-events:none;transition:opacity .6s ease,visibility .6s}#boot.out{opacity:0;visibility:hidden}
-#boot .ring{width:84px;height:104px;background:url(../logo-mark.svg) center/contain no-repeat;animation:fxPulse 1.2s ease-in-out infinite;filter:drop-shadow(0 0 10px #0080ff80) drop-shadow(0 0 10px #ff1f4b80);margin:0 auto 18px}
+#boot .ring{width:84px;height:104px;background:url(../logo-mark.svg?v=2) center/contain no-repeat;animation:fxPulse 1.2s ease-in-out infinite;filter:drop-shadow(0 0 10px #0080ff80) drop-shadow(0 0 10px #ff1f4b80);margin:0 auto 18px}
 #boot b{display:block;text-align:center;letter-spacing:.34em;font-size:13px;color:var(--acc);font-family:var(--head)}#boot i{display:block;text-align:center;font-style:normal;font-size:11px;letter-spacing:.2em;color:var(--mute);margin-top:8px;animation:fxBlink 1s steps(2) infinite}
 @keyframes fxBlink{50%{opacity:.35}}
 

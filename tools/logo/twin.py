@@ -57,8 +57,8 @@ if __name__=='__main__':
 SPEC=['#ff1450','#ff6a00','#ffc400','#00d26a','#00f0d0','#1e7bff','#4b2bff','#9b30ff','#ff2bd6','#eef0ff','#ff1450']
 def flowgrad(anim):
     st=''.join(f'<stop offset="{i/(len(SPEC)-1):.3f}" stop-color="{c}"/>' for i,c in enumerate(SPEC))
-    a='<animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="0 -640" dur="12s" repeatCount="indefinite"/>' if anim else ''
-    a2='<animateTransform attributeName="gradientTransform" type="translate" from="0 -320" to="0 -960" dur="12s" repeatCount="indefinite"/>' if anim else ''
+    a='<animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="0 -640" dur="9s" repeatCount="indefinite"/>' if anim else ''
+    a2='<animateTransform attributeName="gradientTransform" type="translate" from="0 -320" to="0 -960" dur="9s" repeatCount="indefinite"/>' if anim else ''
     return (f'<linearGradient id="flow" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="-170" spreadMethod="repeat">{st}{a}</linearGradient>'
             f'<linearGradient id="flow2" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="-170" spreadMethod="repeat" gradientTransform="translate(0 -320)">{st}{a2}</linearGradient>')
 def m_flow(glow=True):

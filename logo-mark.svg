@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="50 128 412 256"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1a1d"/><stop offset="1" stop-color="#060d0f"/></linearGradient>
+<linearGradient id="pk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8cc6"/><stop offset="1" stop-color="#e45aa8"/></linearGradient>
+<linearGradient id="bl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5fd0ff"/><stop offset="1" stop-color="#2a9be0"/></linearGradient>
+<clipPath id="ca"><rect x="160" y="300" width="200" height="120"/></clipPath></defs><g fill="none" stroke-width="44"><circle cx="200" cy="256" r="104" stroke="url(#pk)"/><circle cx="312" cy="256" r="104" stroke="url(#bl)"/><circle cx="200" cy="256" r="104" stroke="url(#pk)" clip-path="url(#ca)"/></g></svg>

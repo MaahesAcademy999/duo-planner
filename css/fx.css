@@ -20,7 +20,8 @@ html{scrollbar-color:color-mix(in srgb,var(--acc) 55%,transparent) transparent;s
 .top::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--acc),var(--acc2),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:fxScan 5.5s linear infinite;opacity:.9;pointer-events:none}
 @keyframes fxScan{0%{background-position:-40% 0}100%{background-position:140% 0}}
 .brand{background:linear-gradient(90deg,var(--ink),var(--acc),var(--acc2),var(--ink));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:fxShimmer 9s linear infinite}
-.brand .logo{background:conic-gradient(from 0deg,var(--acc),var(--acc2),transparent 70%,var(--acc));-webkit-mask:radial-gradient(circle,transparent 8px,#000 9px);mask:radial-gradient(circle,transparent 8px,#000 9px);border-radius:50%;animation:fxSpin 3.2s linear infinite;filter:drop-shadow(0 0 6px var(--glow));box-shadow:none}
+.brand .logo{filter:drop-shadow(0 0 5px #f472b680) drop-shadow(0 0 5px #38bdf880);animation:fxPulse 4s ease-in-out infinite}
+@keyframes fxPulse{50%{filter:drop-shadow(0 0 9px #f472b6aa) drop-shadow(0 0 9px #38bdf8aa)}}
 @keyframes fxSpin{to{transform:rotate(360deg)}}@keyframes fxShimmer{to{background-position:300% 0}}
 
 /* nav: glowing active item with sweep */
@@ -62,7 +63,7 @@ dialog[open]{animation:fxPop .3s var(--ease)}@keyframes fxPop{from{opacity:0;tra
 
 /* boot sequence */
 #boot{position:fixed;inset:0;z-index:9500;display:grid;place-items:center;background:var(--bg);pointer-events:none;transition:opacity .6s ease,visibility .6s}#boot.out{opacity:0;visibility:hidden}
-#boot .ring{width:92px;height:92px;border-radius:50%;background:conic-gradient(var(--acc),var(--acc2),transparent 65%,var(--acc));-webkit-mask:radial-gradient(circle,transparent 36px,#000 37px);mask:radial-gradient(circle,transparent 36px,#000 37px);animation:fxSpin 1s linear infinite;filter:drop-shadow(0 0 18px var(--glow));margin:0 auto 18px}
+#boot .ring{width:120px;height:78px;background:url(../logo-mark.svg) center/contain no-repeat;animation:fxPulse 1.2s ease-in-out infinite;filter:drop-shadow(0 0 10px #f472b680) drop-shadow(0 0 10px #38bdf880);margin:0 auto 18px}
 #boot b{display:block;text-align:center;letter-spacing:.34em;font-size:13px;color:var(--acc);font-family:var(--head)}#boot i{display:block;text-align:center;font-style:normal;font-size:11px;letter-spacing:.2em;color:var(--mute);margin-top:8px;animation:fxBlink 1s steps(2) infinite}
 @keyframes fxBlink{50%{opacity:.35}}
 

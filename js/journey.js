@@ -18,25 +18,78 @@ function skState(sk,all){if(sk.status==='done')return 'done';const ps=sk.parents
 function levelInfo(xp){let lvl=1,need=50,acc=0;while(xp>=acc+need){acc+=need;lvl++;need=50*lvl}return {lvl,into:xp-acc,need,pct:Math.round((xp-acc)/need*100)}}
 const totalXP=skills=>skills.filter(s=>s.status==='done').reduce((a,s)=>a+(+s.xp||10),0);
 
-function layoutTree(skills){const by=new Map(skills.map(s=>[s.id,s]));const depth=new Map();
+function layoutTree(skills,cols=Infinity){const by=new Map(skills.map(s=>[s.id,s]));const depth=new Map();
   const d=(s,seen=new Set())=>{if(depth.has(s.id))return depth.get(s.id);if(seen.has(s.id))return 0;seen.add(s.id);
     const ps=s.parents.map(id=>by.get(id)).filter(Boolean);const v=ps.length?Math.max(...ps.map(p=>d(p,seen)))+1:0;depth.set(s.id,v);return v};
   skills.forEach(s=>d(s));const layers=[];skills.forEach(s=>{const v=depth.get(s.id);(layers[v]=layers[v]||[]).push(s)});
-  const W=264,H=60,GX=28,GY=58,pos=new Map();let maxW=0;
-  layers.forEach((L,i)=>{if(i>0)L.sort((a,b)=>avgX(a)-avgX(b));L.forEach((s,j)=>pos.set(s.id,{x:j*(W+GX),y:i*(H+GY)}));maxW=Math.max(maxW,L.length*(W+GX))});
+  /* a very wide level wraps onto extra rows (cols per row) so the tree keeps a shape that fits a phone or a narrow box */
+  const W=216,H=70,GX=22,GY=50,GR=22,pos=new Map();const widest=Math.max(1,...layers.map(L=>L?L.length:0));
+  const per=Math.max(1,Math.min(cols,widest)),maxW=per*(W+GX);let y=0;
+  layers.forEach((L,i)=>{if(!L)return;if(i>0)L.sort((a,b)=>avgX(a)-avgX(b));
+    for(let k=0;k<L.length;k+=per){const row=L.slice(k,k+per);const off=(maxW-row.length*(W+GX))/2;row.forEach((s,j)=>pos.set(s.id,{x:off+j*(W+GX),y}));y+=H+(k+per<L.length?GR:GY)}});
   function avgX(s){const xs=s.parents.map(id=>pos.get(id)).filter(Boolean).map(p=>p.x);return xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:0}
-  layers.forEach(L=>{const w=L.length*(W+GX);const off=(maxW-w)/2;L.forEach(s=>pos.get(s.id).x+=off)});
-  return {pos,W,H,width:Math.max(maxW,W+GX)+20,height:layers.length*(H+GY)-GY+16}}
+  const P=16;pos.forEach(v=>{v.x+=P;v.y+=P});   // even padding on every side so glows are never clipped
+  return {pos,W,H,per,widest,width:maxW-GX+P*2,height:Math.max(H,y-GY)+P*2}}
 
-function treeSVG(skills,{interactive=true,sel=null}={}){if(!skills.length)return '';const L=layoutTree(skills);let edges='',nodes='';
+/* split a title over two lines at a word break; the second line gets an ellipsis if it still runs long */
+function wrap2(t,max){if(t.length<=max)return [t,''];let cut=t.lastIndexOf(' ',max);if(cut<max*.5)cut=max;const a=t.slice(0,cut).trimEnd();let b=t.slice(cut).trim();
+  if(b.length>max)b=b.slice(0,max-1).trimEnd()+'…';return [a,b]}
+function treeSVG(skills,{interactive=true,sel=null,cols=Infinity}={}){if(!skills.length)return '';const L=layoutTree(skills,cols);let edges='',nodes='';
   skills.forEach(s=>{const b=L.pos.get(s.id);s.parents.forEach(pid=>{const a=L.pos.get(pid);if(!a)return;const done=skills.find(x=>x.id===pid)?.status==='done'&&s.status==='done';const live=skills.find(x=>x.id===pid)?.status==='done';
-    const x1=a.x+L.W/2+10,y1=a.y+L.H,x2=b.x+L.W/2+10,y2=b.y;edges+=`<path class="sk-edge ${done?'done':live?'live':''}" d="M${x1},${y1} C${x1},${(y1+y2)/2} ${x2},${(y1+y2)/2} ${x2},${y2}"/>`})});
+    const x1=a.x+L.W/2,y1=a.y+L.H,x2=b.x+L.W/2,y2=b.y;edges+=`<path class="sk-edge ${done?'done':live?'live':''}" d="M${x1},${y1} C${x1},${(y1+y2)/2} ${x2},${(y1+y2)/2} ${x2},${y2}"/>`})});
   skills.forEach(s=>{const p=L.pos.get(s.id);const st=skState(s,skills);const ic={done:'✔',progress:'◐',available:'✦',locked:'🔒'}[st];
-    const max=Math.floor((L.W-40)/6.8);const t=s.title.length>max?s.title.slice(0,max-1).trimEnd()+'…':s.title;const own=s.owner==='both'?'Both':(window.pname?pname(s.owner):s.ownerName||s.owner);
-    nodes+=`<g class="sk-node st-${st} ${sel===s.id?'sel':''}" ${interactive?`data-sk="${s.id}" tabindex="0" role="button"`:''} aria-label="${esc(s.title)}, ${st}" transform="translate(${p.x+10},${p.y})">
-     <rect width="${L.W}" height="${L.H}" rx="12"/><title>${esc(s.title)}</title><text x="12" y="24" class="sk-t">${ic} ${esc(t)}</text>
-     <text x="12" y="43" class="sk-s">${st==='done'&&s.doneAt?new Date(s.doneAt).toLocaleDateString([], {month:'short',day:'numeric'}):st} · ${esc(own)} · +${s.xp||10} XP</text></g>`});
+    const [l1,l2]=wrap2(ic+' '+s.title,Math.floor((L.W-22)/7.1));const own=s.owner==='both'?'Both':(window.pname?pname(s.owner):s.ownerName||s.owner);
+    nodes+=`<g class="sk-node st-${st} ${sel===s.id?'sel':''}" ${interactive?`data-sk="${s.id}" tabindex="0" role="button"`:''} aria-label="${esc(s.title)}, ${st}" transform="translate(${p.x},${p.y})">
+     <rect width="${L.W}" height="${L.H}" rx="12"/><title>${esc(s.title)}</title><text x="12" y="${l2?22:28}" class="sk-t">${esc(l1)}</text>${l2?`<text x="12" y="39" class="sk-t">${esc(l2)}</text>`:''}
+     <text x="12" y="${l2?58:50}" class="sk-s">${st==='done'&&s.doneAt?new Date(s.doneAt).toLocaleDateString([], {month:'short',day:'numeric'}):st} · ${esc(own)} · +${s.xp||10} XP</text></g>`});
   return `<svg class="sk-svg" width="${L.width}" height="${L.height}" viewBox="0 0 ${L.width} ${L.height}" role="img" aria-label="Skill tree">${edges}${nodes}</svg>`}
+
+/* ---------- zoomable tree viewport: drag to pan, pinch / Ctrl+wheel / buttons to zoom, Auto-fit by default ---------- */
+const skView={},skBoxes={};   // skView: per box {mode:'fit'|'manual',s,x,y,W,H}, kept across re-renders
+function treeBox(skills,opts={},key='main'){if(!skills.length)return '';skBoxes[key]={skills,opts};
+  return `<div class="sk-wrap sk-zoom" data-zk="${key}"><div class="sk-stage"></div>
+   <div class="sk-tools" role="toolbar" aria-label="Zoom the tree"><button type="button" data-z="out" aria-label="Zoom out" title="Zoom out (−)">−</button><span class="sk-pct" aria-live="polite">100%</span><button type="button" data-z="in" aria-label="Zoom in" title="Zoom in (+)">+</button><button type="button" data-z="fit" class="sk-fit" aria-label="Auto-fit the whole tree" title="Auto-fit (0)"><span aria-hidden="true">⤢</span> Fit</button></div>
+   <div class="sk-hint" aria-hidden="true">Drag to move · pinch or Ctrl + scroll to zoom</div></div>`}
+function mountZoom(root=document){$$('.sk-zoom',root).forEach(initZoom)}
+function initZoom(box){const stage=$('.sk-stage',box),key=box.dataset.zk||'main',def=skBoxes[key];if(!def||box.dataset.zon)return;box.dataset.zon='1';
+  const MIN=.15,MAX=2.5,PAD=18,BOT=54,pct=$('.sk-pct',box);const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
+  const maxH=()=>Math.max(260,Math.min(innerHeight*(innerWidth<700?.68:.7),720));
+  /* pick how many skills sit side by side so the auto-fit view is as large (readable) as possible; ties keep fewer rows */
+  let W,H,cols;function build(){const bw=box.clientWidth||600,mh=maxH();let best=null;const widest=layoutTree(def.skills).widest;
+    for(let c=widest;c>=1;c--){const L=layoutTree(def.skills,c);const sc=Math.min(1.1,(bw-PAD*2)/L.width,(mh-PAD-BOT)/L.height);if(!best||sc>best.sc*1.04)best={c,sc}}
+    cols=best.c;stage.innerHTML=treeSVG(def.skills,{...def.opts,cols});const svg=$('svg',stage);W=+svg.getAttribute('width');H=+svg.getAttribute('height')}
+  build();let v=skView[key];if(!v||v.W!==W||v.H!==H)v=skView[key]={mode:'fit',s:1,x:0,y:0,W,H};
+  const apply=()=>{stage.style.transform=`translate(${v.x}px,${v.y}px) scale(${v.s})`;pct.textContent=Math.round(v.s*100)+'%';box.classList.toggle('is-fit',v.mode==='fit')};
+  /* the box height follows the tree's shape, so a wide tree on a phone doesn't sit in a tall empty box */
+  function sizeBox(){const bw=box.clientWidth;const want=H*Math.min((bw-PAD*2)/W,1)+PAD+BOT;box.style.height=Math.round(clamp(want,230,maxH()))+'px'}
+  function fit(){sizeBox();const bw=box.clientWidth,bh=box.clientHeight;v.s=clamp(Math.min(1.1,(bw-PAD*2)/W,(bh-PAD-BOT)/H),MIN,MAX);
+    v.x=(bw-W*v.s)/2;v.y=PAD+Math.max(0,(bh-PAD-BOT-H*v.s)/2);v.mode='fit';apply()}
+  function keepIn(){const bw=box.clientWidth,bh=box.clientHeight,m=70;v.x=clamp(v.x,m-W*v.s,bw-m);v.y=clamp(v.y,m-H*v.s,bh-m)}
+  function zoomAt(f,cx,cy){const ns=clamp(v.s*f,MIN,MAX);if(cx==null){cx=box.clientWidth/2;cy=box.clientHeight/2}
+    v.x=cx-(cx-v.x)*ns/v.s;v.y=cy-(cy-v.y)*ns/v.s;v.s=ns;v.mode='manual';keepIn();apply()}
+  if(v.mode==='fit')fit();else{sizeBox();keepIn();apply()}
+  $$('[data-z]',box).forEach(b=>{b.onclick=e=>{e.stopPropagation();const z=b.dataset.z;z==='fit'?fit():zoomAt(z==='in'?1.25:0.8)}});
+  box.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;if(e.key==='+'||e.key==='='){e.preventDefault();zoomAt(1.25)}else if(e.key==='-'||e.key==='_'){e.preventDefault();zoomAt(.8)}else if(e.key==='0'){e.preventDefault();fit()}});
+  /* Ctrl+wheel (a laptop trackpad pinch arrives as Ctrl+wheel too) zooms at the cursor; a plain wheel still scrolls the page */
+  box.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const r=box.getBoundingClientRect();zoomAt(Math.exp(-clamp(e.deltaY,-50,50)*.004),e.clientX-r.left,e.clientY-r.top)},{passive:false});
+  /* pointers: one finger or the mouse pans, two fingers pinch. Capture starts only on a real drag, so a tap still opens a skill. */
+  const pts=new Map();let moved=false,last=null;
+  const mid=()=>{const [a,b]=[...pts.values()];const r=box.getBoundingClientRect();return {x:(a.x+b.x)/2-r.left,y:(a.y+b.y)/2-r.top,d:Math.hypot(a.x-b.x,a.y-b.y)}};
+  box.addEventListener('pointerdown',e=>{if(!pts.size)moved=false;if(e.target.closest('.sk-tools')||(e.pointerType==='mouse'&&e.button!==0))return;
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY});last=pts.size===2?mid():null});
+  box.addEventListener('pointermove',e=>{const p=pts.get(e.pointerId);if(!p)return;
+    if(!moved&&pts.size<2&&Math.hypot(e.clientX-p.x0,e.clientY-p.y0)<6)return;
+    const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+    if(!moved){moved=true;box.classList.add('dragging')}try{if(!box.hasPointerCapture(e.pointerId))box.setPointerCapture(e.pointerId)}catch(_){}
+    if(pts.size>=2){const m=mid();if(last){v.x+=m.x-last.x;v.y+=m.y-last.y;if(last.d>0)zoomAt(m.d/last.d,m.x,m.y)}last=m}
+    else{v.x+=dx;v.y+=dy;v.mode='manual';keepIn();apply()}});
+  const up=e=>{pts.delete(e.pointerId);last=pts.size===2?mid():null;if(!pts.size)box.classList.remove('dragging')};
+  box.addEventListener('pointerup',up);box.addEventListener('pointercancel',up);
+  box.addEventListener('click',e=>{if(moved&&!e.target.closest('.sk-tools')){e.stopPropagation();e.preventDefault();moved=false}},true);
+  box.addEventListener('dblclick',e=>{if(!e.target.closest('.sk-node,.sk-tools'))fit()});
+  /* re-fit when the box changes width (rotating a phone, resizing the window) */
+  let bw0=box.clientWidth;const ro=new ResizeObserver(()=>{if(!box.isConnected){ro.disconnect();return}if(Math.abs(box.clientWidth-bw0)<2)return;bw0=box.clientWidth;if(v.mode==='fit'){build();v.W=W;v.H=H;fit()}else{keepIn();apply()}});ro.observe(box);
+}
 
 /* ---------- money logic (only user-recorded income) ---------- */
 /* kinds: income-type entries add, cost-type entries subtract (profit basis only); trading kept separate unless opted in */
@@ -88,16 +141,17 @@ function vJourney(el){const skills=S.skills,inc=incomeSummary(S.income,incOpts()
    `<div class="seg" role="group" aria-label="Section">${[['tree','🌳 Skill tree'],['ideas','🔎 Ideas & scanner'],['money','💰 Income & milestones'],['journey','🛤 Journey'],['public','🌐 Public showcase']].map(([k,l])=>`<button aria-pressed="${jTab===k}" data-jt="${k}">${l}</button>`).join('')}</div>`)+
   `<div class="grid g3 jstats" style="margin-bottom:14px">
     <div class="card glow"><div class="row"><div class="lvl" aria-label="Level ${L.lvl}">${L.lvl}</div><div style="flex:1"><b>Level ${L.lvl}</b><div class="tiny mute">${xp} XP · ${L.into}/${L.need} to level ${L.lvl+1}</div><div class="jbar"><i style="width:${L.pct}%"></i></div></div></div></div>
-    <div class="card"><b>${done}</b> skills completed · <b>${avail}</b> ready to work on<div class="tiny mute">${skills.length} skills in the tree</div></div>
-    <div class="card"><b>${inc.count?fmt$(inc.total):'No income recorded yet'}</b>${inc.count?` <span class="tiny mute">recorded total${S.showcase.includeTrading?' (incl. live trading)':' (business only)'}</span>`:''}<div class="tiny mute">${inc.nextMoney?`Next: ${fmt$(inc.nextMoney)}`:''}${inc.streak?` · 🔥 ${inc.streak}-month streak`:''}</div></div></div>
+    <div class="card"><div class="jst-v">${done}<small>/ ${skills.length}</small></div><div class="tiny mute">skills done · <b style="color:var(--ink)">${avail}</b> ready to work on</div></div>
+    <div class="card"><div class="jst-v">${inc.count?fmt$(inc.total):'$0'}</div><div class="tiny mute">${inc.count?`recorded${S.showcase.includeTrading?' (incl. trading)':' (business)'}`:'No income recorded yet'}${inc.nextMoney?` · next ${fmt$(inc.nextMoney)}`:''}${inc.streak?` · 🔥 ${inc.streak} mo`:''}</div></div></div>
    <div id="jbody"></div>`;
   $$('[data-jt]',el).forEach(b=>b.onclick=()=>{jTab=b.dataset.jt;render()});
   ({tree:jTree,ideas:jIdeas,money:jMoney,journey:jJourney,public:jPublic})[jTab]($('#jbody'),inc);
 }
 function jTree(el){const skills=S.skills;
-  el.innerHTML=`<div class="webwrap skwrap"><div class="card" style="padding:10px"><div class="row" style="margin-bottom:8px"><button class="btn s p" id="skAdd">+ New skill / goal</button><span class="tiny mute">Tap a skill to work on it · ✔ done · ◐ in progress · ✦ ready · 🔒 locked until the step before is done</span></div>
-   <div class="sk-wrap">${treeSVG(skills,{sel:skSel})||empty('No skills yet — add your first goal.')}</div></div><aside class="card sk-detail" id="skDetail"></aside></div>`;
-  $$('[data-sk]',el).forEach(g=>{g.onclick=()=>{skSel=g.dataset.sk;render()};g.onkeydown=e=>{if(e.key==='Enter'){skSel=g.dataset.sk;render()}}});
+  el.innerHTML=`<div class="webwrap skwrap"><div class="card sk-card"><div class="sk-head"><button class="btn s p" id="skAdd">+ New skill / goal</button><div class="sk-legend" aria-label="Legend"><span><i class="l-done"></i>✔ Done</span><span><i class="l-prog"></i>◐ In progress</span><span><i class="l-ready"></i>✦ Ready</span><span><i class="l-lock"></i>🔒 Locked</span></div></div>
+   ${treeBox(skills,{sel:skSel})||empty('No skills yet — add your first goal.')}</div><aside class="card sk-detail" id="skDetail"></aside></div>`;
+  mountZoom(el);const pick=g=>{if(g){skSel=g.dataset.sk;render()}};
+  el.onclick=e=>pick(e.target.closest('[data-sk]'));el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest('[data-sk]');if(g){e.preventDefault();pick(g)}}};
   $('#skAdd').onclick=()=>editSkill(null,{parents:skSel?[skSel]:[]});skDetail();
 }
 function skDetail(){const el=$('#skDetail');const s=skSel&&S.skills.find(x=>x.id===skSel);
@@ -203,11 +257,12 @@ function jPublic(el){const sc=S.showcase;const room=Sync.room;
     <label class="row small"><input type="checkbox" id="scNm" ${sc.showNames?'checked':''}> Show our display names</label>
     ${sc.public&&sc.slug?`<label class="f">Public link</label><div class="row"><input id="scUrl" readonly value="${esc(publicURL(sc.slug))}" style="flex:1"><button class="btn s" id="scCopy">Copy</button><a class="btn s" href="${esc(publicURL(sc.slug))}" target="_blank" rel="noopener">Open</a></div>
      <p class="tiny mute">This link works for others once the app is hosted online. Right now it's served from this computer.</p>`:''}</div>
-   <div class="card"><h3>Preview</h3><div class="sk-wrap" style="max-height:340px">${treeSVG(S.skills,{interactive:false})}</div></div></div>`;
+   <div class="card"><h3>Preview</h3>${treeBox(S.skills,{interactive:false},'pub')}</div></div>`;
   const save=patch=>commit(x=>x.showcase={...x.showcase,...patch},null,null);
   $('#scPub').onchange=async e=>{if(e.target.checked){try{const slug=await Sync.publish(showcaseSnapshot(),true);save({public:true,slug});toast('Showcase is public')}catch(err){toast(err.message);render()}}else{try{await Sync.publish(null,false)}catch(err){}save({public:false});toast('Showcase is private')}};
   $('#scAmt').onchange=e=>save({showAmounts:e.target.checked});$('#scNm').onchange=e=>save({showNames:e.target.checked});
   if($('#scCopy'))$('#scCopy').onclick=()=>navigator.clipboard.writeText($('#scUrl').value).then(()=>toast('Link copied'),()=>toast('Select and copy the link'));
+  mountZoom(el);
 }
 
 /* ---------- auto-evolve: completed Mind Web ideas/projects become achievements ---------- */

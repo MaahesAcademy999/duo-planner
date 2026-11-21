@@ -43,7 +43,11 @@ a{color:var(--acc2)}
   .page{padding:14px 16px 90px}
   .top{padding:8px 12px;row-gap:8px}
   .top .crumbs{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
-  .top>.sp{flex-basis:100%;height:0}
+  .top>.sp{flex-basis:100%;height:0;order:2}
+  /* phone top bar: row 1 = menu, page, help, you; row 2 = sync, undo/redo, then the main actions on the right */
+  .top>*{order:3}.top>.menuBtn,.top>.crumbs{order:0}.top>#helpBtn,.top>#meChip{order:1}
+  .top{gap:6px}.top .btn.s{padding:6px 10px}.top>#sync{margin-right:auto}
+  .top>#meChip{padding:2px 4px}
   .bottomnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;z-index:30;border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px)}
   .bottomnav button{background:none;border:0;color:var(--mute);font:inherit;font-size:11px;padding:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
   .bottomnav button[aria-current="page"]{color:var(--acc)}
@@ -72,8 +76,8 @@ h1.title{font-size:24px;margin:0 0 4px;letter-spacing:.01em}
 .btn.p:hover{box-shadow:var(--glow)}
 .btn.s{padding:4px 9px;font-size:13px}.btn.d{color:var(--danger)}.btn.ghost{background:none}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.seg button{background:none;border:0;color:var(--mute);padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}
+.seg{display:inline-flex;max-width:100%;border:1px solid var(--line);border-radius:10px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}.seg::-webkit-scrollbar{display:none}
+.seg button{flex:none;white-space:nowrap;background:none;border:0;color:var(--mute);padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--ink)}
 input,select,textarea{font:inherit;color:var(--ink);background:color-mix(in srgb,var(--bg) 60%,transparent);border:1px solid var(--line);border-radius:9px;padding:7px 9px;width:100%}
 input:focus,select:focus,textarea:focus{border-color:var(--acc);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 20%,transparent)}
@@ -144,7 +148,7 @@ input[type=checkbox],input[type=radio]{width:auto;accent-color:var(--acc)}
 .canvas svg{width:100%;height:100%;display:block}
 .canvas .tools{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
 .canvas .tools>*{pointer-events:auto}
-.canvas .zoom{position:absolute;bottom:10px;right:10px;display:flex;flex-direction:column;gap:4px}
+.canvas .zoom{position:absolute;bottom:10px;right:10px;display:flex;gap:2px;z-index:2}
 svg text{fill:var(--ink);font-size:12px;pointer-events:none;user-select:none;font-family:inherit}
 svg .n rect{fill:var(--surface2);stroke:var(--line);stroke-width:1.2}
 svg .n.cat rect{fill:color-mix(in srgb,var(--bg2) 85%,transparent);stroke:color-mix(in srgb,var(--acc) 55%,transparent);stroke-width:1.5}

@@ -106,7 +106,7 @@ function vSettings(el){const p=prof(me());const d=structuredClone(p);
   `<div class="grid g2"><div class="card"><h3>Theme Center</h3><div id="thF">${themeFields(d)}</div>
      <div class="row" style="margin-top:12px"><button class="btn p" id="thApply">Apply theme</button><button class="btn" id="thCancel">Cancel preview</button><button class="btn" id="thReset">Restore default</button></div>
      <p class="tiny mute">Clicking a theme previews it instantly. “Apply” saves it to your profile (it follows you on any device in this workspace).</p></div>
-   <div class="col"><div class="card"><h3>🔐 Account & sync</h3>
+   <div class="col"><div class="card"><h3>🧭 Layout style</h3>${layoutPicker()}</div><div class="card"><h3>🔐 Account & sync</h3>
      <div class="small">Signed in as <b>${esc((Auth.user||{}).email||'')}</b> · you are partner ${esc(me())}</div>
      <div class="sync ${Sync.status==='on'?'on':Sync.status==='err'?'err':''}" style="margin:6px 0"><span class="dot"></span>${Sync.status==='on'?'Synced — only you and your partner can open this workspace':Sync.status==='err'?'Connection problem — will keep retrying':'Connecting…'}</div>
      <div class="row"><button class="btn s" id="invNew">👥 Invite partner (new code)</button><button class="btn s" id="wsSwitch">⇄ Switch / join workspace</button></div>
@@ -124,6 +124,7 @@ function vSettings(el){const p=prof(me());const d=structuredClone(p);
   const thRoot=$('#thF');const redraw=()=>{applyTheme(d);thRoot.innerHTML=themeFields(d);wireThemeFields(d,thRoot,redraw)};wireThemeFields(d,thRoot,redraw);
   $('#thApply').onclick=()=>commit(s=>{Object.assign(s.partners.find(x=>x.id===me()),{theme:d.theme,accent:d.accent,motion:d.motion,simple:d.simple,celebrate:d.celebrate,easy:d.easy!==false})},'Theme applied');
   $('#thCancel').onclick=()=>render();
+  $$('[data-layout]',el).forEach(b=>b.onclick=()=>setLayout(b.dataset.layout));
   if(typeof wirePushCard==='function')wirePushCard();
   $('#thReset').onclick=()=>commit(s=>{Object.assign(s.partners.find(x=>x.id===me()),{theme:'emerald',accent:'',motion:'full',simple:false})},'Default theme restored');
   $('#wsSave').onclick=()=>commit(s=>{s.workspace={...s.workspace,name:val('wsN')||s.workspace.name};s.tz=val('tzI')||s.tz},'Workspace saved');

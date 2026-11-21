@@ -6,8 +6,12 @@ function vSchedule(el){const sc=scopes.schedule;const days=S.days.filter(d=>!d.a
    `${scopeSeg(sc,'schedule')}<button class="btn" data-qa="task">+ Task</button><button class="btn" id="addMeet">+ Shared meeting</button><button class="btn" id="addDay">+ Workday</button>`)+
   `<div class="grid days">${days.map(d=>dayCard(d,sc)).join('')}
    <div class="card"><h3>📥 Unscheduled</h3><div class="drop" data-day="">${un.map(taskHTML).join('')||'<div class="tiny mute" style="padding:8px">Drop tasks here to unschedule them</div>'}</div></div></div>`;
-  wireTasks(el);
   $('#addDay').onclick=()=>editDay();$('#addMeet').onclick=()=>editTask(null,{owner:'both',title:'Shared meeting: '});
+  wireDayCards(el);
+}
+/* wiring shared by the Schedule page and the Schedule slide */
+function wireDayCards(el){
+  wireTasks(el);
   $$('[data-day-edit]',el).forEach(b=>b.onclick=()=>editDay(b.dataset.dayEdit));
   $$('[data-day-add]',el).forEach(b=>b.onclick=()=>editTask(null,{dayId:b.dataset.dayAdd}));
   $$('[data-day-note]',el).forEach(b=>b.onclick=()=>editNote(null,{dayId:b.dataset.dayNote,owner:'both'}));

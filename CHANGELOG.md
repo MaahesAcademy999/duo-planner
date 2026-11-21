@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.3.0] - 2026-11-21
+### Features
+- Command Center: 🗓 Today's agenda at the top. One ordered list of what still needs doing today: overdue items first, then anything with a time (earliest first), then today's deadlines, then the rest of today's workday tasks. Finished items drop off, and a bar shows how many are done.
+- ▶ Start opens the first item where the work happens: the task's details, the clip on its campaign board, or Post & Submit when the clip is approved and waiting to go up. Tapping any line does the same; tasks can be ticked off right in the list.
+- Shows your own and shared items by default (the same as the morning phone summary); "Everyone" includes your partner's too.
+### Fixes
+- "Today" for clip and campaign deadlines now uses the workspace timezone. Before, it used UTC, so on a US evening deadlines were counted from tomorrow.
+
 ## [3.2.0] - 2026-11-20
 ### Features
 - Clipping campaigns: ⚡ Autofill on the campaign form. Pick a campaign you've run before to copy its platform, links, rules, platforms, view requirement, rate, cap and permission (deadline is left for the new round), or paste the text of a campaign page and Duo fills the name, platform, campaign/submit/source links, rate per 1k views, payout cap and budget, minimum views, eligible platforms, deadline and rules.

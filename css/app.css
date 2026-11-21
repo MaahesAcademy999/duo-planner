@@ -204,3 +204,24 @@ body.gated .shell,body.gated .bottomnav{visibility:hidden}
 .afbox textarea{min-height:60px}
 @keyframes afPulse{from{box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 45%,transparent)}to{box-shadow:none}}
 .autofilled{border-color:var(--ok);animation:afPulse 1.6s ease-out}
+
+/* ===== Today's agenda (Command Center) ===== */
+.agenda{margin-bottom:14px}
+.ag-head{margin-bottom:8px}
+.ag-prog{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:4px 0 3px}
+.ag-prog i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width var(--dur)}
+.ag-start{width:100%;justify-content:center;font-size:16px;padding:12px 14px;margin:10px 0 4px;min-height:48px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center}
+.ag-list{list-style:none;margin:6px 0 0;padding:0}
+.ag-item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:11px;padding:4px 4px 4px 10px;margin:6px 0;background:color-mix(in srgb,var(--bg) 45%,transparent);transition:border-color var(--dur)}
+.ag-item:hover{border-color:color-mix(in srgb,var(--acc) 50%,var(--line))}
+.ag-item.next{border-color:color-mix(in srgb,var(--acc) 60%,var(--line));background:color-mix(in srgb,var(--acc) 10%,transparent)}
+.ag-item .chk{margin:0}
+.ag-ic{flex:none;width:22px;text-align:center}
+.ag-body{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:8px 6px;min-height:44px;border-radius:9px;-webkit-tap-highlight-color:transparent}
+.ag-txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.ag-title{font-size:14px;overflow-wrap:anywhere}
+.ag-when{flex:none;min-width:72px;font-size:12px;font-weight:600;color:var(--acc)}
+.ag-when.late{color:var(--danger)}.ag-when.due{color:var(--warn)}.ag-when.any{color:var(--mute);font-weight:400}
+.ag-go{flex:none;color:var(--mute);font-size:20px;line-height:1}
+.ag-more summary{cursor:pointer;color:var(--mute);margin-top:6px}
+@media (max-width:860px){.ag-head .seg{width:100%}.ag-head .seg button{flex:1;padding:8px 6px}.ag-when{min-width:60px}}

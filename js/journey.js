@@ -107,13 +107,13 @@ function skDetail(){const el=$('#skDetail');const s=skSel&&S.skills.find(x=>x.id
    <h2 class="sk-title">${esc(s.title)}</h2><div class="row">${ownerPill(s.owner)}<span class="tag">+${s.xp||10} XP</span>${n?`<a href="#" data-node="${n.id}" class="tag">${nodeIcon(n)} ${esc(n.label)}</a>`:''}</div>
    ${s.notes?`<p class="small" style="white-space:pre-wrap">${esc(s.notes)}</p>`:''}${s.doneAt?`<p class="tiny mute">Completed ${new Date(s.doneAt).toLocaleDateString()}</p>`:''}
    ${st==='locked'?`<p class="small warn">Finish first: ${s.parents.map(id=>S.skills.find(x=>x.id===id)).filter(p=>p&&p.status!=='done').map(p=>esc(p.title)).join(', ')}</p>`:''}
-   <div class="row" style="margin-top:8px">${st==='available'?'<button class="btn s" id="skStart">◐ Start</button>':''}${st!=='done'?`<button class="btn s p" id="skDone" ${st==='locked'?'disabled':''}>✔ Mark done</button>`:'<button class="btn s" id="skUndo">Reopen</button>'}
+   <div class="row" style="margin-top:8px">${st==='available'?'<button class="btn s p" id="skStart">▶ Start</button>':''}${st==='progress'?'<button class="btn s p" id="skGuide">▶ Continue walkthrough</button>':''}${st!=='done'?`<button class="btn s" id="skDone" ${st==='locked'?'disabled':''}>✔ Mark done</button>`:'<button class="btn s" id="skUndo">Reopen</button>'}
     <button class="btn s" id="skNext">+ Next step</button><button class="btn s" id="skEdit">✎ Edit</button><button class="btn s" id="skTask">+ Task</button></div>
    ${kids.length?`<label class="f">Unlocks</label>${kids.map(k=>`<div class="small"><a href="#" data-skp="${k.id}">${esc(k.title)}</a></div>`).join('')}`:''}`;
   wireLinks(el);$$('[data-skp]',el).forEach(a=>a.onclick=e=>{e.preventDefault();skSel=a.dataset.skp;render()});
   $('#skX').onclick=()=>{skSel=null;render()};$('#skEdit').onclick=()=>editSkill(s.id);$('#skNext').onclick=()=>editSkill(null,{parents:[s.id],branch:s.branch});
   $('#skTask').onclick=()=>editTask(null,{title:s.title,nodeId:s.branch,owner:s.owner});
-  if($('#skStart'))$('#skStart').onclick=()=>commit(x=>x.skills.find(y=>y.id===s.id).status='progress','Started',`started “${s.title}”`);
+  if($('#skStart'))$('#skStart').onclick=()=>startGuide(s.id);if($('#skGuide'))$('#skGuide').onclick=()=>openGuide(s.id);
   if($('#skDone'))$('#skDone').onclick=()=>completeSkill(s.id);
   if($('#skUndo'))$('#skUndo').onclick=()=>commit(x=>Object.assign(x.skills.find(y=>y.id===s.id),{status:'available',doneAt:0}),'Reopened');
 }
@@ -121,8 +121,7 @@ function completeSkill(id){const s=S.skills.find(x=>x.id===id);const before=leve
   commit(x=>Object.assign(x.skills.find(y=>y.id===id),{status:'done',doneAt:Date.now(),starter:false}),`+${s.xp||10} XP`,`completed “${s.title}” (+${s.xp||10} XP)`);
   const after=levelInfo(totalXP(S.skills)).lvl;celebrate(after>before||s.owner==='both');if(after>before)toast(`⬆ Level ${after}!`);
   const unlocked=S.skills.filter(k=>k.parents.includes(id)&&skState(k,S.skills)==='available');
-  modal('Nice — what comes next?',`<p class="small">${unlocked.length?`Unlocked: ${unlocked.map(u=>`<b>${esc(u.title)}</b>`).join(', ')}`:'Nothing is unlocked by this yet.'}</p><label class="f" for="nx">Add the next step (optional)</label><input id="nx" placeholder="e.g. Film 3 UGC test videos">`,
-    [{t:'Add next step',c:'p',f:()=>{const t=val('nx');if(!t)return;commit(x=>x.skills.push({id:uid(),title:t,parents:[id],status:'available',owner:s.owner,xp:10,branch:s.branch||'',notes:'',doneAt:0}),'Added to tree',`added next step “${t}”`)}}],{noFocus:false})}
+  nextStepModal(id,unlocked)}
 function editSkill(id,preset={}){const s=id?S.skills.find(x=>x.id===id):{title:'',parents:[],owner:'both',xp:10,branch:'',notes:'',...preset};const others=S.skills.filter(x=>x.id!==id);
   modal(id?'Edit skill':'New skill / goal',`${id?'':goalAssistHTML()}<label class="f" for="skT">Skill or goal</label><div class="row" style="flex-wrap:nowrap"><input id="skT" value="${esc(s.title)}" placeholder="e.g. Land first UGC client" style="flex:1;min-width:0">${id?'':'<button type="button" class="btn s" id="skScan" title="Score this idea">🔎 Scan</button>'}</div>${id?'':'<div id="skScanOut"></div>'}
    <div class="row"><div style="flex:1;min-width:140px"><label class="f" for="skO">Who</label>${ownerSel('skO',s.owner)}</div><div style="flex:1;min-width:140px"><label class="f" for="skXP">Size</label><select id="skXP">${SK_SIZES.map(([v,l])=>`<option value="${v}" ${+s.xp===v?'selected':''}>${l} (+${v} XP)</option>`).join('')}</select></div></div>

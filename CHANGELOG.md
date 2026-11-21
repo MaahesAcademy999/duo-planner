@@ -1,6 +1,12 @@
 # Changelog
 
 ## [Unreleased]
+### Features
+- Skill Tree: new 🔎 Ideas & scanner tab. 24 viable topics (UGC for beauty brands and TikTok Shop sellers, stream and podcast clipping, local business video, templates and more) and product types (beauty minis, kitchen gadgets, pet, car, home and others), each scored out of 100 on demand, low competition, low start cost, speed to first $ and fit for you. Filter by Topics or Products.
+- ✨ Recommended for you: the best-scoring idea that isn't already in your tree. "Fit" comes from your own Duo data (Mind Web statuses, recorded income, clipping campaigns, skills worked on, weekly topics), so the pick changes as you work. Ideas you marked "not pursuing" are skipped.
+- Scanner: type any topic or product to get a score. It starts from the closest known idea, flags things with extra platform rules (supplements, CBD, crypto and similar), lets you adjust every rating, and has an optional 🌐 live interest check that reads public Wikipedia page views (free, no key) to see if interest is rising or falling.
+- New skill / goal form: a Recommended goal at the top ("Use this" fills the name, Mind Web branch and a first step), a 🔎 Scan button next to the name to score what you typed, and "More ideas →" to open the full list.
+- Every idea can be added as a goal or to the Mind Web in one tap.
 ### Fixes
 - Skill Tree: better proportions. Wider skill boxes so titles fit (full title on hover), no empty band under the tree, a slimmer detail panel that stays in view while you scroll, a normal-case detail title instead of wrapped spaced capitals, and tighter stat cards. On phones the tree scrolls inside its card instead of widening the page.
 - Phone top bar: page name on the first row, all buttons together on the second (before, Undo and Redo split across the two rows).

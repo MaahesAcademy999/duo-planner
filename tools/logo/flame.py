@@ -42,3 +42,20 @@ def sc(k,s=1.0,glow=True): return f'<g transform="translate(256 256) scale({s}) 
 BG='<rect width="512" height="512" fill="url(#bg)"/>'
 if __name__=='__main__':
     for k in MARKS: open(f'F{k}.svg','w').write(svg(BG+sc(k)))
+
+# 4c vibrant: saturated multi-stop flames, stronger two-layer glow, bright partner dots with highlights
+VIV=(G('vb',[(0,'#00f0ff'),(.45,'#0080ff'),(1,'#5b21ff')],0,1)
+    +G('vr',[(0,'#ff2bd6'),(.4,'#ff1f4b'),(.75,'#ff7a00'),(1,'#ffd60a')],0,1)
+    +'<radialGradient id="ve" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#d1fff0"/><stop offset=".35" stop-color="#00ff9c"/><stop offset="1" stop-color="#00b86b"/></radialGradient>'
+    +'<radialGradient id="vv" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#f5e1ff"/><stop offset=".35" stop-color="#c04dff"/><stop offset="1" stop-color="#7a1fff"/></radialGradient>')
+GL2='<filter id="gl2" filterUnits="userSpaceOnUse" x="-64" y="-64" width="640" height="640"><feGaussianBlur stdDeviation="16" result="b1"/><feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b2"/><feColorMatrix in="b1" type="saturate" values="1.6" result="b1s"/><feMerge><feMergeNode in="b1s"/><feMergeNode in="b1s"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+COMMON+=VIV
+def m_v(glow=True):
+    f=' filter="url(#gl2)"' if glow else ''
+    return f'''<g{f} transform="rotate(-24 256 256)">{crescent(104,256,"url(#vb)")}<g transform="rotate(180 256 256)">{crescent(104,256,"url(#vr)")}</g></g>
+<g{f}><circle cx="218" cy="256" r="31" fill="url(#ve)"/><circle cx="294" cy="256" r="31" fill="url(#vv)"/></g>'''
+MARKS['v']=m_v
+_svg=svg
+def svg(body,vb='0 0 512 512',glow=True): return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vb}"><defs>{COMMON}{(GL+GL2) if glow else ""}</defs>{body}</svg>\n'
+if __name__=='__main__':
+    open('Fv.svg','w').write(svg(BG+sc('v')))

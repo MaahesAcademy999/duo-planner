@@ -4,9 +4,8 @@
 function findItems(){const out=[];const add=(t,ic,k,run,extra='')=>{if(t)out.push({t:String(t),ic,k,run,s:(t+' '+extra).toLowerCase()})};
   PAGES.forEach(p=>add(p.l,p.ic,'Page',()=>go(p.k)));
   S.tasks.forEach(t=>add(t.title,t.done?'☑':'✓',t.done?'Done task':'Task',()=>editTask(t.id),t.notes));
-  S.skills.forEach(s=>add(s.title,'🌳','Skill',()=>{skSel=s.id;jTab='tree';go('journey');
-    if(slideMode()&&!['progress','available'].includes(skState(s,S.skills))){slidePeek=true;render()}},s.notes));
-  S.nodes.filter(n=>!n.archived).forEach(n=>add(n.label,nodeIcon(n),n.kind==='project'?'Project':'Mind Web',()=>{go('web');if(window.selectNode)selectNode(n.id)},n.notes));
+  S.skills.forEach(s=>add(s.title,'🌳','Skill',()=>openSkill(s.id),s.notes));
+  S.nodes.filter(n=>!n.archived).forEach(n=>add(n.label,nodeIcon(n),n.kind==='project'?'Project':'Mind Web',()=>openNode(n.id),n.notes));
   S.notes.forEach(n=>add(n.title,'📝','Note',()=>editNote(n.id),n.body));
   (S.clips||[]).forEach(c=>add(c.name,'✂','Campaign',()=>{if(typeof clipSel!=='undefined')clipSel=c.id;go('clips')},c.host));
   return out}

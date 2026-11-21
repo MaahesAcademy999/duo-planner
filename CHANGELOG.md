@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 ### Features
+- 🪟 Pop-up details everywhere: tapping a skill or goal on the Skill Tree now opens its details and buttons in a pop-up box over the page (it used to appear in a panel beside or below the tree). Mind Web ideas and projects open the same way, from the map, the list, Projects, Find anything and any idea link, without leaving the page you're on. Tasks, notes, suggestions and forms already used it and now share the same behaviour.
+- Close a pop-up by tapping outside it, pressing Esc, ✕, or on a phone by swiping its top bar down. On a phone it rises from the bottom as a sheet with large buttons.
+- 🔒 Locked skills open view-only: no Start or Mark done, just what to finish first and the next skill you can work on now, each a button that jumps to that skill. ← Back returns to where you were.
+- Opening something from inside a pop-up (Edit, + Task, + Next step, a linked skill or idea) shows ← Back, and saving or cancelling brings you back to the details with the new information.
+- If you typed something and tap outside or swipe down, Duo asks "Keep editing / Discard" instead of losing it.
+- Accessibility: the pop-up title is announced first, keyboard focus stays inside the box and returns to what you tapped when it closes, the page behind can't scroll, and buttons are bigger on touch screens. The browser's plain prompt boxes (checklist item, edit item, new subject, make project) are now proper Duo pop-ups.
 - 🧩 Research Split (new page under Together): study one topic as a team. Pick a topic (your walkthrough pick, the Recommended idea, a scored idea, or your own), and Duo fills in starter subtopics (the basics, who's already doing it, what they earn, costs and tools, where the customers are, rules and risks, plus "Our first small test"). Rename, add or remove parts and set each one to you, your partner or Both, with a running tally and ↺ Split evenly.
 - ✍ Daily check-in: for each of your parts write what you learned, key links or sources, questions and your next step. Your parts open first, your partner's parts are optional. Quick on a phone, and each partner saves their own check-in so two people checking in at once never overwrite each other.
 - 🔁 Compare notes: both check-ins side by side per subtopic (stacked on a phone), 💡 "I learned from this" on your partner's notes, one takeaway line per day ("What I learned from Kai today"), and what your partner learned from you. Day chips show who checked in (●○), and History lists every day of notes.

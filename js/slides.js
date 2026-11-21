@@ -149,7 +149,7 @@ function sJourney(el){const sk=S.skills;const xp=totalXP(sk),L=levelInfo(xp);con
   on('slIdeas',()=>{jTab='ideas';slidePeek=true;render();scrollTo(0,0)});
   $$('[data-slsk]',el).forEach(b=>b.onclick=()=>{skSel=b.dataset.slsk;render()});
   const dt=$('.sl-tree',el);if(dt){dt.open=slTreeOpen;const m=()=>{if(dt.open)mountZoom(dt)};dt.ontoggle=()=>{slTreeOpen=dt.open;m()};m();
-    dt.addEventListener('click',e=>{const g=e.target.closest('[data-sk]');if(g){skSel=g.dataset.sk;render()}})}
+    dt.addEventListener('click',e=>{const g=e.target.closest('[data-sk]');if(g)openSkill(g.dataset.sk)});dt.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest('[data-sk]');if(g){e.preventDefault();openSkill(g.dataset.sk)}}})}
 }
 let slTreeOpen=false;
 

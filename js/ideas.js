@@ -90,7 +90,7 @@ function scanText(text,kind){const t=text.toLowerCase();const words=t.split(/[^a
   let best=null,bestHits=0;IDEA_LIB.forEach(i=>{if(kind&&i.kind!==kind)return;const hits=i.kw.filter(k=>t.includes(k)).length+words.filter(w=>i.title.toLowerCase().includes(w)).length*.5;
     if(hits>bestHits){bestHits=hits;best=i}});
   const base=best?{demand:best.demand,comp:best.comp,cost:best.cost,speed:best.speed,branch:best.branch,alt:best.alt}:{demand:3,comp:3,cost:3,speed:3,branch:''};
-  const r={id:'scan',kind:kind||(best?best.kind:'topic'),title:text,...base,kw:[...new Set([...words,...(best?best.kw:[])])],like:best,goal:text,step:best?best.step:''};
+  const r={id:'scan',kind:kind||(best?best.kind:'topic'),title:text,...base,kw:[...new Set([...words,...(best?best.kw:[])])],like:best,goal:(kind||(best?best.kind:'topic'))==='product'?`Film 3 videos for ${text}`:`Make our first test piece for ${text}`,step:best?best.step:''};
   if(!best){const n=S.nodes.find(n=>!n.archived&&words.some(w=>n.label.toLowerCase().includes(w)));if(n)r.branch=n.label}
   r.risks=[...new Set(RISK_WORDS.filter(([w])=>t.includes(w)).map(x=>x[1]))];
   const f=ideaFit(r);r.fit=f.fit;r.fitWhy=f.why;r.score=ideaScore(r);return r}

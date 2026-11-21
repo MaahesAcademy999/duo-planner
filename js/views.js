@@ -10,6 +10,7 @@ const PAGES=[
   {k:'post',l:'Post & Submit',ic:'🚀',g:'Plan'},
   {k:'clips',l:'Clipping Campaigns',ic:'✂',g:'Plan'},
   {k:'checklist',l:'Shared Checklist',ic:'☑',g:'Plan'},
+  {k:'research',l:'Research Split',ic:'🧩',g:'Together'},
   {k:'notes',l:'Notes',ic:'📝',g:'Together'},
   {k:'suggest',l:'Suggestions',ic:'💬',g:'Together'},
   {k:'activity',l:'Activity',ic:'⚡',g:'Together'},
@@ -39,7 +40,7 @@ function shell(){
   if(typeof slideShell==='function')slideShell();
 }
 function render(){applyTheme();if(window.FX)FX.sync();const sm=typeof slideMode==='function'&&slideMode();document.documentElement.toggleAttribute('data-slides',sm);shell();
-  const v={post:vPost,clips:vClips,journey:vJourney,dash:vDash,web:vWeb,schedule:vSchedule,projects:vProjects,tasks:vTasks,checklist:vChecklist,notes:vNotes,suggest:vSuggest,activity:vActivity,profile:vProfile,settings:vSettings}[page];
+  const v={post:vPost,clips:vClips,journey:vJourney,dash:vDash,web:vWeb,schedule:vSchedule,projects:vProjects,tasks:vTasks,checklist:vChecklist,notes:vNotes,suggest:vSuggest,research:vResearch,activity:vActivity,profile:vProfile,settings:vSettings}[page];
   if(sm&&!slidePeek&&slideIdx(page)>=0)vSlide($('#page'));
   else{v($('#page'));if(sm)slideBanner($('#page'));else if(typeof injectTip==='function')injectTip($('#page'),page)}
   $$('[data-scope]').forEach(b=>b.onclick=()=>{scopes[b.dataset.scopeKey]=b.dataset.scope;render()});
@@ -71,6 +72,7 @@ function vDash(el){const A=prof(me()),B=prof(partnerId());const today=todayDay()
    <div class="card"><h3>📅 Today</h3>${today?`<b>${today.icon||''} ${esc(today.theme)}</b>${topicLine(today)}<ul class="focus-list">${today.focus.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>
      <div class="drop" data-day="${today.id}">${S.tasks.filter(t=>t.dayId===today.id&&!t.done).map(taskHTML).join('')||'<div class="tiny mute">No tasks on today yet.</div>'}</div><button class="btn s" data-qa="schedule">+ Add to today</button>`:empty('No workday today. Add one in Schedule.')}</div>
    <div class="card"><h3>🚀 Active projects</h3>${activeProj.length?activeProj.slice(0,6).map(p=>`<div class="row small" style="padding:4px 0"><a href="#" data-node="${p.id}">${esc(p.label)}</a><span class="sp"></span>${stPill(p.status)}</div>`).join(''):empty('No projects yet. Turn an idea into a project from the Mind Web.')}</div>
+   ${rsDashCard()}
    <div class="card"><h3>⚠ Needs attention</h3>${attention(topicGaps)}</div>
    <div class="card"><h3>💬 Notes & suggestions</h3>${[...S.suggestions.filter(g=>g.status==='open').slice(0,3).map(g=>`<div class="row small" style="padding:4px 0">${avatar(g.by,22)}${g.by!==me()&&!(g.seen||{})[me()]?'<span class="new-dot" title="New"></span>':''}<a href="#" data-sg="${g.id}">${esc(g.text.slice(0,70))}</a></div>`),
        ...S.notes.slice(0,3).map(n=>`<div class="row small" style="padding:4px 0">${avatar(n.by,22)}📝 <a href="#" data-nt="${n.id}">${esc(n.title)}</a></div>`)].join('')||empty('Nothing yet.','suggestion','+ Suggest something')}</div>
@@ -78,7 +80,7 @@ function vDash(el){const A=prof(me()),B=prof(partnerId());const today=todayDay()
   </div>
   <div class="card" style="margin-top:14px"><h3>🗓 Weekly planning · week of ${wk}</h3><div class="steps">${STEPS.map((s,i)=>`<label><input type="checkbox" class="chk" data-step="${i}" ${st.includes(i)?'checked':''}> ${i+1}. ${esc(s)}</label>`).join('')}</div>
    <div class="row" style="margin-top:8px"><button class="btn s" data-go="schedule">Open schedule →</button><button class="btn s" id="carry">↻ Carry forward to new week</button></div></div>`;
-  wireTasks(el);wireLinks(el);wireAgenda(el);if(typeof wireClipLinks==='function')wireClipLinks(el);
+  wireTasks(el);wireLinks(el);wireAgenda(el);rsWireCards(el);if(typeof wireClipLinks==='function')wireClipLinks(el);
   $$('[data-step]',el).forEach(c=>c.onchange=()=>commit(s=>{const a=new Set(s.steps[wk]||[]);c.checked?a.add(+c.dataset.step):a.delete(+c.dataset.step);s.steps[wk]=[...a]}));
   $('#setFocus').onclick=editFocus;
   $('#carry').onclick=()=>modal('Carry forward to a new week','<p>Completed tasks are cleared, unfinished tasks stay on their days, and Tuesday / Thursday / Friday topics reset so you choose fresh ones. Undo is available.</p>',[{t:'Carry forward',c:'p',f:()=>commit(s=>{s.tasks=s.tasks.filter(t=>!t.done);s.days.forEach(d=>d.topics=[])},'New week ready','started a new week')}]);

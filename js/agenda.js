@@ -29,12 +29,16 @@ function agendaData(){const date=today();const day=todayDay();const dayId=day&&d
       if(['submitted','paid'].includes(i.stage)){if(i.due===date)done++;return}
       items.push({key:'i:'+i.id,kind:'clip',cid:c.id,iid:i.id,stage:i.stage,title:i.hook||'Untitled clip',ctx:`${c.name||'Campaign'} · ${stageLabel(i.stage)}`,owner:i.owner??c.owner??'both',
         group:i.due<date?0:2,sort:i.due<date?i.due:1,late:i.due<date?-daysTo(i.due):0,dueToday:i.due===date})})});
+  if(typeof rsTopics==='function')rsTopics().forEach(t=>{if(!rsMine(t).length)return;
+    if(rsCounts(rsCi(t.id,date,me())))done++;
+    else items.push({key:'r:'+t.id,kind:'checkin',tid:t.id,title:`Research check-in: ${t.title}`,ctx:`${rsMine(t).length} part${rsMine(t).length===1?'':'s'} for you · compare with ${pname(partnerId())}`,owner:me(),group:3,sort:0})});
   items.sort((a,b)=>a.group-b.group||(a.sort<b.sort?-1:a.sort>b.sort?1:0));
   return {items,done,day,date}}
 
 /* where "Start" / tapping an item takes you */
 function agendaOpen(it){
   if(it.kind==='task')return editTask(it.id);
+  if(it.kind==='checkin')return rsCheckin(it.tid);
   if(it.kind==='clip'){const q=postQueue();const qi=q.findIndex(x=>x.i.id===it.iid);
     if(qi>=0){postIdx=qi;return go('post')}
     clipSel=it.cid;clipTab='board';go('clips');return editItem(it.cid,it.iid)}
@@ -45,7 +49,7 @@ function agendaWhen(it){
   if(it.at!==null&&it.at!==undefined)return `<span class="ag-when">${agendaFmtMin(it.at)}</span>`;
   if(it.dueToday)return `<span class="ag-when due">Due today</span>`;
   return `<span class="ag-when any">Anytime</span>`}
-const agendaIcon=it=>it.kind==='task'?'✓':it.kind==='clip'?(it.stage==='approved'?'🚀':'✂'):'⏰';
+const agendaIcon=it=>it.kind==='checkin'?'🧩':it.kind==='task'?'✓':it.kind==='clip'?(it.stage==='approved'?'🚀':'✂'):'⏰';
 function agendaRow(it,i){const who=agendaScope==='all'&&it.owner&&it.owner!=='both'?avatar(it.owner,18):''; /* whose item, only needed when both partners' items show */
   return `<li class="ag-item${i===0?' next':''}">
     ${it.kind==='task'?`<input type="checkbox" class="chk" data-agdone="${it.id}" aria-label="Mark ${esc(it.title)} done">`:`<span class="ag-ic" aria-hidden="true">${agendaIcon(it)}</span>`}

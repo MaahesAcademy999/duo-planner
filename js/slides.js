@@ -9,7 +9,7 @@ const DECK=[
   {k:'tasks',t:'My Tasks',h:'My tasks',ic:'✓',sub:'Tick things off or add a new one.'},
   {k:'journey',t:'Skill Tree',h:'One skill at a time',ic:'🌳',sub:'Work on one skill with a step-by-step walkthrough.'},
 ];
-const SLIDE_MORE=['web','clips','post','notes','suggest','checklist','activity','profile','settings'];
+const SLIDE_MORE=['research','web','clips','post','notes','suggest','checklist','activity','profile','settings'];
 const slideIdx=k=>DECK.findIndex(d=>d.k===k);
 const slideMode=()=>prof(me()).layout==='slides';
 let slideDay=null;
@@ -70,12 +70,13 @@ function sDash(el){const A=prof(me());const today=todayDay();const h=new Date().
     <div class="card sl-focus"><div class="sl-fc-row">${avatar(me(),30)}<div class="sl-fc-t"><span class="tiny mute">You</span><span class="small">${A.working?`🛰 <b>${esc(A.working)}</b>`:'<span class="mute">No current focus set</span>'}</span></div><button class="btn s" id="slFocus">${A.working?'Change':'🛰 Set my focus'}</button></div>
       <div class="sl-fc-row">${avatar(partnerId(),30)}<div class="sl-fc-t"><span class="tiny mute">${esc(prof(partnerId()).name||'Your partner')}</span><span class="small">${prof(partnerId()).working?`🛰 <b>${esc(prof(partnerId()).working)}</b>`:'<span class="mute">No current focus set</span>'}</span></div></div></div>
     ${first?`<div class="card glow sl-next"><div class="tiny mute">Next up today</div><div class="row" style="flex-wrap:nowrap"><b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(first.title)}</b>${agendaWhen(first)}</div><button class="btn p" id="slAg">▶ Start it</button></div>`:''}
+    ${first&&first.kind==='checkin'?'':rsSlideCard()}
     <button class="btn p sl-big" data-slgo="${last||'schedule'}">${last?`Continue: ${esc(DECK[slideIdx(last)].t)}`:'Start the flow'} ›</button>
     <h2 class="sl-sub">Or pick a part</h2>
     <div class="sl-cards">${DECK.slice(1).map((d,j)=>`<button class="sl-card" data-slgo="${d.k}"><span class="sl-ic" aria-hidden="true">${d.ic}</span><span style="flex:1;min-width:0"><span class="tiny mute">Step ${j+1}</span><b>${esc(d.t)}</b><span class="small mute">${esc(slidePeekLine(d.k))}</span></span><span class="sl-arr" aria-hidden="true">›</span></button>`).join('')}</div>
     <h2 class="sl-sub">Outside the flow</h2>
     <div class="sl-more">${SLIDE_MORE.map(k=>{const p=pageOf(k);return `<button class="btn s" data-go="${k}">${p.ic} ${esc(p.l)}${badges[k]?` <span class="badge">${badges[k]}</span>`:''}</button>`}).join('')}</div>`;
-  const s=$('#slAg',el);if(s)s.onclick=()=>agendaOpen(first);$('#slFocus',el).onclick=editFocus;
+  const s=$('#slAg',el);if(s)s.onclick=()=>agendaOpen(first);rsWireCards(el);$('#slFocus',el).onclick=editFocus;
 }
 
 /* ----- slide: Schedule (one day at a time) ----- */

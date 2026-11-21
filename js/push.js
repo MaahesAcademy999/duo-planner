@@ -4,7 +4,7 @@
    The duo-reminders Edge Function sends the reminders on a schedule. No secret keys live in the app. */
 const Push=(()=>{
   const FN=()=>SYNC_CFG.url+'/functions/v1/duo-reminders';
-  const DEF={digest:true,digestHour:8,timed:true,before:15};
+  const DEF={digest:true,digestHour:8,timed:true,before:15,checkin:true,checkinHour:20};
   const prefs=()=>({...DEF,...(LOCAL.push||{})});
   const ua=navigator.userAgent||'';
   const isIOS=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
@@ -44,6 +44,7 @@ window.Push=Push;
 /* Settings card */
 async function pushCardHTML(){const st=await Push.state();const p=Push.prefs();
   const hours=Array.from({length:24},(_,h)=>`<option value="${h}" ${h===p.digestHour?'selected':''}>${h%12||12}:00 ${h<12?'AM':'PM'}</option>`).join('');
+  const hours2=Array.from({length:24},(_,h)=>`<option value="${h}" ${h===p.checkinHour?'selected':''}>${h%12||12}:00 ${h<12?'AM':'PM'}</option>`).join('');
   const mins=[5,10,15,30,60].map(m=>`<option value="${m}" ${m===p.before?'selected':''}>${m} min before</option>`).join('');
   const msg={on:'✅ Reminders are on for this device.',off:'Get a notification on this phone or computer for today\'s tasks and coming deadlines, even when Duo is closed.',
     blocked:'🚫 Notifications are blocked for Duo. Allow them in your phone or browser settings for this site, then come back here.',
@@ -53,6 +54,7 @@ async function pushCardHTML(){const st=await Push.state();const p=Push.prefs();
    ${st==='on'?`<div class="row" style="margin-top:8px"><button class="btn s" id="puTest">Send a test</button><button class="btn s d" id="puOff">Turn off on this device</button></div>
     <label class="row small" style="margin-top:10px"><input type="checkbox" id="puDig" ${p.digest?'checked':''}> Morning summary at <select id="puHr" style="width:auto" aria-label="Summary time">${hours}</select></label>
     <label class="row small"><input type="checkbox" id="puTm" ${p.timed?'checked':''}> Remind me <select id="puBf" style="width:auto" aria-label="How early">${mins}</select> a task with a time</label>
+    <label class="row small"><input type="checkbox" id="puCi" ${p.checkin?'checked':''}> 🧩 Research check-in nudge at <select id="puCh" style="width:auto" aria-label="Check-in nudge time">${hours2}</select> if I haven't checked in</label>
     <p class="tiny mute">Times use the workspace timezone (${esc(S.tz)}). A task reminds you when it is on today's workday or has today's due date. The summary also lists clip and campaign deadlines for today, tomorrow and anything overdue. Only your own and shared items are included.</p>`
    :st==='off'?`<div class="row" style="margin-top:8px"><button class="btn s p" id="puOn">🔔 Turn on reminders</button></div>`:''}`}
 async function wirePushCard(){const box=$('#pushCard');if(!box)return;box.innerHTML=await pushCardHTML();
@@ -61,5 +63,5 @@ async function wirePushCard(){const box=$('#pushCard');if(!box)return;box.innerH
   if(on)on.onclick=()=>run(on,Push.enable,'Reminders are on');
   if(off)off.onclick=()=>run(off,Push.disable,'Reminders turned off');
   if(tst)tst.onclick=()=>run(tst,Push.test,'Test sent — check your notifications');
-  const sp=()=>Push.setPrefs({digest:$('#puDig',box).checked,digestHour:+$('#puHr',box).value,timed:$('#puTm',box).checked,before:+$('#puBf',box).value}).then(()=>toast('Reminder settings saved'),e=>toast(e.message));
-  ['#puDig','#puHr','#puTm','#puBf'].forEach(s=>{const e=$(s,box);if(e)e.onchange=sp})}
+  const sp=()=>Push.setPrefs({digest:$('#puDig',box).checked,digestHour:+$('#puHr',box).value,timed:$('#puTm',box).checked,before:+$('#puBf',box).value,checkin:$('#puCi',box).checked,checkinHour:+$('#puCh',box).value}).then(()=>toast('Reminder settings saved'),e=>toast(e.message));
+  ['#puDig','#puHr','#puTm','#puBf','#puCi','#puCh'].forEach(s=>{const e=$(s,box);if(e)e.onchange=sp})}

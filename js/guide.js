@@ -29,6 +29,7 @@ const GUIDES=[
  {k:'research',m:/research|topic|niche|idea/,next:['Turn our topic into a project','Make our first test piece for this topic','Set this as a weekly research topic'],steps:[
    {k:'pick',t:'Pick a topic',help:'These are scored for you two from the scanner. The top one is recommended. You can also scan your own idea.'},
    {k:'checks',t:'Research it',items:[['Find 5 creators or businesses already doing it','Search TikTok, YouTube and Google for the topic; save the 5 best examples in Notes.'],['Note what they charge or earn','Look at their rate cards, campaign payouts or product commissions.'],['List what it costs you to start','Tools, samples, software and time per week.'],['Spot one gap or angle you could take','Something they all miss, a niche they ignore, or a style you two do better.']]},
+   {k:'go',t:'Split it between you',help:'Research goes faster in two halves. Split this topic into parts, each take some, and check in every day to compare what you learned.',go:[['🧩 Split this topic between us','split'],['Skip for now','skip']]},
    {k:'note',t:'Decide',prompt:'Go or no-go? Write the one next step you will take.'}]},
  {k:'income',m:/income|payout|earn|\$|paid/,next:['Reach $100 recorded income','Get paid two months in a row','Double our best month'],steps:[
    {k:'checks',t:'Get paid',items:[['Finish the work you are being paid for','Check the brief or campaign rules once more before delivering.'],['Send the invoice or submit for payout','Include what was delivered, the amount and how to pay.'],['Confirm the money arrived','Check your account; platform payouts can take a few days.']]},
@@ -63,7 +64,8 @@ function startGuide(id){const s=S.skills.find(x=>x.id===id);if(!s)return;
   if(s.status!=='progress'&&s.status!=='done')commit(x=>x.skills.find(y=>y.id===id).status='progress',null,`started “${s.title}”`);
   openGuide(id)}
 
-function openGuide(id,scan){const s=S.skills.find(x=>x.id===id);if(!s)return;const G=guideFor(s);const g=gState(s);const at=Math.min(g.at,G.steps.length-1);const st=G.steps[at];
+function openGuide(id,scan){const s=S.skills.find(x=>x.id===id);if(!s)return;
+  if(typeof rsForSkill==='function'&&rsForSkill(id)){rsSel=rsForSkill(id).id;rsDay=null;return go('research')} /* a research-split skill is worked on in Research Split */const G=guideFor(s);const g=gState(s);const at=Math.min(g.at,G.steps.length-1);const st=G.steps[at];
   const dots=`<ol class="gd-dots" aria-label="Step ${at+1} of ${G.steps.length}">${G.steps.map((x,i)=>`<li class="${i<at?'done':i===at?'on':''}"><button type="button" data-gs="${i}" aria-label="Step ${i+1}: ${esc(x.t)}">${i<at?'✓':i+1}</button><span>${esc(x.t)}</span></li>`).join('')}</ol>`;
   let body='';const items=st.k==='checks'?[...(st.items||[]),...(st.custom?g.extra.map(t=>[t,'']):[])]:[];
   if(st.k==='pick'){let list=scoredIdeas().filter(i=>(!st.kind||i.kind===st.kind)&&(!st.only||[i.branch,...(i.alt||[])].some(b=>st.only.includes(b))));
@@ -101,6 +103,9 @@ function openGuide(id,scan){const s=S.skills.find(x=>x.id===id);if(!s)return;con
       const p=$('.gd-checks',d).parentElement.querySelector('p.tiny');if(p)p.textContent=`${arr.filter(Boolean).length} of ${items.length} ticked. You can move on any time; ticks are saved for you both.`});
     const af=$('#gdAddF',d);if(af)af.onsubmit=e=>{e.preventDefault();const t=val('gdAdd');if(!t)return;saveGuide(id,{extra:[...gState(S.skills.find(x=>x.id===id)).extra,t]});openGuide(id)};
     $$('[data-goto]',d).forEach(b=>b.onclick=()=>{const a=b.dataset.goto;d.close();
+      if(a==='split'){const p=gState(S.skills.find(x=>x.id===id)).pick;const ex=p&&(S.research||[]).find(t=>t.status!=='done'&&t.title.toLowerCase()===p.title.toLowerCase());
+        if(ex){rsSel=ex.id;return go('research')}return rsNew(p?p.title:'',{kind:p?p.kind:'',skillFrom:id,advance:at+1})}
+      if(a==='skip'){saveGuide(id,{at:at+1});return openGuide(id)}
       if(a==='newtask')return editTask(null,{title:s.title,owner:s.owner,nodeId:s.branch});
       const [pg,tab]=a.split(':');if(tab)jTab=tab;go(pg)});
   }})}

@@ -120,7 +120,7 @@ function ideaCard(i,{rec=false}={}){const kindTag=i.kind==='product'?'📦 Produ
    ${rec||i.fitWhy.length?`<div class="tiny mute">${[...scoreWhy(i),...i.fitWhy].map(esc).join(' · ')}</div>`:''}
    ${bars(i)}
    ${i.step?`<div class="tiny" style="margin-top:6px"><b>First step:</b> ${esc(i.step)}</div>`:''}
-   <div class="row" style="margin-top:8px"><button class="btn s p" data-goal="${i.id}">🎯 Add as goal</button><button class="btn s" data-web="${i.id}">💡 Add to Mind Web</button></div></div>`}
+   <div class="row" style="margin-top:8px"><button class="btn s p" data-goal="${i.id}">🎯 Add as goal</button><button class="btn s" data-web="${i.id}">💡 Add to Mind Web</button><button class="btn s" data-rsplit="${i.id}">🧩 Split research</button></div></div>`}
 function ideaToGoal(i){const n=findNode(i.branch)||(i.alt||[]).map(findNode).find(Boolean);
   editSkill(null,{title:i.goal||i.title,branch:n?n.id:'',notes:`From Ideas & scanner (score ${i.score}/100): ${i.title}.${i.step?'\nFirst step: '+i.step:''}`,parents:skSel?[skSel]:[]})}
 function ideaToWeb(i){const p=findNode(i.branch);const id=uid();const a=Math.random()*Math.PI*2;
@@ -129,7 +129,8 @@ function ideaToWeb(i){const p=findNode(i.branch);const id=uid();const a=Math.ran
     'Added to Mind Web',`added idea “${i.title}” to the Mind Web`)}
 function wireIdeaButtons(el,list){const get=id=>list.find(x=>x.id===id);
   $$('[data-goal]',el).forEach(b=>b.onclick=()=>ideaToGoal(get(b.dataset.goal)));
-  $$('[data-web]',el).forEach(b=>b.onclick=()=>ideaToWeb(get(b.dataset.web)))}
+  $$('[data-web]',el).forEach(b=>b.onclick=()=>ideaToWeb(get(b.dataset.web)));
+  $$('[data-rsplit]',el).forEach(b=>b.onclick=()=>{const i=get(b.dataset.rsplit);if(i)rsNew(i.title,{kind:i.kind})})}
 
 /* scan result block (used on the page and inside the new-goal form) */
 function scanResultHTML(r,{compact=false}={}){return `<div class="card id-card id-scan" data-idea="scan">
@@ -139,7 +140,7 @@ function scanResultHTML(r,{compact=false}={}){return `<div class="card id-card i
    ${r.fitWhy.length?`<div class="tiny mute">Fit: ${r.fitWhy.map(esc).join(' · ')}</div>`:''}
    <div class="tiny mute id-live">${r.live?liveLine(r.live):'<button class="btn s ghost" data-live>🌐 Check live interest</button>'}</div>
    ${bars(r,true)}
-   ${compact?'':`<div class="row" style="margin-top:8px"><button class="btn s p" data-goal="scan">🎯 Add as goal</button><button class="btn s" data-web="scan">💡 Add to Mind Web</button></div>`}</div>`}
+   ${compact?'':`<div class="row" style="margin-top:8px"><button class="btn s p" data-goal="scan">🎯 Add as goal</button><button class="btn s" data-web="scan">💡 Add to Mind Web</button><button class="btn s" data-rsplit="scan">🧩 Split research</button></div>`}</div>`}
 const liveLine=li=>li.err?'Live check could not reach Wikipedia. Ratings above still work.':!li.title?'No public page found for this, so demand stays as rated.':
   `🌐 Public interest (Wikipedia “${esc(li.title)}”): ${li.views.toLocaleString()} views/day, ${li.trend>.15?'📈 rising':li.trend<-.15?'📉 falling':'➡ steady'} ${li.trend?`(${li.trend>0?'+':''}${Math.round(li.trend*100)}% vs the 2 months before)`:''}. Demand set to ${interestDemand(li)}/5.`;
 function wireScan(box,r,onChange){

@@ -53,13 +53,14 @@ if __name__=='__main__':
     open('Tr.svg','w').write(svg(BG+sc('r')))
 
 # rainbow that flows upward through both flames (SMIL; static when anim=False)
-SPEC=['#ff1f4b','#ff7a00','#ffd000','#7dff3a','#00ffb0','#00c8ff','#3a5bff','#a020ff','#ff2bd6','#ff1f4b']
+# Ascension flow: ruby -> orange -> gold -> emerald -> aurora -> blue flame -> indigo -> violet -> magenta -> silver-white light -> back to ruby
+SPEC=['#ff1450','#ff6a00','#ffc400','#00d26a','#00f0d0','#1e7bff','#4b2bff','#9b30ff','#ff2bd6','#eef0ff','#ff1450']
 def flowgrad(anim):
     st=''.join(f'<stop offset="{i/(len(SPEC)-1):.3f}" stop-color="{c}"/>' for i,c in enumerate(SPEC))
-    a='<animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="0 -420" dur="6s" repeatCount="indefinite"/>' if anim else ''
-    a2='<animateTransform attributeName="gradientTransform" type="translate" from="0 -210" to="0 -630" dur="6s" repeatCount="indefinite"/>' if anim else ''
-    return (f'<linearGradient id="flow" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="50" spreadMethod="repeat">{st}{a}</linearGradient>'
-            f'<linearGradient id="flow2" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="50" spreadMethod="repeat" gradientTransform="translate(0 -210)">{st}{a2}</linearGradient>')
+    a='<animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="0 -640" dur="12s" repeatCount="indefinite"/>' if anim else ''
+    a2='<animateTransform attributeName="gradientTransform" type="translate" from="0 -320" to="0 -960" dur="12s" repeatCount="indefinite"/>' if anim else ''
+    return (f'<linearGradient id="flow" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="-170" spreadMethod="repeat">{st}{a}</linearGradient>'
+            f'<linearGradient id="flow2" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="-170" spreadMethod="repeat" gradientTransform="translate(0 -320)">{st}{a2}</linearGradient>')
 def m_flow(glow=True):
     f=' filter="url(#gl2)"' if glow else ''
     return f'''<g{f}><path d="{LF}" fill="url(#flow)"/><path d="{mirror(LF)}" fill="url(#flow2)" style="mix-blend-mode:screen"/></g>

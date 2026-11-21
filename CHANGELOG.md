@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 ### Features
+- Recommendations now start with quick wins. Each idea climbs 4 steps from easy to hard: a 10 to 15 minute quick win (e.g. "Find 3 open clipping campaigns"), a first real step of about an hour ("Cut and post our first clip"), a bigger push ("Post 5 clips for one campaign"), then the result ("Earn first payout"). Every step shows how long it takes.
+- Difficulty ramps up as you go: at first only quick wins are recommended. Every 2 steps you finish unlock the next level (Level 1 of 4 is shown on Ideas & scanner).
+- ▶ Start now on any idea, on the Recommended card in the New skill / goal form, and on a new ⚡ quick-win line on the Command Center adds the step and opens a short walkthrough (3 actions, plus a button to the right page).
+- "What comes next?" lists suggestions quickest first, starting with the next step of the same idea, and walkthrough topic picks show the quick first step and its time.
+
+### Features
 - 🔥 New Duo logo, "Twin Flame Embrace": two flames curving into each other and merging at the tips, each holding a partner dot (emerald and violet). In the app an Ascension colour flow (ruby, orange, gold, emerald, aurora, blue flame, indigo, violet, magenta, silver-white light) runs up through both flames (it stays still with Calm/Off motion or reduced motion); the favicon and phone icons use a still version. New favicon (crisp .ico + .svg), sidebar logo, loading screen, phone home-screen icons (normal and maskable, so Android shapes it properly), iPhone home-screen icon and a white notification badge for phone reminders. Already-installed phones keep the old icon until Duo is removed and added to the home screen again.
 - 🌳 Skill Tree zoom: − / + buttons, pinch on a phone, Ctrl + scroll (or trackpad pinch) on a laptop, drag to move, and ⤢ Fit, which scales and centres the whole tree. The tree auto-fits when the page opens and when the screen size changes; very wide levels wrap onto extra rows so the fitted view stays readable. Same zoom on the public showcase and a new "See the whole tree" panel on the Skill Tree slide.
 - ✨ Cleaner Skill Tree page: two-line skill cards, solid cards over lines, a colour legend, compact stat cards, scrollable tabs on phones; tidier two-row top bar on phones; Mind Web zoom controls match the new style.

@@ -78,9 +78,15 @@ function ideaFit(idea){let fit=2;const why=[];const labels=[idea.branch,...(idea
   if(S.days.some(d=>labels.some(l=>d.topics.includes(l)))){fit+=.5;why.push('it is one of your weekly topics')}
   if(declined){fit=1;why.length=0;why.push('you marked this “not pursuing”')}
   return {fit:Math.max(1,Math.min(5,Math.round(fit*2)/2)),why:[...new Set(why)].slice(0,3)}}
-function scoredIdeas(){const have=new Set(S.skills.map(s=>s.title.toLowerCase()));
-  return IDEA_LIB.map(i=>{const f=ideaFit(i);const r={...i,fit:f.fit,fitWhy:f.why,inTree:have.has(i.goal.toLowerCase())};r.score=ideaScore(r);return r}).sort((a,b)=>b.score-a.score)}
-const recommended=(kind)=>scoredIdeas().filter(i=>!i.inTree&&i.fit>1&&(!kind||i.kind===kind))[0]||null;
+function scoredIdeas(){return IDEA_LIB.map(i=>{const f=ideaFit(i);const st=ladderState(i.id);const n=st.next;
+    const r={...i,fit:f.fit,fitWhy:f.why,rungs:st.rungs,rung:n?n.r:5,mins:n?n.mins:0,actions:n?n.actions:[],go:n?n.go:null,goal:n?n.goal:i.goal,step:n?n.actions[0]:'',
+      ladder:n?{idea:i.id,r:n.r,t:n.goal}:null,existing:n&&n.skill&&n.skill.status!=='done'?n.skill.id:null};
+    r.inTree=!!r.existing;r.score=ideaScore(r);return r}).sort((a,b)=>b.score-a.score)}
+/* the recommended next move: a step you can start right now, never harder than your current stage */
+function recommended(kind){const {stage}=ladderStage();const all=scoredIdeas().filter(i=>i.fit>1&&i.rung<=4&&(!kind||i.kind===kind));
+  const rank=i=>i.score+(i.rung>1?12:0)+(i.existing?6:0);
+  const ok=all.filter(i=>i.rung<=stage).sort((a,b)=>rank(b)-rank(a));
+  return ok[0]||all.sort((a,b)=>a.rung-b.rung||b.score-a.score)[0]||null}
 function scoreWhy(i){const out=[];if(i.demand>=5)out.push('very high demand');else if(i.demand>=4)out.push('strong demand');
   if(i.speed>=4)out.push('quick first payout');if(i.cost>=5)out.push('almost free to start');else if(i.cost>=4)out.push('cheap to start');
   if(i.comp<=2)out.push('not crowded');else if(i.comp>=5)out.push('crowded, so you need a clear angle');return out}
@@ -119,16 +125,23 @@ function ideaCard(i,{rec=false}={}){const kindTag=i.kind==='product'?'📦 Produ
    <p class="small" style="margin:8px 0 4px">${esc(i.why||'')}</p>
    ${rec||i.fitWhy.length?`<div class="tiny mute">${[...scoreWhy(i),...i.fitWhy].map(esc).join(' · ')}</div>`:''}
    ${bars(i)}
-   ${i.step?`<div class="tiny" style="margin-top:6px"><b>First step:</b> ${esc(i.step)}</div>`:''}
-   <div class="row" style="margin-top:8px"><button class="btn s p" data-goal="${i.id}">🎯 Add as goal</button><button class="btn s" data-web="${i.id}">💡 Add to Mind Web</button></div></div>`}
+   ${ladderHTML(i)}
+   <div class="row" style="margin-top:8px">${i.rung<=4?`<button class="btn s p" data-now="${i.id}">▶ ${i.existing?'Continue':'Start now'} · ${timeLabel(i.mins)}</button><button class="btn s" data-goal="${i.id}">🎯 Add to tree</button>`:'<span class="tag">🏁 All 4 steps done</span>'}<button class="btn s ghost" data-web="${i.id}">💡 Mind Web</button></div></div>`}
+function ladderHTML(i){if(!i.rungs||!i.rungs.length)return '';
+  return `<ol class="id-ladder" aria-label="Steps from easy to hard">${i.rungs.map(r=>`<li class="${r.done?'done':r.r===i.rung?'next':''}"><span class="id-lv">${r.done?'✓':r.r}</span><span class="id-lt">${esc(r.goal)}</span><span class="id-tm">${timeLabel(r.mins)}</span></li>`).join('')}</ol>`}
+function startNow(i){if(!i||!i.ladder)return;let sid=i.existing;
+  if(!sid){sid=uid();const n=findNode(i.branch)||(i.alt||[]).map(findNode).find(Boolean);
+    commit(x=>x.skills.push({id:sid,title:i.goal,parents:[],status:'available',owner:'both',xp:i.rung>=4?50:i.rung===3?25:10,branch:n?n.id:'',notes:`${LEVEL_NAME[i.rung]} for: ${i.title}`,doneAt:0,ladder:{idea:i.id,r:i.rung}}),null,`added “${i.goal}”`)}
+  skSel=sid;jTab='tree';if(page!=='journey')go('journey');else render();startGuide(sid)}
 function ideaToGoal(i){const n=findNode(i.branch)||(i.alt||[]).map(findNode).find(Boolean);
-  editSkill(null,{title:i.goal||i.title,branch:n?n.id:'',notes:`From Ideas & scanner (score ${i.score}/100): ${i.title}.${i.step?'\nFirst step: '+i.step:''}`,parents:skSel?[skSel]:[]})}
+  editSkill(null,{title:i.goal||i.title,branch:n?n.id:'',notes:`From Ideas & scanner (score ${i.score}/100): ${i.title}.${i.step?'\nFirst step: '+i.step:''}`,parents:skSel?[skSel]:[],ladder:i.ladder||null,xp:i.rung>=4?50:i.rung===3?25:10})}
 function ideaToWeb(i){const p=findNode(i.branch);const id=uid();const a=Math.random()*Math.PI*2;
   commit(s=>s.nodes.push({id,label:i.title,parent:p?p.id:null,kind:p?(nodeAncestors(p.id).length>=1?'path':'sub'):'category',status:'researching',owner:'both',
     notes:`Scanned in Duo: ${i.score}/100.${i.why?' '+i.why:''}${i.step?'\nFirst step: '+i.step:''}`,archived:false,collapsed:false,x:(Math.random()-.5)*300,y:(Math.random()-.5)*200,dx:Math.cos(a)*150,dy:Math.sin(a)*95}),
     'Added to Mind Web',`added idea “${i.title}” to the Mind Web`)}
 function wireIdeaButtons(el,list){const get=id=>list.find(x=>x.id===id);
   $$('[data-goal]',el).forEach(b=>b.onclick=()=>ideaToGoal(get(b.dataset.goal)));
+  $$('[data-now]',el).forEach(b=>b.onclick=()=>startNow(get(b.dataset.now)));
   $$('[data-web]',el).forEach(b=>b.onclick=()=>ideaToWeb(get(b.dataset.web)))}
 
 /* scan result block (used on the page and inside the new-goal form) */
@@ -148,6 +161,9 @@ function wireScan(box,r,onChange){
     try{const li=await liveInterest(r.title);r.live=li||{};if(li&&li.views)r.demand=interestDemand(li)}catch(e){r.live={err:true}}r.score=ideaScore(r);onChange()}}
 
 /* ---------- Skill Tree tab ---------- */
+function stageBanner(){const {stage,toNext}=ladderStage();
+  return `<div class="id-stage card"><div class="row" style="flex-wrap:nowrap"><b style="flex:none">Level ${stage} of 4 · ${LEVEL_NAME[stage]}s</b><div class="id-stbar" aria-hidden="true">${[1,2,3,4].map(n=>`<i class="${n<=stage?'on':''}"></i>`).join('')}</div></div>
+   <div class="tiny mute">Recommendations start with steps you can do in minutes, then get bigger as you finish them.${stage<4?` Finish ${toNext} more step${toNext>1?'s':''} to unlock ${LEVEL_NAME[stage+1].toLowerCase()}s.`:' Every level is unlocked.'}</div></div>`}
 let idKind='',idScan=null;
 function jIdeas(el){const all=scoredIdeas();const list=all.filter(i=>!idKind||i.kind===idKind);const rec=recommended(idKind);
   el.innerHTML=`<div class="card" style="margin-bottom:14px"><h3>🔎 Scan a topic or product</h3>
@@ -157,6 +173,7 @@ function jIdeas(el){const all=scoredIdeas();const list=all.filter(i=>!idKind||i.
     <div id="idOut" style="margin-top:10px">${idScan?scanResultHTML(idScan):''}</div></div>
    <div class="row" style="margin-bottom:10px"><div class="seg" role="group" aria-label="Show">${[['','All'],['topic','🧭 Topics'],['product','📦 Products']].map(([k,l])=>`<button aria-pressed="${idKind===k}" data-ik="${k}">${l}</button>`).join('')}</div>
     <span class="tiny mute">Ranked best first. Score = demand 25% · fit for you 25% · speed 20% · low competition 15% · low cost 15%.</span></div>
+   ${stageBanner()}
    ${rec?`<div style="margin-bottom:14px">${ideaCard(rec,{rec:true})}</div>`:''}
    <div class="grid g3">${list.filter(i=>!rec||i.id!==rec.id).map(i=>ideaCard(i)).join('')}</div>
    <p class="tiny mute" style="margin-top:12px">Scores are a starting guide, not a promise of income. Built-in ratings are general estimates; “fit” comes from your own Mind Web, income, clips and skills, so it changes as you work.</p>`;
@@ -169,13 +186,15 @@ function jIdeas(el){const all=scoredIdeas();const list=all.filter(i=>!idKind||i.
 
 /* ---------- inside the New skill / goal form ---------- */
 function goalAssistHTML(){const rec=recommended();if(!rec)return '';
-  return `<div class="id-assist"><div class="row" style="flex-wrap:nowrap">${ring(rec.score)}<div style="flex:1;min-width:0"><span class="id-badge">✨ Recommended</span>
-   <div class="small"><b>${esc(rec.goal)}</b></div><div class="tiny mute">${esc(rec.title)} · ${[...scoreWhy(rec),...rec.fitWhy].slice(0,3).map(esc).join(' · ')}</div></div></div>
-   <div class="row" style="margin-top:6px"><button type="button" class="btn s p" id="idUse">Use this</button><button type="button" class="btn s" id="idMore">More ideas →</button></div></div>`}
+  return `<div class="id-assist"><div class="row" style="flex-wrap:nowrap">${ring(rec.score)}<div style="flex:1;min-width:0"><span class="id-badge">✨ Recommended · ${LEVEL_NAME[rec.rung]} · ⏱ ${timeLabel(rec.mins)}</span>
+   <div class="small"><b>${esc(rec.goal)}</b></div><div class="tiny mute">${esc(rec.title)} · ${[...rec.fitWhy,...scoreWhy(rec)].slice(0,2).map(esc).join(' · ')}</div></div></div>
+   <div class="row" style="margin-top:6px"><button type="button" class="btn s p" id="idNow">▶ ${rec.existing?'Continue':'Start now'}</button><button type="button" class="btn s" id="idUse">Use this</button><button type="button" class="btn s" id="idMore">More ideas →</button></div></div>`}
 function wireGoalAssist(d){const rec=recommended();
   const fill=i=>{$('#skT',d).value=i.goal||i.title;const n=findNode(i.branch)||(i.alt||[]).map(findNode).find(Boolean);if(n)$('#skB',d).value=n.id;
-    const N=$('#skN',d);if(!N.value)N.value=`From Ideas & scanner (score ${i.score}/100): ${i.title}.${i.step?'\nFirst step: '+i.step:''}`};
+    const N=$('#skN',d);if(!N.value)N.value=`${LEVEL_NAME[i.rung]||'From Ideas & scanner'} for: ${i.title}.${i.step?'\nFirst step: '+i.step:''}`;
+    const L=$('#skL',d);if(L)L.value=JSON.stringify(i.ladder||null)};
   if($('#idUse',d))$('#idUse',d).onclick=()=>fill(rec);
+  if($('#idNow',d))$('#idNow',d).onclick=()=>{d.close();startNow(rec)};
   if($('#idMore',d))$('#idMore',d).onclick=()=>{d.close();jTab='ideas';if(location.hash!=='#/journey')location.hash='#/journey';render()};
   const sb=$('#skScan',d),out=$('#skScanOut',d);if(!sb)return;let r=null;
   const paint=()=>{out.innerHTML=scanResultHTML(r,{compact:true});wireScan(out,r,paint)};

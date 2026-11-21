@@ -49,7 +49,12 @@ const GENERIC={k:'generic',next:[],steps:[
   {k:'note',t:'What does done look like?',prompt:'Describe the finished result in one or two sentences.'},
   {k:'checks',t:'Do the steps',items:[],custom:true},
 ]};
-function guideFor(s){const t=s.title.toLowerCase();const g=GUIDES.find(x=>x.m.test(t))||GENERIC;
+/* a ladder step (quick win → result) gets its own short walkthrough: do the 3 actions, then finish */
+function ladderGuide(s){const r=ladderFor(s.ladder.idea)[s.ladder.r-1];if(!r)return null;const idea=IDEA_LIB.find(i=>i.id===s.ladder.idea);const nx=ladderFor(s.ladder.idea)[s.ladder.r];
+  return {k:'ladder',next:nx?[nx.goal]:[],nextLadder:nx?{idea:s.ladder.idea,r:nx.r}:null,steps:[
+    {k:'checks',t:LEVEL_NAME[r.r],help:`About ${timeLabel(r.mins)}${idea?' · '+idea.title:''}. Step ${r.r} of 4, easy to hard.`,items:r.actions.map(a=>[a,'']),go:r.go},
+    {k:'finish',t:'Finish'}]}}
+function guideFor(s){if(s.ladder){const L=ladderGuide(s);if(L)return L}const t=s.title.toLowerCase();const g=GUIDES.find(x=>x.m.test(t))||GENERIC;
   const steps=g.steps.map(x=>({...x,items:x.items?x.items.map(i=>Array.isArray(i)?i:[i,'']):undefined}));
   /* a skill added from the scanner carries its first step in the notes: put it first in the first checklist */
   const fs=(s.notes||'').match(/First step:\s*(.+)/);const c=steps.find(x=>x.k==='checks');if(fs&&c&&!c.items.some(i=>i[0]===fs[1].trim()))c.items.unshift([fs[1].trim(),'From the idea you added this goal from.']);
@@ -71,12 +76,13 @@ function openGuide(id,scan){const s=S.skills.find(x=>x.id===id);if(!s)return;con
     if(g.pick&&!list.some(i=>i.title===g.pick.title))list.push({...g.pick,id:'picked',fitWhy:[],why:g.pick.why||'Your own idea'});
     if(scan&&!list.some(i=>i.title===scan.title))list.unshift({...scan,id:'scan'});
     body=`<p class="small mute">${esc(st.help)}</p><div class="gd-picks" role="radiogroup" aria-label="${esc(st.t)}">${list.map(i=>`<button type="button" role="radio" aria-checked="${g.pick&&g.pick.title===i.title}" class="gd-pick ${g.pick&&g.pick.title===i.title?'on':''}" data-pick="${esc(i.id)}">
-       ${ring(i.score)}<span style="flex:1;min-width:0"><span class="tiny" style="color:var(--acc);font-weight:700">${i===rec?'✨ Recommended':i.id==='scan'?'🔎 Your scan':''}</span><b>${esc(i.title)}</b><span class="tiny mute">${esc(i.why||'')}</span></span></button>`).join('')}</div>
+       ${ring(i.score)}<span style="flex:1;min-width:0"><span class="tiny" style="color:var(--acc);font-weight:700">${i===rec?'✨ Recommended':i.id==='scan'?'🔎 Your scan':''}</span><b>${esc(i.title)}</b><span class="tiny mute">${i.mins?`Start: ${esc(i.goal)} · ⏱ ${timeLabel(i.mins)}`:esc(i.why||'')}</span></span></button>`).join('')}</div>
      <form class="row" id="gdScanF" style="margin-top:10px"><input id="gdScan" placeholder="Or scan your own topic or product" style="flex:1 1 200px;width:auto;min-width:0"><button class="btn s" type="submit">🔎 Scan</button></form>`;
     openGuide._list=list}
   else if(st.k==='checks'){const ch=g.checks[at]||[];
     body=`${st.help?`<p class="small mute">${esc(st.help)}</p>`:''}${g.pick&&at>0?`<p class="small">Working on: <b>${esc(g.pick.title)}</b></p>`:''}
      <div class="col gd-checks">${items.map(([t,tip],i)=>`<div class="gd-item"><label class="row small"><input type="checkbox" data-ck="${i}" ${ch[i]?'checked':''}> <span>${esc(t)}</span></label>${tip?`<details class="gd-tip"><summary>How?</summary><div class="tiny">${esc(tip)}</div></details>`:''}</div>`).join('')}</div>
+     ${st.go?`<div class="row" style="margin-top:8px"><button type="button" class="btn s" data-goto="${st.go[1]}">${st.go[0]}</button></div>`:''}
      ${st.custom?`<form class="row" id="gdAddF" style="margin-top:8px"><input id="gdAdd" placeholder="Add a step" style="flex:1 1 200px;width:auto;min-width:0"><button class="btn s" type="submit">＋ Add</button></form>`:''}
      <p class="tiny mute" style="margin-top:8px">${ch.filter(Boolean).length} of ${items.length} ticked. You can move on any time; ticks are saved for you both.</p>`}
   else if(st.k==='go'){body=`<p class="small">${esc(st.help)}</p><div class="row">${st.go.map(([l,a])=>`<button type="button" class="btn" data-goto="${a}">${l}</button>`).join('')}</div>
@@ -95,7 +101,7 @@ function openGuide(id,scan){const s=S.skills.find(x=>x.id===id);if(!s)return;con
     d.onclose=()=>{if(st.k==='note'&&$('#gdNote',d))saveGuide(id,{note:val('gdNote')});if(window.Sync)Sync.flushPending()};
     $$('[data-gs]',d).forEach(b=>b.onclick=()=>{keepNote();saveGuide(id,{at:+b.dataset.gs});openGuide(id)});
     $$('[data-pick]',d).forEach(b=>b.onclick=()=>{const i=openGuide._list.find(x=>x.id===b.dataset.pick);if(!i)return;
-      saveGuide(id,{pick:{title:i.title,score:i.score,branch:i.branch||'',why:i.why||'',goal:i.goal||'',kind:i.kind||''}});openGuide(id,scan&&scan.title===i.title?scan:null)});
+      saveGuide(id,{pick:{title:i.title,score:i.score,branch:i.branch||'',why:i.why||'',goal:i.goal||'',kind:i.kind||'',ladder:i.ladder?{idea:i.ladder.idea,r:i.ladder.r}:null,mins:i.mins||0}});openGuide(id,scan&&scan.title===i.title?scan:null)});
     const sf=$('#gdScanF',d);if(sf)sf.onsubmit=e=>{e.preventDefault();const q=val('gdScan');if(!q)return;openGuide(id,scanText(q,st.kind||''))};
     $$('[data-ck]',d).forEach(c=>c.onchange=()=>{const cur=gState(S.skills.find(x=>x.id===id));const arr=[...(cur.checks[at]||[])];arr[+c.dataset.ck]=c.checked;saveGuide(id,{checks:{...cur.checks,[at]:arr}});
       const p=$('.gd-checks',d).parentElement.querySelector('p.tiny');if(p)p.textContent=`${arr.filter(Boolean).length} of ${items.length} ticked. You can move on any time; ticks are saved for you both.`});
@@ -114,14 +120,18 @@ function finishGuide(id){const s=S.skills.find(x=>x.id===id);const g=gState(s);
 
 /* after a skill is done: pick the next step from suggestions (or type one), then add it or add it and start its walkthrough */
 function nextStepModal(id,unlocked){const s=S.skills.find(x=>x.id===id);const g=gState(s);const G=guideFor(s);
-  const have=new Set(S.skills.map(x=>x.title.toLowerCase()));
-  const sug=[...new Set([g.pick&&g.pick.goal,...G.next,...(recommended()?[recommended().goal]:[])].filter(Boolean))].filter(t=>!have.has(t.toLowerCase())).slice(0,4);
-  const add=(start)=>{const t=val('nx');if(!t){toast('Pick or type a next step');return false}const nid=uid();
-    commit(x=>x.skills.push({id:nid,title:t,parents:[id],status:'available',owner:s.owner,xp:10,branch:s.branch||'',notes:g.pick&&t===g.pick.goal?`From the walkthrough pick: ${g.pick.title}`:'',doneAt:0}),'Added to tree',`added next step “${t}”`);
+  const have=new Set(S.skills.map(x=>x.title.toLowerCase()));const rec=recommended();
+  const cand=[G.nextLadder?{t:G.next[0],ladder:G.nextLadder}:null,g.pick&&g.pick.goal?{t:g.pick.goal,ladder:g.pick.ladder||null}:null,
+    rec?{t:rec.goal,ladder:{idea:rec.id,r:rec.rung}}:null,...G.next.filter((_,i)=>!(G.nextLadder&&i===0)).map(t=>({t,ladder:null}))].filter(Boolean);
+  const seen=new Set();const sug=cand.filter(c=>{const k=c.t.toLowerCase();if(seen.has(k)||have.has(k))return false;seen.add(k);return true}).slice(0,4)
+    .map(c=>{const r=c.ladder&&ladderFor(c.ladder.idea)[c.ladder.r-1];return {...c,mins:r?r.mins:0}});
+  const add=(start)=>{const t=val('nx');if(!t){toast('Pick or type a next step');return false}const nid=uid();const m=sug.find(c=>c.t===t);const L=m&&m.ladder;
+    commit(x=>x.skills.push({id:nid,title:t,parents:[id],status:'available',owner:s.owner,xp:L?(L.r>=4?50:L.r===3?25:10):10,branch:s.branch||'',notes:g.pick&&t===g.pick.goal?`From the walkthrough pick: ${g.pick.title}`:'',doneAt:0,...(L?{ladder:{idea:L.idea,r:L.r}}:{})}),'Added to tree',`added next step “${t}”`);
     skSel=nid;if(start){startGuide(nid);return false}};
   modal('Nice — what comes next?',`${unlocked.length?`<p class="small">Unlocked and ready:</p><div class="col">${unlocked.map(u=>`<div class="row small"><b style="flex:1">${esc(u.title)}</b><button type="button" class="btn s p" data-ust="${u.id}">▶ Start</button></div>`).join('')}</div>`:''}
-    ${sug.length?`<p class="small" style="margin-top:10px">Suggested next steps:</p><div class="gd-picks">${sug.map(t=>`<button type="button" class="gd-pick" data-sug="${esc(t)}"><span style="flex:1"><b>${esc(t)}</b></span></button>`).join('')}</div>`:''}
+    ${sug.length?`<p class="small" style="margin-top:10px">Suggested next steps (quickest first):</p><div class="gd-picks">${sug.sort((a,b)=>(a.mins||1e9)-(b.mins||1e9)).map(c=>`<button type="button" class="gd-pick" data-sug="${esc(c.t)}"><span style="flex:1"><b>${esc(c.t)}</b>${c.mins?`<span class="tiny mute">⏱ ${timeLabel(c.mins)} · ${LEVEL_NAME[c.ladder.r]}</span>`:''}</span></button>`).join('')}</div>`:''}
     <label class="f" for="nx">Next step</label><input id="nx" placeholder="Pick one above or type your own">`,
     [{t:'Add',f:()=>add(false)},{t:'▶ Add & start walkthrough',c:'p',keep:true,f:()=>add(true)}],{noFocus:true,onOpen:d=>{
       $$('[data-sug]',d).forEach(b=>b.onclick=()=>{$('#nx',d).value=b.dataset.sug;$$('[data-sug]',d).forEach(x=>x.classList.toggle('on',x===b))});
+      const f=$('[data-sug]',d);if(f)f.click();
       $$('[data-ust]',d).forEach(b=>b.onclick=()=>{skSel=b.dataset.ust;startGuide(b.dataset.ust)})}})}

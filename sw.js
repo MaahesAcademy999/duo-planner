@@ -1,6 +1,6 @@
 /* Service worker: makes Duo installable, keeps the app shell available offline, and shows phone reminders.
    Network-first for everything (so updates show immediately); never caches Supabase API calls. */
-const CACHE='duo-shell-v4';
+const CACHE='duo-shell-v5';
 self.addEventListener('install',e=>{self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);

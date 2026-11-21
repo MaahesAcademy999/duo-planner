@@ -181,10 +181,10 @@ function editSkill(id,preset={}){const s=id?S.skills.find(x=>x.id===id):{title:'
    <div class="row"><div style="flex:1;min-width:140px"><label class="f" for="skO">Who</label>${ownerSel('skO',s.owner)}</div><div style="flex:1;min-width:140px"><label class="f" for="skXP">Size</label><select id="skXP">${SK_SIZES.map(([v,l])=>`<option value="${v}" ${+s.xp===v?'selected':''}>${l} (+${v} XP)</option>`).join('')}</select></div></div>
    <label class="f">Comes after (must be done first)</label><div class="col" style="max-height:150px;overflow:auto;border:1px solid var(--line);border-radius:9px;padding:6px">${others.map(o=>`<label class="row small"><input type="checkbox" class="skP" value="${o.id}" ${s.parents.includes(o.id)?'checked':''}> ${esc(o.title)}</label>`).join('')||'<span class="tiny mute">This will be a starting point.</span>'}</div>
    <label class="f" for="skB">Mind Web branch (optional)</label><select id="skB"><option value="">— none —</option>${nodeOptions(s.branch)}</select>
-   <label class="f" for="skN">Notes / proof of completion</label><textarea id="skN">${esc(s.notes)}</textarea>`,
+   ${id?'':`<input type="hidden" id="skL" value="${esc(JSON.stringify(s.ladder||null))}">`}<label class="f" for="skN">Notes / proof of completion</label><textarea id="skN">${esc(s.notes)}</textarea>`,
    [...(id?[{t:'Delete',c:'d',f:()=>commit(x=>{x.skills=x.skills.filter(y=>y.id!==id);x.skills.forEach(y=>y.parents=y.parents.filter(p=>p!==id))},'Deleted — Undo available')}]:[]),
     {t:'Save',c:'p',f:()=>{const title=val('skT');if(!title){toast('Name the skill');return false}const parents=$$('.skP:checked').map(c=>c.value);
-     const data={title,owner:val('skO'),xp:+val('skXP'),branch:val('skB'),notes:val('skN'),parents};
+     const data={title,owner:val('skO'),xp:+val('skXP'),branch:val('skB'),notes:val('skN'),parents};if(!id&&$('#skL')){try{const l=JSON.parse(val('skL')||'null');if(l&&l.t===title)data.ladder={idea:l.idea,r:l.r}}catch(e){}}
      commit(x=>{if(id)Object.assign(x.skills.find(y=>y.id===id),data);else{const nid=uid();x.skills.push({id:nid,status:'available',doneAt:0,...data});skSel=nid}},'Saved',id?`edited skill “${title}”`:`added skill “${title}”`)}}],id?{}:{onOpen:d=>wireGoalAssist(d)})}
 
 const incOpts=()=>({includeTrading:!!S.showcase.includeTrading,basis:S.showcase.basis||'revenue'});

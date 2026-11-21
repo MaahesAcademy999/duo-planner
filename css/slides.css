@@ -1,0 +1,63 @@
+/* ===== Simple slide style ===== */
+[data-slides] .shell{grid-template-columns:1fr}
+[data-slides] .side,[data-slides] .menuBtn,[data-slides] .bottomnav{display:none!important}
+[data-slides] .page{max-width:760px;padding-bottom:120px}
+.slidebar{display:none}
+[data-slides] .slidebar:not([hidden]){display:flex;align-items:center;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:30;padding:8px max(12px,calc((100vw - 760px)/2)) calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(14px)}
+[data-slides] .toast{bottom:84px}
+.sl-nav{min-height:44px;min-width:48px;justify-content:center;font-size:16px;white-space:nowrap}
+.sl-wide{flex:1;justify-content:center;min-height:44px;font-size:15px}
+.sl-dots{list-style:none;display:flex;gap:6px;margin:0;padding:0;justify-content:center;flex:1;min-width:0}
+.sl-dots button{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface2);color:var(--mute);font:inherit;font-size:16px;cursor:pointer;display:grid;place-items:center;padding:0;transition:border-color var(--dur),box-shadow var(--dur)}
+.sl-dots button[aria-current]{border-color:var(--acc);color:var(--ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 28%,transparent)}
+.sl-dots button:hover{border-color:var(--acc)}
+
+/* slide content */
+.slide .sl-head{text-align:center;margin-bottom:16px}
+.slide .sl-head h1{margin-bottom:2px;display:flex;justify-content:center;align-items:center;gap:8px;text-align:center;flex-wrap:wrap}
+.sl-step{color:var(--acc);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.sl-hello{text-align:center;margin-bottom:6px}
+.sl-big{width:100%;justify-content:center;padding:14px;font-size:16px;margin:12px 0}
+.sl-center{justify-content:center}
+.sl-sub{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:20px 0 8px;font-weight:700}
+.sl-cards{display:grid;gap:10px}
+.sl-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 16px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;transition:border-color var(--dur),transform var(--dur)}
+.sl-card:hover{border-color:var(--acc)}.sl-card:active{transform:scale(.99)}
+.sl-card b{display:block;font-size:16px}.sl-card .small,.sl-card .tiny{display:block}
+.sl-ic{font-size:26px;width:38px;text-align:center;flex:none}
+.sl-arr{font-size:24px;color:var(--acc);flex:none}
+.sl-more{display:flex;flex-wrap:wrap;gap:6px}
+.sl-next{display:flex;flex-direction:column;gap:6px;margin:14px 0 0}
+.sl-next .btn{align-self:flex-start}
+.sl-chips{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:6px;scrollbar-width:thin}
+.sl-chips.wrap{flex-wrap:wrap;overflow:visible;justify-content:center}
+.sl-chips button{flex:none;border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-chips button:hover{border-color:var(--acc)}
+.sl-chips button[aria-pressed="true"]{background:var(--acc);color:var(--on-acc);border-color:transparent;font-weight:600}
+.sl-prog{height:7px;border-radius:9px;background:color-mix(in srgb,var(--line) 75%,transparent);overflow:hidden;margin:8px 0 4px}
+.sl-prog i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.sl-actions{justify-content:center;margin-bottom:12px}
+.sl-list{gap:10px}
+.sl-un{margin-top:12px}.sl-un summary{cursor:pointer}
+.sl-add{display:flex;gap:6px;margin-bottom:12px}.sl-add input{flex:1;min-width:0}.sl-add select{width:auto;max-width:38%}
+.sl-done{margin:10px 0}.sl-done summary{cursor:pointer;padding:4px 0}
+.sl-skill{text-align:center;padding:22px 18px}
+.sl-skt{font-size:22px!important;justify-content:center;margin:14px 0 6px!important;overflow-wrap:anywhere;line-height:1.25}
+.sl-skill .sl-prog{max-width:320px;margin-left:auto;margin-right:auto}
+.sl-lvl{display:flex;align-items:center;gap:12px;margin-bottom:12px}.sl-lvl .lvl{width:44px;height:44px;font-size:18px;flex:none}
+.sl-mile{margin-top:14px}
+.sl-banner{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sl-foot{text-align:center;margin-top:18px}
+[data-slides] .page.sl-r{animation:slInR var(--dur) ease both}
+[data-slides] .page.sl-l{animation:slInL var(--dur) ease both}
+@keyframes slInR{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
+@keyframes slInL{from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
+@media (max-width:860px){[data-slides] #redo,[data-slides] .qa-l{display:none}}
+@media (max-width:560px){.sl-lbl{display:none}.sl-dots{gap:4px}.sl-dots button{width:34px;height:34px;font-size:14px}.sl-skt{font-size:19px!important}}
+
+/* ===== Find anything ===== */
+.fd-list{display:flex;flex-direction:column;gap:2px;margin-top:8px;max-height:min(55vh,420px);overflow:auto}
+.fd-it{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 10px;border-radius:10px;border:1px solid transparent;background:none;color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
+.fd-it:hover,.fd-it.on{background:color-mix(in srgb,var(--acc) 12%,transparent);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.fd-ic{width:22px;text-align:center;flex:none}
+.fd-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

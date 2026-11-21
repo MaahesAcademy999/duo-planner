@@ -19,8 +19,9 @@ const PAGES=[
 const MOBILE=['dash','post','clips','schedule','suggest'];
 let page='dash',scopes={tasks:'mine',projects:'all',notes:'all',schedule:'all'},noteQ='',taskQ='';
 const pageOf=k=>PAGES.find(p=>p.k===k)||PAGES[0];
-function go(k){page=pageOf(k).k;if(location.hash!=='#/'+page)history.pushState(null,'','#/'+page);$('.side').classList.remove('open');render();const pg=$('#page');pg.classList.remove('fx-enter');void pg.offsetWidth;pg.classList.add('fx-enter');clearTimeout(pg._fx);pg._fx=setTimeout(()=>pg.classList.remove('fx-enter'),900);$('#main').focus({preventScroll:true});scrollTo(0,0)}
-window.addEventListener('popstate',()=>{page=pageOf(location.hash.replace('#/','')).k;render()});
+let slidePeek=false;   // slide style: show the full page for the current slide
+function go(k){slidePeek=false;page=pageOf(k).k;if(location.hash!=='#/'+page)history.pushState(null,'','#/'+page);$('.side').classList.remove('open');render();const pg=$('#page');pg.classList.remove('fx-enter');void pg.offsetWidth;pg.classList.add('fx-enter');clearTimeout(pg._fx);pg._fx=setTimeout(()=>pg.classList.remove('fx-enter'),900);$('#main').focus({preventScroll:true});scrollTo(0,0)}
+window.addEventListener('popstate',()=>{slidePeek=false;page=pageOf(location.hash.replace('#/','')).k;render()});
 
 function unseenSuggestions(){return S.suggestions.filter(g=>g.status==='open'&&g.by!==me()&&!(g.seen||{})[me()]).length}
 function pendingProposals(){return S.proposals.filter(p=>p.status==='pending'&&p.by!==me()).length}
@@ -35,10 +36,12 @@ function shell(){
   $('#meChip').innerHTML=`${avatar(me(),30)}<span class="hide-m small">${esc(prof(me()).name)}</span>`;
   $$('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
   document.title=`${P.l} · Duo`;
+  if(typeof slideShell==='function')slideShell();
 }
-function render(){applyTheme();if(window.FX)FX.sync();shell();
+function render(){applyTheme();if(window.FX)FX.sync();const sm=typeof slideMode==='function'&&slideMode();document.documentElement.toggleAttribute('data-slides',sm);shell();
   const v={post:vPost,clips:vClips,journey:vJourney,dash:vDash,web:vWeb,schedule:vSchedule,projects:vProjects,tasks:vTasks,checklist:vChecklist,notes:vNotes,suggest:vSuggest,activity:vActivity,profile:vProfile,settings:vSettings}[page];
-  v($('#page'));if(typeof injectTip==='function')injectTip($('#page'),page);
+  if(sm&&!slidePeek&&slideIdx(page)>=0)vSlide($('#page'));
+  else{v($('#page'));if(sm)slideBanner($('#page'));else if(typeof injectTip==='function')injectTip($('#page'),page)}
   $$('[data-scope]').forEach(b=>b.onclick=()=>{scopes[b.dataset.scopeKey]=b.dataset.scope;render()});
   $$('[data-go]',$('#page')).forEach(b=>b.onclick=()=>go(b.dataset.go));
   $$('[data-qa]',$('#page')).forEach(b=>b.onclick=()=>quickAdd(b.dataset.qa));
@@ -114,7 +117,9 @@ function vProjects(el){const sc=scopes.projects;const projs=S.nodes.filter(n=>n.
      <div class="row"><button class="btn s" data-node="${p.id}">Open in Mind Web</button><button class="btn s" data-ptask="${p.id}">+ Task</button></div></div>`}).join('')}</div>`
    :empty('No projects in this view yet. Open an idea in the Mind Web and choose “Make project”, or start one here.'));
   wireTasks(el);wireLinks(el);$$('[data-ptask]',el).forEach(b=>b.onclick=()=>editTask(null,{nodeId:b.dataset.ptask}));
-  $('#newProj').onclick=()=>{const cats=S.nodes.filter(n=>!n.parent&&!n.archived);modal('New project',`<label class="f" for="pL">Project name</label><input id="pL"><label class="f" for="pP">Branch</label><select id="pP">${cats.map(c=>`<option value="${c.id}">${esc(c.label)}</option>`).join('')}</select><label class="f" for="pO">Owner</label>${ownerSel('pO','both')}`,
+  $('#newProj').onclick=newProject;
+}
+function newProject(){{const cats=S.nodes.filter(n=>!n.parent&&!n.archived);modal('New project',`<label class="f" for="pL">Project name</label><input id="pL"><label class="f" for="pP">Branch</label><select id="pP">${cats.map(c=>`<option value="${c.id}">${esc(c.label)}</option>`).join('')}</select><label class="f" for="pO">Owner</label>${ownerSel('pO','both')}`,
     [{t:'Create',c:'p',f:()=>{const l=val('pL');if(!l){toast('Name required');return false}const par=val('pP');commit(s=>{s.nodes.push({id:uid(),label:l,parent:par,kind:'project',status:'researching',owner:val('pO'),dx:0,dy:120,notes:'',archived:false});s.nodes.find(x=>x.id===par).collapsed=false},'Project created',`created project “${l}”`)}}])};
 }
 

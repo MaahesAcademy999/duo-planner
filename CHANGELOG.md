@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 ### Features
+- 🌳 Skill Tree zoom: − / + buttons, pinch on a phone, Ctrl + scroll (or trackpad pinch) on a laptop, drag to move, and ⤢ Fit, which scales and centres the whole tree. The tree auto-fits when the page opens and when the screen size changes; very wide levels wrap onto extra rows so the fitted view stays readable. Same zoom on the public showcase and a new "See the whole tree" panel on the Skill Tree slide.
+- ✨ Cleaner Skill Tree page: two-line skill cards, solid cards over lines, a colour legend, compact stat cards, scrollable tabs on phones; tidier two-row top bar on phones; Mind Web zoom controls match the new style.
 - ▭ Simple slide style: a second layout, switched per person with the ▭ Slides / ▦ Full button in the top bar or in Themes & Settings → 🧭 Layout style (your partner keeps their own). The side menu goes away and each part gets one focused screen: Start → 📅 Schedule (one day at a time) → 🚀 Projects (each with its next task) → ✓ My Tasks (quick add box) → 🌳 Skill Tree. Swipe left/right on a phone, tap ‹ › or the dots, or use the ← → keys on a laptop.
 - Start slide: greeting, the next agenda item with ▶ Start it, Start/Continue the flow, a card per part with a live summary, and buttons for everything outside the flow (Mind Web, Clips, Post, Notes, Suggestions, Checklist, Activity, Profile, Settings). Those open as normal pages with a ← Back to slides button.
 - Skill Tree slide shows one skill at a time: the skill in progress (or the next ready one) with ▶ Start / Continue walkthrough, Mark done, and Show another skill. Also: level and XP, the other ready skills as chips, how many are still locked, and the next money milestone with + Record income.

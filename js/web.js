@@ -17,7 +17,7 @@ function mapHTML(){return `<div class="canvas" id="cv"><svg id="svg" role="appli
   <div class="tools"><input id="wq" placeholder="🔍 Find…" value="${esc(webQ)}" style="width:150px" aria-label="Find idea"><button class="btn s" id="expAll">Expand all</button><button class="btn s" id="colAll">Collapse all</button>
    <label class="btn s" style="cursor:pointer"><input type="checkbox" id="shA" ${showArchived?'checked':''}> Archived</label></div>
   ${linkSrc?`<div class="banner" style="position:absolute;bottom:10px;left:10px;margin:0">🔗 Tap another idea to connect to <b>${esc(node(linkSrc).label)}</b> · <a href="#" id="cxl">Cancel</a></div>`:''}
-  <div class="zoom"><button class="btn s" id="zin" aria-label="Zoom in">＋</button><button class="btn s" id="zout" aria-label="Zoom out">－</button><button class="btn s" id="zfit" aria-label="Fit to screen">⤢ Fit</button></div></div>
+  <div class="zoom sk-tools" role="toolbar" aria-label="Zoom the map"><button type="button" id="zout" aria-label="Zoom out" title="Zoom out">−</button><button type="button" id="zin" aria-label="Zoom in" title="Zoom in">+</button><button type="button" class="sk-fit" id="zfit" aria-label="Fit to screen" title="Fit everything"><span aria-hidden="true">⤢</span> Fit</button></div></div>
   <p class="tiny mute">Drag ideas to arrange · drag empty space to pan · scroll or ＋/－ to zoom · double-click a branch to expand · tap a glowing line to explain the connection.</p>`}
 function fitView(){const cv=$('#cv');if(!cv)return;const vis=S.nodes.filter(visibleNode);const pts=[{x:0,y:0},...vis.map(posOf)];
   const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);const w=Math.max(...xs)-Math.min(...xs)+260,h=Math.max(...ys)-Math.min(...ys)+140;

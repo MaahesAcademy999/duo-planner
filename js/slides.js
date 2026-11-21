@@ -133,6 +133,7 @@ function sJourney(el){const sk=S.skills;const xp=totalXP(sk),L=levelInfo(xp);con
     ${focus}
     ${ready.length?`<h2 class="sl-sub">Also ready</h2><div class="sl-chips wrap">${ready.slice(0,5).map(s=>`<button data-slsk="${s.id}">${skState(s,sk)==='progress'?'◐':'✦'} ${esc(s.title)}</button>`).join('')}</div>`:''}
     ${locked?`<p class="tiny mute" style="text-align:center">🔒 ${locked} more unlock as you finish these.</p>`:''}
+    ${sk.length>1?`<details class="card sl-tree"><summary>🌳 See the whole tree <span class="tiny mute">· zoom, drag, Fit</span></summary>${treeBox(sk,{sel:f?f.id:null},'slide')}</details>`:''}
     <div class="card sl-mile"><div class="row"><b style="flex:1">💰 Next money milestone${nextT?`: ${fmt$(nextT)}`:''}</b><span class="tiny mute">${inc.count?fmt$(inc.total)+' recorded':'Nothing recorded yet'}</span></div>
       <div class="sl-prog"><i style="width:${mp}%"></i></div><div class="row"><span class="tiny mute" style="flex:1">Only income you record counts.</span><button class="btn s" id="slInc">+ Record income</button></div></div>
     <div class="row sl-center" style="margin-top:10px"><button class="btn s ghost" id="slIdeas">🔎 Find ideas</button><button class="btn s ghost" id="slSkNew">+ New goal</button></div>`;
@@ -144,7 +145,10 @@ function sJourney(el){const sk=S.skills;const xp=totalXP(sk),L=levelInfo(xp);con
   on('slInc',()=>{jTab='money';slidePeek=true;render();scrollTo(0,0)});
   on('slIdeas',()=>{jTab='ideas';slidePeek=true;render();scrollTo(0,0)});
   $$('[data-slsk]',el).forEach(b=>b.onclick=()=>{skSel=b.dataset.slsk;render()});
+  const dt=$('.sl-tree',el);if(dt){dt.open=slTreeOpen;const m=()=>{if(dt.open)mountZoom(dt)};dt.ontoggle=()=>{slTreeOpen=dt.open;m()};m();
+    dt.addEventListener('click',e=>{const g=e.target.closest('[data-sk]');if(g){skSel=g.dataset.sk;render()}})}
 }
+let slTreeOpen=false;
 
 /* ----- layout picker (Themes & Settings) ----- */
 function layoutPicker(){const cur=slideMode()?'slides':'full';

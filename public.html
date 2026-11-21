@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="css/app.css?v=27">
 <link rel="stylesheet" href="css/themes-ugc.css?v=27">
 <link rel="stylesheet" href="css/fx.css?v=27">
-<link rel="stylesheet" href="css/journey.css?v=27">
+<link rel="stylesheet" href="css/journey.css?v=34">
 <style>.wrap{max-width:1100px;margin:0 auto;padding:24px 16px;position:relative;z-index:1}</style>
 </head>
 <body>
@@ -23,7 +23,7 @@ let SNAP=null;const prof=id=>(SNAP.partners.find(p=>p.id===id))||{id,name:id,ava
 const me=()=>'A',pname=id=>id==='both'?'Both':prof(id).name;function toast(){}
 </script>
 <script src="js/ui.js?v=27"></script>
-<script src="js/journey.js?v=27"></script>
+<script src="js/journey.js?v=34"></script>
 <script src="js/fx.js?v=27"></script>
 <script>
 (async()=>{const slug=new URLSearchParams(location.search).get('s')||'';const el=$('#pub');
@@ -37,10 +37,10 @@ const me=()=>'A',pname=id=>id==='both'?'Both':prof(id).name;function toast(){}
    <div class="grid g3" style="margin-bottom:14px"><div class="card glow"><div class="row"><div class="lvl">${L.lvl}</div><div style="flex:1"><b>Level ${L.lvl}</b><div class="tiny mute">${xp} XP</div><div class="jbar"><i style="width:${L.pct}%"></i></div></div></div></div>
     <div class="card"><b>${sk.filter(s=>s.status==='done').length}</b> skills completed<div class="tiny mute">${sk.length} in the tree and growing</div></div>
     <div class="card"><b>${inc.hits.filter(h=>h.kind!=='skill').length}</b> money milestones reached${amt&&inc.total!=null?`<div class="tiny mute">${fmt$(inc.total)} recorded</div>`:'<div class="tiny mute">Amounts hidden by the owners</div>'}${inc.streak?`<div class="tiny mute">🔥 ${inc.streak}-month streak</div>`:''}</div></div>
-   <div class="card" style="margin-bottom:14px"><h2>🌳 Skill tree</h2><div class="sk-wrap">${treeSVG(sk,{interactive:false})}</div></div>
+   <div class="card" style="margin-bottom:14px"><h2>🌳 Skill tree</h2>${treeBox(sk,{interactive:false},'pub')}</div>
    <div class="grid g2"><div class="card"><h2>🛤 Journey</h2>${timelineHTML(evs)}</div><div class="card"><h2>📊 Monthly pace</h2>${paceChart(sk,{series:inc.series},{showAmounts:amt})}</div></div>
    <p class="tiny mute" style="text-align:center;margin-top:16px">Milestones are based on income the owners recorded themselves. Read-only page.</p>`;
-  FX.start();
+  mountZoom(el);FX.start();
 })();
 </script>
 </body>

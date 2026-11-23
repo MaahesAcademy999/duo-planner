@@ -59,10 +59,10 @@ let postIdx=0;
 function postQueue(){const q=[];clipsOf().forEach(c=>(c.items||[]).forEach(i=>{if(i.stage==='approved'||(i.stage==='submitted'&&!Object.values(i.posts||{}).some(Boolean)))q.push({c,i})}));return q}
 async function copyText(t){try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();toast('Copied')}}
 function vPost(el){const q=postQueue();if(postIdx>=q.length)postIdx=0;const cur=q[postIdx];const shared=sessionStorage.getItem('duo-shared')||'';
-  el.innerHTML=hdr('🚀 Post & Submit','One clip at a time: copy → post → paste the link → submit → next. You press “post” and “submit” yourself — nothing is published automatically.',q.length?`<span class="tag">${postIdx+1} of ${q.length}</span>`:'')+
+  el.innerHTML=hdr('🚀 Post & Submit','One clip at a time: copy → post → paste the link → submit → next. You press “post” and “submit” yourself — nothing is published automatically.',q.length?`<span class="tag">${postIdx+1} of ${q.length}</span>`:'')+(typeof ppCardHTML==='function'?`<div class="pp-wrap">${ppCardHTML()}</div>`:'')+
   (shared?`<div class="banner">📥 Shared link received: <b>${esc(shared)}</b> — ${cur?'it has been added to the clip below.':'open a clip to attach it.'}</div>`:'')+
   (!cur?empty('Nothing waiting to post. Clips appear here once they reach ✔ Approved on a campaign board.')+'<div class="row" style="justify-content:center;margin-top:10px"><button class="btn" data-go="clips">Open clipping campaigns</button></div>':postCard(cur.c,cur.i));
-  if(cur)wirePost(cur.c,cur.i,el,q.length)}
+  if(cur)wirePost(cur.c,cur.i,el,q.length);if(typeof ppWire==='function')ppWire()}
 function postCard(c,i){const posts=i.posts||{};const caption=[i.caption,i.tags].filter(Boolean).join('\n\n');const step=Object.values(posts).some(Boolean)?3:2;
   return `<div class="grid g2"><div class="card glow"><div class="tiny mute">${esc(c.name)}${c.host?` · ${esc(c.host)}`:''}</div><h2 style="margin:4px 0 8px">${esc(i.hook||'Untitled clip')}</h2>
     <div class="row">${ownerPill(i.owner)}${rightsSummary(i)}${i.platform?`<span class="tag">${esc(i.platform)}</span>`:''}${i.start?`<span class="tag">${esc(i.start)}${i.end?'–'+esc(i.end):''}</span>`:''}</div>

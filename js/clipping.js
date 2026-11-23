@@ -33,10 +33,10 @@ function wireClipLinks(root){$$('[data-goclip]',root).forEach(a=>a.onclick=e=>{e
 
 /* ----- page ----- */
 function vClips(el){const list=clipsOf();const c=clipSel&&list.find(x=>x.id===clipSel);
-  el.innerHTML=hdr('✂ Clipping Campaigns','Shared, manual workflow. No automatic monitoring, clipping or posting is connected.',`<button class="btn p" id="clNew">+ New campaign</button>`)+
+  el.innerHTML=hdr('✂ Clipping Campaigns','Shared workflow. Clip Farmer reports each clip you post; it never posts without your tap.',`<button class="btn p" id="clNew">+ New campaign</button>`)+
   `<div class="banner">Creator permission doesn't automatically cover game footage, music or other third-party content. Payout rates are whatever you enter from the campaign — nothing is assumed.</div>`+
-  (c?campaignView(c):campaignList(list));
-  $('#clNew').onclick=()=>editClip();$$('[data-clip]',el).forEach(b=>b.onclick=()=>{clipSel=b.dataset.clip;render()});if(c)wireCampaign(c,el);
+  (c?campaignView(c):(typeof ppCardHTML==='function'?`<div class="pp-wrap">${ppCardHTML()}</div>`:'')+campaignList(list));
+  $('#clNew').onclick=()=>editClip();$$('[data-clip]',el).forEach(b=>b.onclick=()=>{clipSel=b.dataset.clip;render()});if(c)wireCampaign(c,el);else if(typeof ppWire==='function')ppWire();
 }
 function campaignList(list){const due=clipDue();const best=bestOf();
   return `${due.length?`<div class="card" style="margin-bottom:14px"><h3>⏰ Due this week</h3>${clipAttentionHTML()}</div>`:''}

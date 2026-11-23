@@ -266,3 +266,25 @@ body.gated .shell,body.gated .bottomnav{visibility:hidden}
 /* ===== Ease of use: comfortable tap targets on touch screens, clear focus ===== */
 @media (pointer:coarse){.btn.s{min-height:38px;padding:6px 12px}.chk{min-width:22px;min-height:22px}}
 .dlg-b .web-acts{gap:6px}
+
+/* 📤 Posted today (postpulse.js) */
+.pp-card{margin-bottom:14px}
+.pp-top{display:flex;align-items:center;gap:14px}
+.pp-num{font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap}
+.pp-num b{font-size:38px;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pp-num span{font-size:20px;color:var(--mute);margin-left:2px}
+.pp-num.met b{background:linear-gradient(135deg,var(--ok),var(--acc3));-webkit-background-clip:text;background-clip:text}
+.pp-prog{height:8px;margin:10px 0 8px}
+.pp-plat{display:flex;flex-wrap:wrap;gap:6px}
+.pp-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--mute)}
+.pp-chip i{font-style:normal;opacity:.8}
+.pp-chip.on{color:var(--ink);border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.pp-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:12px 0 4px}
+.pp-day{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--mute)}
+.pp-day i{font-style:normal;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1px dashed var(--line);font-size:12px;color:var(--ink)}
+.pp-day.part i{border-style:solid;border-color:color-mix(in srgb,var(--warn) 60%,var(--line));background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.pp-day.met i{border:0;background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--on-acc);font-weight:700}
+.pp-day.now span{color:var(--ink);font-weight:600}
+.pp-foot{margin-top:8px;align-items:center;gap:6px}
+.pp-foot .btn.s{min-width:30px;justify-content:center}
+.grid .pp-card{margin-bottom:0}.pp-wrap{max-width:560px;margin-bottom:14px}.pp-wrap .pp-card{margin-bottom:0}

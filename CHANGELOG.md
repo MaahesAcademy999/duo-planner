@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Features
+- 📤 Posted today: a new card on the Command Center, Clipping Campaigns and Post & Submit shows how many clips went up today against your daily goal (1/2, 2/2…). It also shows which apps each one went to (TikTok, YouTube, Instagram, X), the last 7 days as ✔ circles, and your streak. Change the goal with − / +; it's shared by both of you. The numbers come from Clip Farmer on the PC: when you tap the app under a clip in Telegram (or the poster bot uploads it), Duo updates within a minute. Each clip counts once however many apps it went to. Duo only reads the tally and never posts anything.
 ### Fixes
 - ⚡ Faster start: Duo no longer sits on "Syncing Command Center" when the connection is slow. The app's files now open straight from the phone or laptop (they're only downloaded again when a new version is published), and the page itself waits at most 3 seconds for the internet before using the saved copy. On a slow connection the app opened in about 4 seconds in testing, where before it stayed on the loading screen for over 30.
 - Your plan shows from this device first and sync catches up in the background. Requests to the server give up after 12 seconds and retry, so a stalled connection shows "Sync issue" instead of hanging, and being offline no longer sends you back to the sign-in screen.
